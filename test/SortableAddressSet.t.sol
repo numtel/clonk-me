@@ -90,7 +90,6 @@ contract SortableAddressSetTest is Test {
     toAdd[0] = a3;
     toAdd[1] = a2;
     uint[] memory suggested = instance.suggestSorts(address(0), toAdd);
-    console.logBytes(abi.encodePacked(suggested));
     assertEq(suggested.length, 2);
     // Looking for correct spacing
     assertEq(suggested[0], 0x5555555555555555555555555555555555555555555555555555555555555555);
@@ -101,7 +100,6 @@ contract SortableAddressSetTest is Test {
     toAdd[1] = a2;
     toAdd[2] = a1;
     suggested = instance.suggestSorts(address(0), toAdd);
-    console.logBytes(abi.encodePacked(suggested));
     assertEq(suggested.length, 3);
     assertEq(suggested[0], 0x3fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
     assertEq(suggested[1], 0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe);
@@ -110,9 +108,99 @@ contract SortableAddressSetTest is Test {
     toAdd = new address[](1);
     toAdd[0] = a3;
     suggested = instance.suggestSorts(address(0), toAdd);
-    console.logBytes(abi.encodePacked(suggested));
     assertEq(suggested.length, 1);
     assertEq(suggested[0], 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+  }
+
+  function testSuggestIntoSingle(address a1, address a2, address a3) public {
+    vm.assume(a1 != address(0) && a2 != address(0) && a3 != address(0));
+    // No dupes!
+    vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
+
+    SortableAddressSet instance = new SortableAddressSet();
+    instance.insert(a1);
+
+    address[] memory toSort = new address[](1);
+    toSort[0] = a1;
+    uint[] memory sortValues = new uint[](1);
+    sortValues[0] = 200;
+    instance.setSort(toSort, sortValues);
+
+    // Test inserting after a1
+    address[] memory toAdd = new address[](2);
+    toAdd[0] = a3;
+    toAdd[1] = a2;
+    uint[] memory suggested = instance.suggestSorts(a1, toAdd);
+    assertEq(suggested.length, 2);
+    // Looking for correct spacing
+    assertEq(suggested[0], 0x55555555555555555555555555555555555555555555555555555555555555da);
+    assertEq(suggested[1], 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaec);
+
+    // Test inserting before a1
+    suggested = instance.suggestSorts(address(0), toAdd);
+    assertEq(suggested.length, 2);
+    // Looking for correct spacing
+    assertEq(suggested[0], 66);
+    assertEq(suggested[1], 132);
+  }
+
+  function testSuggestIntoDouble(address a1, address a2, address a3, address a4) public {
+    vm.assume(a1 != address(0) && a2 != address(0) && a3 != address(0));
+    // No dupes!
+    vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
+
+    SortableAddressSet instance = new SortableAddressSet();
+    instance.insert(a1);
+    instance.insert(a2);
+    instance.insert(a3);
+    instance.insert(a4);
+
+    address[] memory toSort = new address[](2);
+    toSort[0] = a1;
+    toSort[1] = a4;
+    uint[] memory sortValues = new uint[](2);
+    sortValues[0] = 200;
+    sortValues[1] = 300;
+    instance.setSort(toSort, sortValues);
+
+    // Test inserting between a1 and a4
+    address[] memory toAdd = new address[](2);
+    toAdd[0] = a3;
+    toAdd[1] = a2;
+    uint[] memory suggested = instance.suggestSorts(a1, toAdd);
+    assertEq(suggested.length, 2);
+    // Looking for correct spacing
+    assertEq(suggested[0], 233);
+    assertEq(suggested[1], 266);
+
+    instance.setSort(toAdd, suggested);
+
+    // Resorting a2,a3 should still result in same suggestions
+    suggested = instance.suggestSorts(a1, toAdd);
+    assertEq(suggested.length, 2);
+    // Looking for correct spacing
+    assertEq(suggested[0], 233);
+    assertEq(suggested[1], 266);
+
+    // Inserting the first 2 items at the beginning again
+    address[] memory toAdd2 = new address[](2);
+    toAdd2[0] = a1;
+    toAdd2[1] = a3;
+    suggested = instance.suggestSorts(address(0), toAdd2);
+    assertEq(suggested.length, 2);
+    // Looking for correct spacing
+    assertEq(suggested[0], 88);
+    assertEq(suggested[1], 176);
+
+    // Inserting the last 2 items at the end again
+    address[] memory toAdd3 = new address[](2);
+    toAdd3[0] = a2;
+    toAdd3[1] = a4;
+    suggested = instance.suggestSorts(a3, toAdd3);
+    assertEq(suggested.length, 2);
+    // Looking for correct spacing
+    assertEq(suggested[0], 0x55555555555555555555555555555555555555555555555555555555555555f0);
+    assertEq(suggested[1], 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaf7);
   }
 }
 

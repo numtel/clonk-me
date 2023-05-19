@@ -5,6 +5,7 @@ import "./BokkyPooBahsRedBlackTreeLibrary.sol";
 
 contract SortableAddressSet {
   using BokkyPooBahsRedBlackTreeLibrary for BokkyPooBahsRedBlackTreeLibrary.Tree;
+
   BokkyPooBahsRedBlackTreeLibrary.Tree tree;
   address[] public itemList;
   mapping(address => bool) public itemExists;
@@ -55,26 +56,22 @@ contract SortableAddressSet {
     if(tree.root == 0) {
       // tree is empty, even distribution
       end = type(uint).max;
-    } else if(insertAfter == address(0)) {
-      // inserting to beginning
-      end = tree.first();
-      // the subsequent items will be moving?
-      (,,, uint seqStartPos, uint seqEndPos) = isSequence(toAdd);
-      if(seqStartPos == end) {
-        end = seqEndPos;
-      }
     } else {
-      // inserting somewhere after the beginning
-      uint insertAfterPos = itemSorts[insertAfter];
-      start = end = tree.next(insertAfterPos);
+      if(insertAfter == address(0)) {
+        // inserting to beginning
+        end = tree.first();
+      } else {
+        // inserting somewhere after the beginning
+        start = itemSorts[insertAfter];
+        end = tree.next(itemSorts[insertAfter]);
+      }
       // the subsequent items will be moving?
       (,,, uint seqStartPos, uint seqEndPos) = isSequence(toAdd);
-      if(seqStartPos == start) {
-        end = seqEndPos;
+      if(seqStartPos != 0 && seqStartPos == end) {
+        end = tree.next(seqEndPos);
       }
     }
 
-    if(end > 0) end = tree.next(end);
     if(end == 0) end = type(uint).max;
     uint step = (end - start) / (toAdd.length + 1);
     for(uint i = 0; i<toAdd.length; i++) {
@@ -89,6 +86,7 @@ contract SortableAddressSet {
     uint i;
     for(i = 0; i < toCheck.length; i++) {
       pos[i] = itemSorts[toCheck[i]];
+      if(pos[i] == 0) continue;
       nexts[i] = tree.next(pos[i]);
       if(start == 0 || pos[i] < start) {
         start = end = pos[i];
@@ -100,6 +98,7 @@ contract SortableAddressSet {
     seqLen = 1;
     while(i != toCheck.length) {
       for(i = 0; i < toCheck.length; i++) {
+        if(pos[i] == 0) continue;
         if(pos[i] == nexts[seqEnd]) {
           seqEnd = i;
           end = pos[i];
