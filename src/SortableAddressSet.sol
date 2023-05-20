@@ -3,72 +3,74 @@ pragma solidity ^0.8.19;
 
 import "./BokkyPooBahsRedBlackTreeLibrary.sol";
 
-contract SortableAddressSet {
+library SortableAddressSet {
   using BokkyPooBahsRedBlackTreeLibrary for BokkyPooBahsRedBlackTreeLibrary.Tree;
 
-  BokkyPooBahsRedBlackTreeLibrary.Tree tree;
-  address[] public itemList;
-  mapping(address => bool) public itemExists;
-  mapping(address => uint) public itemSorts;
-  mapping(uint => address) public sortItems;
-  uint public sortedCount;
-
-  function insert(address toAdd) external {
-    require(!itemExists[toAdd]);
-    itemList.push(toAdd);
-    itemExists[toAdd] = true;
+  struct Set {
+    BokkyPooBahsRedBlackTreeLibrary.Tree tree;
+    address[] itemList;
+    mapping(address => bool) itemExists;
+    mapping(address => uint) itemSorts;
+    mapping(uint => address) sortItems;
+    uint sortedCount;
   }
 
-  function setSort(address[] memory items, uint[] memory sortValues) external {
+  function insert(Set storage self, address toAdd) internal {
+    require(!self.itemExists[toAdd]);
+    self.itemList.push(toAdd);
+    self.itemExists[toAdd] = true;
+  }
+
+  function setSort(Set storage self, address[] memory items, uint[] memory sortValues) internal {
     require(items.length == sortValues.length);
     for(uint i = 0; i < items.length; i++) {
-      require(itemExists[items[i]]);
-      if(sortValues[i] == itemSorts[items[i]]) continue;
-      if(itemSorts[items[i]] != 0) {
-        tree.remove(itemSorts[items[i]]);
-        sortItems[itemSorts[items[i]]] = address(0);
-        if(sortValues[i] == 0) sortedCount--;
+      require(self.itemExists[items[i]]);
+      if(sortValues[i] == self.itemSorts[items[i]]) continue;
+      if(self.itemSorts[items[i]] != 0) {
+        self.tree.remove(self.itemSorts[items[i]]);
+        self.sortItems[self.itemSorts[items[i]]] = address(0);
+        if(sortValues[i] == 0) self.sortedCount--;
       } else {
-        sortedCount++;
+        self.sortedCount++;
       }
-      itemSorts[items[i]] = sortValues[i];
-      sortItems[sortValues[i]] = items[i];
-      tree.insert(sortValues[i]);
+      self.itemSorts[items[i]] = sortValues[i];
+      self.sortItems[sortValues[i]] = items[i];
+      self.tree.insert(sortValues[i]);
     }
   }
 
-  function fetchSorted() external view returns(address[] memory out) {
-    out = new address[](sortedCount);
-    if(sortedCount == 0) return out;
-    out[0] = sortItems[tree.first()];
-    for(uint i = 1; i < sortedCount; i++) {
-      out[i] = sortItems[tree.next(itemSorts[out[i - 1]])];
+  function fetchSorted(Set storage self) internal view returns(address[] memory out) {
+    out = new address[](self.sortedCount);
+    if(self.sortedCount == 0) return out;
+    out[0] = self.sortItems[self.tree.first()];
+    for(uint i = 1; i < self.sortedCount; i++) {
+      out[i] = self.sortItems[self.tree.next(self.itemSorts[out[i - 1]])];
     }
   }
 
   // This is a separate view function for the client to query before using setSort()
   // It's potentially a lot of computation so no use paying for its gas
-  function suggestSorts(address insertAfter, address[] memory toAdd) external view returns(uint[] memory out) {
-    require(insertAfter == address(0) || itemSorts[insertAfter] > 0);
+  function suggestSorts(Set storage self, address insertAfter, address[] memory toAdd) internal view returns(uint[] memory out) {
+    require(insertAfter == address(0) || self.itemSorts[insertAfter] > 0);
     out = new uint[](toAdd.length);
     uint start;
     uint end;
-    if(tree.root == 0) {
+    if(self.tree.root == 0) {
       // tree is empty, even distribution
       end = type(uint).max;
     } else {
       if(insertAfter == address(0)) {
         // inserting to beginning
-        end = tree.first();
+        end = self.tree.first();
       } else {
         // inserting somewhere after the beginning
-        start = itemSorts[insertAfter];
-        end = tree.next(itemSorts[insertAfter]);
+        start = self.itemSorts[insertAfter];
+        end = self.tree.next(self.itemSorts[insertAfter]);
       }
       // the subsequent items will be moving?
-      (,,, uint seqStartPos, uint seqEndPos) = isSequence(toAdd);
+      (,,, uint seqStartPos, uint seqEndPos) = isSequence(self, toAdd);
       if(seqStartPos != 0 && seqStartPos == end) {
-        end = tree.next(seqEndPos);
+        end = self.tree.next(seqEndPos);
       }
     }
 
@@ -80,14 +82,14 @@ contract SortableAddressSet {
 
   }
 
-  function isSequence(address[] memory toCheck) public view returns(uint seqLen, uint seqStart, uint seqEnd, uint start, uint end) {
+  function isSequence(Set storage self, address[] memory toCheck) internal view returns(uint seqLen, uint seqStart, uint seqEnd, uint start, uint end) {
     uint[] memory nexts = new uint[](toCheck.length);
     uint[] memory pos = new uint[](toCheck.length);
     uint i;
     for(i = 0; i < toCheck.length; i++) {
-      pos[i] = itemSorts[toCheck[i]];
+      pos[i] = self.itemSorts[toCheck[i]];
       if(pos[i] == 0) continue;
-      nexts[i] = tree.next(pos[i]);
+      nexts[i] = self.tree.next(pos[i]);
       if(start == 0 || pos[i] < start) {
         start = end = pos[i];
         // Start from the beginning

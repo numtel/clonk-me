@@ -6,11 +6,14 @@ import "forge-std/Test.sol";
 import "../src/SortableAddressSet.sol";
 
 contract SortableAddressSetTest is Test {
+  using SortableAddressSet for SortableAddressSet.Set;
+
+  SortableAddressSet.Set instance;
+
   function testBasic(address a1, address a2, address a3) public {
     // No dupes!
     vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
 
-    SortableAddressSet instance = new SortableAddressSet();
     instance.insert(a1);
     instance.insert(a2);
     instance.insert(a3);
@@ -36,7 +39,6 @@ contract SortableAddressSetTest is Test {
     // No dupes!
     vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
 
-    SortableAddressSet instance = new SortableAddressSet();
     instance.insert(a1);
     instance.insert(a2);
     instance.insert(a3);
@@ -83,7 +85,6 @@ contract SortableAddressSetTest is Test {
     // No dupes!
     vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
 
-    SortableAddressSet instance = new SortableAddressSet();
     instance.insert(a1);
 
     address[] memory toAdd = new address[](2);
@@ -117,7 +118,6 @@ contract SortableAddressSetTest is Test {
     // No dupes!
     vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
 
-    SortableAddressSet instance = new SortableAddressSet();
     instance.insert(a1);
 
     address[] memory toSort = new address[](1);
@@ -145,11 +145,10 @@ contract SortableAddressSetTest is Test {
   }
 
   function testSuggestIntoDouble(address a1, address a2, address a3, address a4) public {
-    vm.assume(a1 != address(0) && a2 != address(0) && a3 != address(0));
+    vm.assume(a1 != address(0) && a2 != address(0) && a3 != address(0) && a4 != address(0));
     // No dupes!
-    vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
+    vm.assume(a1 != a2 && a1 != a3 && a2 != a3 && a1 != a4 && a2 != a4 && a3 != a4);
 
-    SortableAddressSet instance = new SortableAddressSet();
     instance.insert(a1);
     instance.insert(a2);
     instance.insert(a3);
