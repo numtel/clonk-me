@@ -229,5 +229,38 @@ contract SortableAddressSetTest is Test {
     assertEq(suggested[0], 0x55555555555555555555555555555555555555555555555555555555555555f0);
     assertEq(suggested[1], 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaf7);
   }
+
+  function testUnsorted(address a1, address a2, address a3) public {
+    vm.assume(a1 != address(0) && a2 != address(0) && a3 != address(0));
+    // No dupes!
+    vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
+
+    instance.insert(a1);
+    instance.insert(a2);
+    instance.insert(a3);
+
+    (address[] memory unsorted, uint totalCount, uint lastScanned) = instance.fetchUnsorted(0, 10, false);
+    assertEq(unsorted.length, 3);
+    assertEq(unsorted[0], a1);
+    assertEq(unsorted[1], a2);
+    assertEq(unsorted[2], a3);
+
+    (unsorted, totalCount, lastScanned) = instance.fetchUnsorted(0, 10, true);
+    assertEq(unsorted.length, 3);
+    assertEq(unsorted[0], a3);
+    assertEq(unsorted[1], a2);
+    assertEq(unsorted[2], a1);
+
+    address[] memory toSort = new address[](1);
+    toSort[0] = a1;
+    uint[] memory sortValues = new uint[](1);
+    sortValues[0] = 100;
+    instance.setSort(toSort, sortValues);
+
+    (unsorted, totalCount, lastScanned) = instance.fetchUnsorted(0, 10, true);
+    assertEq(unsorted.length, 2);
+    assertEq(unsorted[0], a3);
+    assertEq(unsorted[1], a2);
+  }
 }
 

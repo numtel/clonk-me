@@ -39,6 +39,49 @@ library SortableAddressSet {
     }
   }
 
+  function fetchUnsorted(Set storage items, uint startIndex, uint fetchCount, bool reverseScan) internal view returns(address[] memory out, uint totalCount, uint lastScanned) {
+    if(items.itemList.length > 0) {
+
+      require(startIndex < items.itemList.length);
+
+      if(startIndex + fetchCount >= items.itemList.length) {
+        fetchCount = items.itemList.length - startIndex;
+      }
+
+      address[] memory selection = new address[](fetchCount);
+      uint activeCount;
+      uint i;
+      lastScanned = startIndex;
+      totalCount = items.itemList.length;
+
+      if(reverseScan) {
+        lastScanned = items.itemList.length - 1 - startIndex;
+      }
+
+      while(true) {
+        selection[i] = items.itemList[lastScanned];
+        if(items.itemSorts[selection[i]] == 0) activeCount++;
+        if(activeCount == fetchCount) break;
+        if(reverseScan) {
+          if(lastScanned == 0) break;
+          lastScanned--;
+        } else {
+          if(lastScanned == items.itemList.length - 1) break;
+          lastScanned++;
+        }
+        i++;
+      }
+
+      out = new address[](activeCount);
+      uint j;
+      for(i=0; i<fetchCount; i++) {
+        if(items.itemSorts[selection[i]] == 0) {
+          out[j++] = selection[i];
+        }
+      }
+    }
+  }
+
   function fetchSorted(Set storage self, address start, uint maxReturned) internal view returns(address[] memory out) {
     uint foundCount;
     uint[] memory foundAll = new uint[](maxReturned);
