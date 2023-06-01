@@ -11,6 +11,7 @@ contract SortableAddressSetTest is Test {
   SortableAddressSet.Set instance;
 
   function testBasic(address a1, address a2, address a3) public {
+    vm.assume(a1 != address(0) && a2 != address(0) && a3 != address(0));
     // No dupes!
     vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
 
@@ -28,14 +29,40 @@ contract SortableAddressSetTest is Test {
     sortValues[2] = 100;
     instance.setSort(toSort, sortValues);
 
-    address[] memory fetched = instance.fetchSorted();
+    address[] memory fetched = instance.fetchSorted(address(0), 10);
     assertEq(fetched.length, 3);
     assertEq(fetched[0], a3);
     assertEq(fetched[1], a1);
     assertEq(fetched[2], a2);
+
+    fetched = instance.fetchSorted(address(0), 3);
+    assertEq(fetched.length, 3);
+    assertEq(fetched[0], a3);
+    assertEq(fetched[1], a1);
+    assertEq(fetched[2], a2);
+
+    fetched = instance.fetchSorted(address(0), 2);
+    assertEq(fetched.length, 2);
+    assertEq(fetched[0], a3);
+    assertEq(fetched[1], a1);
+
+    fetched = instance.fetchSorted(a3, 10);
+    assertEq(fetched.length, 2);
+    assertEq(fetched[0], a1);
+    assertEq(fetched[1], a2);
+
+    fetched = instance.fetchSorted(a3, 1);
+    assertEq(fetched.length, 1);
+    assertEq(fetched[0], a1);
+
+    fetched = instance.fetchSorted(a3, 2);
+    assertEq(fetched.length, 2);
+    assertEq(fetched[0], a1);
+    assertEq(fetched[1], a2);
   }
 
   function testIsSequence(address a1, address a2, address a3) public {
+    vm.assume(a1 != address(0) && a2 != address(0) && a3 != address(0));
     // No dupes!
     vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
 
@@ -82,6 +109,7 @@ contract SortableAddressSetTest is Test {
   }
 
   function testSuggestIntoEmpty(address a1, address a2, address a3) public {
+    vm.assume(a1 != address(0) && a2 != address(0) && a3 != address(0));
     // No dupes!
     vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
 

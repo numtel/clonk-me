@@ -39,12 +39,24 @@ library SortableAddressSet {
     }
   }
 
-  function fetchSorted(Set storage self) internal view returns(address[] memory out) {
-    out = new address[](self.sortedCount);
-    if(self.sortedCount == 0) return out;
-    out[0] = self.sortItems[self.tree.first()];
-    for(uint i = 1; i < self.sortedCount; i++) {
-      out[i] = self.sortItems[self.tree.next(self.itemSorts[out[i - 1]])];
+  function fetchSorted(Set storage self, address start, uint maxReturned) internal view returns(address[] memory out) {
+    uint foundCount;
+    uint[] memory foundAll = new uint[](maxReturned);
+    foundAll[0] = start == address(0) ? self.tree.first() : self.tree.next(self.itemSorts[start]);
+
+    if(foundAll[0] == 0) return new address[](0);
+
+    while(foundAll[foundCount] > 0) {
+      if(foundCount + 1 == maxReturned) {
+        foundCount++;
+        break;
+      }
+      foundAll[++foundCount] = self.tree.next(foundAll[foundCount]);
+    }
+
+    out = new address[](foundCount);
+    for(uint i = 0; i<foundCount; i++) {
+      out[i] = self.sortItems[foundAll[i]];
     }
   }
 
