@@ -2,8 +2,8 @@
 pragma solidity ^0.8.19;
 
 
-contract HtmlEscape {
-  function escape(string memory _input) public pure returns(string memory) {
+library HtmlEscape {
+  function escape(string memory _input) internal pure returns(string memory) {
     bytes memory input = bytes(_input);
     // First pass to determine how much longer output will be
     uint extraLen;

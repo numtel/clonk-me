@@ -7,8 +7,7 @@ import "../src/HtmlEscape.sol";
 
 contract HtmlEscapeTest is Test {
   function testEscape() public {
-    HtmlEscape instance = new HtmlEscape();
-    string memory output = instance.escape("<a href=\"javascript:alert(`foo${'bar'}`)\">&quot;</a>");
+    string memory output = HtmlEscape.escape("<a href=\"javascript:alert(`foo${'bar'}`)\">&quot;</a>");
     assertEq(output, "&lt;a href=&quot;javascript:alert(&#96;foo${&#39;bar&#39;}&#96;)&quot;&gt;&amp;quot;&lt;/a&gt;");
   }
 
