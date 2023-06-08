@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../src/AttrMessage.sol";
-import "../src/OwnableFactory.sol";
-import "../src/Replies.sol";
-
 contract Bootstrap {
   string public rpc;
+  address public msgs;
+  address public factory;
+  address public replies;
   address public contractToLoad;
 
-  constructor(string memory _rpc) {
+  constructor(string memory _rpc, address _msgs, address _factory, address _replies) {
     rpc = _rpc;
+    msgs = _msgs;
+    factory = _factory;
+    replies = _replies;
     contractToLoad = address(this);
   }
 
@@ -25,8 +27,8 @@ contract Bootstrap {
     ));
   }
 
-  function message() external pure returns(string memory) {
-    return "Welcome to the blockchain!";
+  function message() external view returns(string memory) {
+    return IRender(replies).render(address(this));
   }
 
   // https://ethereum.stackexchange.com/a/8447
@@ -47,4 +49,8 @@ contract Bootstrap {
     else return bytes1(uint8(b) + 0x57);
   }
 
+}
+
+interface IRender {
+  function render(address item) external view returns(string memory);
 }

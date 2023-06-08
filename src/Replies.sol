@@ -10,10 +10,7 @@ contract Replies is Attr {
 
   mapping(address => SortableAddressSet.Set) items;
 
-  event UpdatedRenderAttrs(address[] oldVals, address[] newVals);
-
-  function setRenderAttrs(address[] memory _newVals) external {
-    emit UpdatedRenderAttrs(attrs, _newVals);
+  constructor(address[] memory _newVals) {
     attrs = _newVals;
   }
 

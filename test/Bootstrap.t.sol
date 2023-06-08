@@ -15,9 +15,12 @@ contract BootstrapTest is Test {
     string memory str2 = "<b>Foobar</b>";
     string memory str3 = "<a>";
 
-    AttrMessage msgs = new AttrMessage();
     OwnableFactory factory = new OwnableFactory();
-    Replies replies = new Replies();
+    AttrMessage msgs = new AttrMessage();
+
+    address[] memory attrs = new address[](1);
+    attrs[0] = address(msgs);
+    Replies replies = new Replies(attrs);
 
     address a1 = factory.createNew();
     address a2 = factory.createNew();
@@ -29,11 +32,6 @@ contract BootstrapTest is Test {
     // a1 is root with 2 children
     replies.addReply(a1, a2);
     replies.addReply(a1, a3);
-
-    address[] memory attrs = new address[](1);
-    attrs[0] = address(msgs);
-
-    replies.setRenderAttrs(attrs);
 
     string memory rendered = replies.render(a1);
     // Both messages are included

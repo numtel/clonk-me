@@ -8,9 +8,9 @@ Uses [BokkyPooBah's Red-Black Binary Search Tree library](https://github.com/bok
 # Start new local chain
 $ anvil
 # Load Development Config
-$ source .env.local
+$ cp .env.local .env
 # Deploy Bootstrap
 $ forge script script/Bootstrap.s.sol:DeployBootstrap --rpc-url http://localhost:8545 --broadcast -vvvv
-# Retrieve Bootstrap snippet
-$ cast --abi-decode "copyToAddressBar()(string)" $(cast call 0x5fbdb2315678afecb367f032d93f642f64180aa3 "copyToAddressBar()" --rpc-url $BOOT_RPC)
+# Retrieve Bootstrap snippet, may need to set contract address to last deployed
+$ cast --abi-decode "copyToAddressBar()(string)" $(cast call 0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9 "copyToAddressBar()" --rpc-url $BOOT_RPC)
 ```
