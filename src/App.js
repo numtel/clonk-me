@@ -1,19 +1,23 @@
-import '@rainbow-me/rainbowkit/styles.css';
+import {Buffer} from 'buffer';
 
 import {
   getDefaultWallets,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
-import { configureChains, createConfig, WagmiConfig } from 'wagmi';
+import { configureChains, createConfig, WagmiConfig, useNetwork } from 'wagmi';
 import { mainnet, polygon, optimism, arbitrum, polygonMumbai } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
+import { chainContracts, defaultChain } from './contracts.js';
 
-import logo from './logo.svg';
+import { LoadMessages } from './components/MessageLoaders.js';
+
 import './App.css';
+import '@rainbow-me/rainbowkit/styles.css';
 
+window.Buffer = window.Buffer || Buffer;
 
 const { chains, publicClient } = configureChains(
   [mainnet, polygon, optimism, arbitrum, polygonMumbai],
@@ -36,26 +40,13 @@ const wagmiConfig = createConfig({
 
 
 function App() {
+  const { chain } = useNetwork();
+  const contracts = chainContracts(chain);
   return (
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains}>
-        <div className="App">
-          <header className="App-header">
-            <img src={logo} className="App-logo" alt="logo" />
-            <p>
-              Edit <code>src/App.js</code> and save to reload.
-            </p>
-            <ConnectButton />
-            <a
-              className="App-link"
-              href="https://reactjs.org"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn React
-            </a>
-          </header>
-        </div>
+        <ConnectButton />
+        <LoadMessages addresses={[contracts.root]} chainId={chain ? chain.id : defaultChain} />
       </RainbowKitProvider>
     </WagmiConfig>
   );
