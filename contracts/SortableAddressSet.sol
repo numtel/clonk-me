@@ -34,8 +34,10 @@ library SortableAddressSet {
         self.sortedCount++;
       }
       self.itemSorts[items[i]] = sortValues[i];
-      self.sortItems[sortValues[i]] = items[i];
-      self.tree.insert(sortValues[i]);
+      if(sortValues[i] != 0) {
+        self.sortItems[sortValues[i]] = items[i];
+        self.tree.insert(sortValues[i]);
+      }
     }
   }
 
