@@ -17,7 +17,7 @@ export function Message({ item, chainId }) {
       <ReplyButton address={item.address} chainId={chainId} />
       <EditButton item={item} chainId={chainId} />
       {item.unsortedCount > 0n
-        ? (<UnsortedReplies chainId={chainId} address={item.address} />)
+        ? (<UnsortedReplies unsortedCount={item.unsortedCount} chainId={chainId} address={item.address} />)
         : (<button disabled>0 Unsorted Replies</button>)}
     </div>
   );

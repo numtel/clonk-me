@@ -8,15 +8,15 @@ import factoryABI from '../abi/Messages.json';
 import { Message } from './Message.js';
 
 
-export function UnsortedReplies({ address, chainId }) {
+export function UnsortedReplies({ address, chainId, unsortedCount }) {
   const [show, setShow] = useState(false);
-  if(show) return (<FetchUnsortedReplies address={address} chainId={chainId} />)
+  if(show) return (<FetchUnsortedReplies unsortedCount={unsortedCount} address={address} chainId={chainId} />)
   return (
-    <button onClick={() => setShow(true)}>Load unsorted replies...</button>
+    <button onClick={() => setShow(true)}>{unsortedCount.toString()} Unsorted {unsortedCount == 1n ? 'Reply' : 'Replies'}</button>
   );
 }
 
-function FetchUnsortedReplies({ address, chainId }) {
+function FetchUnsortedReplies({ address, chainId, unsortedCount }) {
   // TODO add pagination
   const { data, isError, isLoading } = useContractReads({
     contracts: [{
