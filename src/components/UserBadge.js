@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useEnsName, useEnsAvatar } from 'wagmi';
 
 export default function UserBadge({ address }) {
@@ -11,7 +12,7 @@ export default function UserBadge({ address }) {
   });
   return (
     <span className="user-badge">
-      { ensName ? ensName : address.slice(0, 6) + '...' + address.slice(-4) }
+      <Link to={'/u/' + address}>{ ensName ? ensName : address.slice(0, 6) + '...' + address.slice(-4) }</Link>
       { /* ensAvatar && ensAvatar TODO Test! */ }
     </span>
   )

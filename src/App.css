@@ -10,5 +10,6 @@ em.edited::before { content: "*"; }
 .msg .text { padding: 15px 0; white-space: pre-line; }
 
 button {margin-right:6px; background:#0801; border: 1px solid #333; color: black; cursor:pointer; border-radius:2px;}
+button:disabled { background:#2221; cursor:default; }
 fieldset {margin:15px;}
 textarea {width:100%; font-family:sans-serif; height: 25vh; margin-bottom:15px;}
