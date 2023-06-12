@@ -11,8 +11,8 @@ export default function UserBadge({ address }) {
   });
   return (
     <span className="user-badge">
-      { ensName ? ensName : address }
-      { ensAvatar ? ensAvatar : 'f000' }
+      { ensName ? ensName : address.slice(0, 6) + '...' + address.slice(-4) }
+      { /* ensAvatar && ensAvatar TODO Test! */ }
     </span>
   )
 }

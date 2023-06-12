@@ -14,7 +14,7 @@ export const msgProps = [
 
 
 export function chainContracts(chain) {
-  if(chain && (chain.id in byChain || chain in byChain)) return byChain[chain.id];
+  if(chain && (chain.id in byChain || chain in byChain)) return byChain[chain.id || chain];
   else return byChain[defaultChain];
 }
 

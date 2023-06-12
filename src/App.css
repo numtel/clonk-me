@@ -1,0 +1,14 @@
+* { box-sizing: border-box; }
+#root { max-width:720px; margin: 20px auto;}
+header {display:flex; padding:15px; justify-content:flex-end; width:100%;}
+
+.msg { padding:20px 20px 10px 20px; background:#0061; margin:10px 0; border-radius:5px; }
+.user-badge {border: 1px solid black; border-radius:2px; padding: 2px; margin:2px; display:inline-block; background:#0601; }
+.postdate {font-size:90%;}
+em.edited {font-size:80%;}
+em.edited::before { content: "*"; }
+.msg .text { padding: 15px 0; white-space: pre-line; }
+
+button {margin-right:6px; background:#0801; border: 1px solid #333; color: black; cursor:pointer; border-radius:2px;}
+fieldset {margin:15px;}
+textarea {width:100%; font-family:sans-serif; height: 25vh; margin-bottom:15px;}

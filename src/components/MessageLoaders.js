@@ -15,6 +15,7 @@ export function UnsortedReplies({ address, chainId }) {
 }
 
 function FetchUnsortedReplies({ address, chainId }) {
+  // TODO add pagination
   const { data, isError, isLoading } = useContractReads({
     contracts: [{
       address,
@@ -44,12 +45,14 @@ export function LoadMessages({ addresses, chainId }) {
   else if(isError) return (
     <div>Error!</div>
   );
-  else if(data) return (
-    <>{addresses.map((address, addrIndex) => (
-      <Message key={address} item={msgProps.reduce((out, cur, index) => {
-        out[cur] = data[addrIndex * msgProps.length + index].result;
-        return out;
-      }, { address })} />
-    ))}</>
-  );
+  else if(data) return addresses.map((address, addrIndex) => (
+      <Message
+        key={address}
+        chainId={chainId}
+        item={msgProps.reduce((out, cur, index) => {
+          out[cur] = data[addrIndex * msgProps.length + index].result;
+          return out;
+        }, { address })}
+      />
+    ));
 }

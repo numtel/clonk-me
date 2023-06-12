@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useContractWrite } from 'wagmi';
+import { useContractWrite, useAccount } from 'wagmi';
 
 import { chainContracts } from '../contracts.js';
 import factoryABI from '../abi/Messages.json';
@@ -7,14 +7,16 @@ import factoryABI from '../abi/Messages.json';
 
 export function ReplyButton({ address, chainId }) {
   const [show, setShow] = useState(false);
+  const { address: walletAddress } = useAccount();
 
-  if(show) return (<Reply address={address} chainId={chainId} />);
+  if(!walletAddress) return;
+  if(show) return (<Reply address={address} chainId={chainId} setShow={setShow} />);
   return (<button onClick={() => setShow(true)}>
     Reply...
   </button>);
 }
 
-export function Reply({ address, chainId }) {
+export function Reply({ address, chainId, setShow }) {
   const contracts = chainContracts(chainId);
   const submitReply = (event) => {
     event.preventDefault();
@@ -34,6 +36,7 @@ export function Reply({ address, chainId }) {
         <legend>Add reply</legend>
         <textarea name="message"></textarea>
         <button type="submit">Submit</button>
+        {setShow && <button onClick={() => setShow(false)}>Cancel</button>}
         {isLoading && <p>Loading...</p>}
         {isSuccess && <p>Success!</p>}
         {isError && <p>Error!</p>}

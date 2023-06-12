@@ -45,7 +45,9 @@ function App() {
   return (
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains}>
-        <ConnectButton />
+        <header>
+          <ConnectButton />
+        </header>
         <LoadMessages addresses={[contracts.root]} chainId={chain ? chain.id : defaultChain} />
       </RainbowKitProvider>
     </WagmiConfig>
