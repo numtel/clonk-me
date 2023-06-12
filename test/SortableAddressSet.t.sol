@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 
-import "../src/SortableAddressSet.sol";
+import "../contracts/SortableAddressSet.sol";
 
 contract SortableAddressSetTest is Test {
   using SortableAddressSet for SortableAddressSet.Set;

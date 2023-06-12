@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 
-import "../src/Messages.sol";
+import "../contracts/Messages.sol";
 
 contract MessagesTest is Test {
   function testEdit(string memory msg1, string memory msg2) public {
