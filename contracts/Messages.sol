@@ -58,6 +58,11 @@ contract Message is Ownable {
   function setSort(address[] memory ofItems, uint[] memory sortValues) external onlyOwner {
     replies.setSort(ofItems, sortValues);
   }
+
+  function transferOwnership(address newOwner) external {
+    require(msg.sender == factory);
+    _transferOwnership(newOwner);
+  }
 }
 
 contract Messages {
@@ -89,6 +94,17 @@ contract Messages {
       for(uint i = 0; i < fetchCount; i++) {
         out[i] = userMessages[user][i + startIndex];
       }
+    }
+  }
+
+  function transferOwnership(address[] memory messages, address newOwner) external {
+    for(uint i = 0; i < messages.length; i++) {
+      Message cur = Message(messages[i]);
+      require(cur.owner() == msg.sender);
+      cur.transferOwnership(newOwner);
+      // Messages are added to the new owner's profile
+      // but not removed from old owner's
+      userMessages[newOwner].push(messages[i]);
     }
   }
   

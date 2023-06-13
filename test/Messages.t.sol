@@ -6,6 +6,32 @@ import "forge-std/Test.sol";
 import "../contracts/Messages.sol";
 
 contract MessagesTest is Test {
+  function testTransferOwnership() public {
+    Messages factory = new Messages();
+    Message root = Message(factory.postNew(address(0), "Foo"));
+
+    address[] memory toTransfer = new address[](1);
+    toTransfer[0] = address(root);
+
+    // Only works for message creator
+    vm.expectRevert();
+    vm.prank(address(0));
+    factory.transferOwnership(toTransfer, address(1));
+
+    factory.transferOwnership(toTransfer, address(1));
+
+    // Both accounts have the post listed now
+    (address[] memory msgs, uint totalCount) = factory.fetchUserMessages(address(this), 0, 1);
+    assertEq(totalCount, 1);
+    assertEq(msgs[0], address(root));
+
+    (msgs, totalCount) = factory.fetchUserMessages(address(1), 0, 1);
+    assertEq(totalCount, 1);
+    assertEq(msgs[0], address(root));
+
+    assertEq(root.owner(), address(1));
+  }
+
   function testEdit(string memory msg1, string memory msg2) public {
     Messages factory = new Messages();
     Message root = Message(factory.postNew(address(0), msg1));
