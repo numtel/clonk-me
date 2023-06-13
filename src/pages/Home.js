@@ -9,7 +9,7 @@ export function Home() {
   const { chain } = useNetwork();
   const contracts = chainContracts(chain);
   return (<>
-    <Link to="/about">Team</Link>
+    <p>Welcome to the website! You are the moderator of your own posts. You control the discussion by choosing how to sort the replies to your messages.</p>
     <LoadMessages addresses={[contracts.root]} chainId={chain ? chain.id : defaultChain} />
   </>);
 }

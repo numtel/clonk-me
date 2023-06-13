@@ -2,8 +2,8 @@ export const defaultChain = 80001;
 
 const byChain = {
   80001: {
-    factory: '0x07c391096511c7f004de0b92ccf303658003d3dd',
-    root: '0x56eaf6e52e43965fb32c8f711cc45ac610758b41',
+    factory: '0x4a7bb8b0b2950ef6cd9cdb374eeae740463d2157',
+    root: '0xf5ea5fcdc718b8b99ae98df3c92ab1937d8c1a99',
   },
 };
 

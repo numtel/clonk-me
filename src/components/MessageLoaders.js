@@ -12,7 +12,7 @@ export function UnsortedReplies({ address, chainId, unsortedCount }) {
   const [show, setShow] = useState(false);
   if(show) return (<FetchUnsortedReplies unsortedCount={unsortedCount} address={address} chainId={chainId} />)
   return (
-    <button onClick={() => setShow(true)}>{unsortedCount.toString()} Unsorted {unsortedCount == 1n ? 'Reply' : 'Replies'}</button>
+    <button onClick={() => setShow(true)}>{unsortedCount.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>
   );
 }
 
