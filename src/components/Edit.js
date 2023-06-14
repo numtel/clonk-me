@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useContractWrite, useAccount } from 'wagmi';
+import { useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
 
 import messageABI from '../abi/Message.json';
 
@@ -27,6 +27,9 @@ export function Edit({ item, chainId, setShow }) {
     chainId,
     functionName: 'setMessage',
   });
+  const { data: txData, isError: txIsError, isLoading: txIsLoading, isSuccess: txIsSuccess } = useWaitForTransaction({
+    hash: data ? data.hash : null,
+  });
   return (
     <form onSubmit={submitReply}>
       <fieldset>
@@ -34,8 +37,12 @@ export function Edit({ item, chainId, setShow }) {
         <textarea name="message" defaultValue={item.message}></textarea>
         <button type="submit">Submit</button>
         {setShow && <button onClick={() => setShow(false)}>Cancel</button>}
-        {isLoading && <p>Loading...</p>}
-        {isSuccess && <p>Success!</p>}
+        {isLoading && <p>Waiting for user confirmation...</p>}
+        {isSuccess && (
+          txIsError ? (<p>Transaction error!</p>)
+          : txIsLoading ? (<p>Waiting for transaction...</p>)
+          : txIsSuccess ? (<p>Transaction success!</p>)
+          : (<p>Transaction sent...</p>))}
         {isError && <p>Error!</p>}
       </fieldset>
     </form>
