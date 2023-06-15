@@ -1,8 +1,16 @@
+@font-face { font-family: ComicMono; font-weight: 400; src: url(fonts/ComicMono.ttf); }
+body, textarea, button { font-family:ComicMono, sans-serif; }
+
 * { box-sizing: border-box; }
 #root { max-width:720px; margin: 20px auto;}
 header {display:flex; padding:15px; justify-content:flex-end; width:100%;}
 
-.msg { padding:20px 20px 10px 20px; background:#0061; margin:10px 0; border-radius:5px; }
+.msg { flex:1; padding:20px 20px 10px 20px; background:#0061; margin:10px 0; border-radius:5px; }
+.threshold {text-align:center; width:100%; font-size:80%; background: #0002; }
+.drag-item {display:flex; margin:10px 5px;}
+.dirty .msg { background: #ff95; }
+.drag-item>button { margin:0 auto; }
+.drag-handle {width: 15px; font-size:0; background:#0002; cursor:ns-resize;margin-right:5px;}
 .user-badge {border: 1px solid black; border-radius:2px; padding: 2px; margin:2px; display:inline-block; background:#0601; }
 .postdate {font-size:90%;}
 em.edited {font-size:80%;}
@@ -13,3 +21,6 @@ button {margin-right:6px; background:#0801; border: 1px solid #333; color: black
 button:disabled { background:#2221; cursor:default; }
 fieldset {margin:15px;}
 textarea {width:100%; font-family:sans-serif; height: 25vh; margin-bottom:15px;}
+
+.save-sort-banner { position:fixed; bottom: 0; left:0; right: 0; background:#fff; border-top:1px solid #ccc; display:flex; justify-content:flex-end; padding:10px;}
+.save-sort-banner button { font-size: 130%; }
