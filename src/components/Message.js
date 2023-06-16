@@ -32,15 +32,15 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 export function Message({ item, chainId }) {
   const publicClient = usePublicClient({ chainId });
   const { address } = useAccount();
-  const isOwner = address && address.toLowerCase() === item.owner.toLowerCase();
+  const isOwner = address && address.toLowerCase() === item.owner?.toLowerCase();
 
   const [setSortCalc, setSetSortCalc] = useState(false);
   const [disableSort, setDisableSort] = useState(false);
   const [dirtyCount, setDirtyCount] = useState(0);
   const [replies, setReplies] = useState([
-    { id: 'loadSorted', el: (<button onClick={loadSorted}>Load {item.sortedCount.toString()} Sorted {item.sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
+    { id: 'loadSorted', el: (<button onClick={loadSorted}>Load {item.sortedCount?.toString()} Sorted {item.sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
     { id: 'threshold', el: (<div className="threshold">Messages below this threshold are unsorted</div>) },
-    { id: 'loadUnsorted', el: (<button onClick={loadUnsorted}>Load {item.unsortedCount.toString()} Unsorted {item.unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
+    { id: 'loadUnsorted', el: (<button onClick={loadUnsorted}>Load {item.unsortedCount?.toString()} Unsorted {item.unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
   ]);
   const { data:setSortData, isLoading:setSortLoading, isError:setSortError, isSuccess:setSortSuccess, write:setSortWrite } = useContractWrite({
     address: item.address,
@@ -120,6 +120,9 @@ export function Message({ item, chainId }) {
     })
   );
 
+  if(!item.owner) return (
+    <div>An error has occurred! Make sure you're connected to the correct chain.</div>
+  );
   return (
     <div className="msg">
       <UserBadge address={item.owner} />

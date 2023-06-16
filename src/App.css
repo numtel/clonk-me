@@ -3,7 +3,12 @@ body, textarea, button { font-family:ComicMono, sans-serif; }
 
 * { box-sizing: border-box; }
 #root { max-width:720px; margin: 20px auto;}
-header {display:flex; padding:15px; justify-content:flex-end; width:100%;}
+header {display:flex; padding:15px; justify-content:space-between; width:100%;}
+header>a { text-decoration:none;}
+header h1 { margin:0; padding:0; color:#000; }
+@media (max-width:500px) {
+  header { flex-direction:column; }
+}
 
 .msg { flex:1; padding:20px 20px 10px 20px; background:#0061; margin:10px 0; border-radius:5px; }
 .threshold {text-align:center; width:100%; font-size:80%; background: #0002; }

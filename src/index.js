@@ -12,14 +12,14 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { mainnet, polygon, optimism, arbitrum, polygonMumbai } from 'wagmi/chains';
+import { mainnet, polygon, /*optimism, arbitrum,*/ polygonMumbai } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 
 
 const User = React.lazy(() => import("./pages/User.js"));
 
 const { chains, publicClient } = configureChains(
-  [mainnet, polygon, optimism, arbitrum, polygonMumbai],
+  [mainnet, polygon, polygonMumbai],
   [publicProvider()]
 );
 
