@@ -24,8 +24,8 @@ const { chains, publicClient } = configureChains(
 );
 
 const { connectors } = getDefaultWallets({
-  appName: 'My RainbowKit App',
-  projectId: 'YOUR_PROJECT_ID',
+  appName: 'clonk.me',
+  projectId: '3ab784972e6540d0095810e72372cfd1',
   chains
 });
 

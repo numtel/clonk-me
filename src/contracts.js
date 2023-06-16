@@ -1,4 +1,4 @@
-export const defaultChain = 80001;
+export const defaultChain = 137;
 
 const byChain = {
   137: { // polygon
