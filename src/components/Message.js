@@ -18,9 +18,8 @@ import {
 
 import {useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
-import { usePublicClient, useContractReads, useContractWrite, useWaitForTransaction } from 'wagmi';
+import { usePublicClient, useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
 
-import { UnsortedReplies } from './MessageLoaders.js';
 import { ReplyButton } from './Reply.js';
 import { EditButton } from './Edit.js';
 import UserBadge from './UserBadge.js';
@@ -32,6 +31,9 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 // TODO Embed other messages [Msg chain:80001 0x2345...]
 export function Message({ item, chainId }) {
   const publicClient = usePublicClient({ chainId });
+  const { address } = useAccount();
+  const isOwner = address && address.toLowerCase() === item.owner.toLowerCase();
+
   const [setSortCalc, setSetSortCalc] = useState(false);
   const [disableSort, setDisableSort] = useState(false);
   const [dirtyCount, setDirtyCount] = useState(0);
@@ -49,7 +51,7 @@ export function Message({ item, chainId }) {
       setDisableSort(false);
     },
   });
-  const { data: txData, isError: txIsError, isLoading: txIsLoading, isSuccess: txIsSuccess } = useWaitForTransaction({
+  const { isError: txIsError, isLoading: txIsLoading, isSuccess: txIsSuccess } = useWaitForTransaction({
     hash: setSortData ? setSortData.hash : null,
     onSuccess(data) {
       setReplies((replies) => replies.map(reply => {
@@ -92,6 +94,7 @@ export function Message({ item, chainId }) {
       el: (<div className="loading-replies">Loading sorted replies...</div>),
     },
     ...replies.filter(item => item.id !== 'loadSorted')]);
+    // TODO pagination
     const sorted = (await loadItems('fetchSorted', [ZERO_ADDRESS, 10n])).map(item => {
       item.sorted = true;
       item.aboveThreshold = true;
@@ -104,6 +107,7 @@ export function Message({ item, chainId }) {
         id: 'loadUnsorted',
         el: (<div className="loading-replies">Loading unsorted replies...</div>),
       }]);
+    // TODO pagination
     const unsorted = await loadItems('fetchUnsorted', [0, 10n, false], list => list[0]);
     setReplies((replies) => [...replies.filter(item => item.id !== 'loadUnsorted' && (!item.address || item.aboveThreshold)), ...unsorted]);
   }
@@ -134,7 +138,7 @@ export function Message({ item, chainId }) {
             items={replies}
             strategy={verticalListSortingStrategy}
           >
-            {replies.map(item => <SortableItem key={item.id} id={item.id} data={item} />)}
+            {replies.map(item => <SortableItem key={item.id} isOwner={isOwner} id={item.id} data={item} />)}
           </SortableContext>
         </DndContext>
       )}
@@ -217,7 +221,7 @@ export function Message({ item, chainId }) {
         // If the sorted replies aren't loaded, you can only sort to the
         // very beginning
         if(newIndex === 1 && items[0].id === 'loadSorted') newIndex = 0;
-        if(oldIndex === 0 && newIndex == 1 && items[1].id === 'loadSorted') newIndex = 0;
+        if(oldIndex === 0 && newIndex === 1 && items[1].id === 'loadSorted') newIndex = 0;
 
         const thresholdIndex = items.findIndex(item => item.id === 'threshold');
 
@@ -236,7 +240,7 @@ export function Message({ item, chainId }) {
 }
 
 
-function SortableItem({ id, data }) {
+function SortableItem({ id, data, isOwner }) {
   const {
     attributes,
     listeners,
@@ -258,7 +262,7 @@ function SortableItem({ id, data }) {
   return (
     <div ref={setNodeRef} style={style} className={`drag-item ${data.dirty ? 'dirty' : ''}`}>
       {data.el ? data.el : (<>
-        <div {...attributes} {...listeners} className={`drag-handle`}>Handle</div>
+        {isOwner && <div {...attributes} {...listeners} className={`drag-handle`}>Handle</div>}
         <Message chainId={data.chainId} item={data} />
       </>)}
     </div>

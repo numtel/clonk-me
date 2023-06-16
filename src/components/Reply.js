@@ -30,7 +30,7 @@ export function Reply({ address, chainId, setShow }) {
     chainId,
     functionName: 'postNew',
   });
-  const { data: txData, isError: txIsError, isLoading: txIsLoading, isSuccess: txIsSuccess } = useWaitForTransaction({
+  const { isError: txIsError, isLoading: txIsLoading, isSuccess: txIsSuccess } = useWaitForTransaction({
     hash: data ? data.hash : null,
   });
   return (

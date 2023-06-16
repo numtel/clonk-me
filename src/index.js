@@ -1,9 +1,8 @@
 import { Buffer } from 'buffer';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Outlet, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import { Loading } from './components/Loading.js';
 import { Layout } from './components/Layout.js';
 import { SingleMessage } from './pages/SingleMessage.js';
 import { Home } from './pages/Home.js';

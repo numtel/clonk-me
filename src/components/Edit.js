@@ -27,7 +27,7 @@ export function Edit({ item, chainId, setShow }) {
     chainId,
     functionName: 'setMessage',
   });
-  const { data: txData, isError: txIsError, isLoading: txIsLoading, isSuccess: txIsSuccess } = useWaitForTransaction({
+  const { isError: txIsError, isLoading: txIsLoading, isSuccess: txIsSuccess } = useWaitForTransaction({
     hash: data ? data.hash : null,
   });
   return (

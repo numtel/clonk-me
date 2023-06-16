@@ -1,5 +1,4 @@
 import { useNetwork } from 'wagmi';
-import { Link } from 'react-router-dom';
 
 import { chainContracts, defaultChain } from '../contracts.js';
 
