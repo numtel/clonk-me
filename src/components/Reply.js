@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import { useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
+import { decodeEventLog } from 'viem';
 
-export function ReplyButton({ address, contract }) {
+export function ReplyButton({ address, contract, setReplies, loadList }) {
   const [show, setShow] = useState(false);
   const { address: walletAddress } = useAccount();
 
   if(!walletAddress) return;
-  if(show) return (<Reply address={address} contract={contract} setShow={setShow} />);
+  if(show) return (<Reply {...{address, contract, setShow, setReplies, loadList}} />);
   return (<button onClick={() => setShow(true)}>
     Reply...
   </button>);
 }
 
-export function Reply({ address, contract, setShow }) {
+export function Reply({ address, contract, setShow, setReplies, loadList }) {
   const submitReply = (event) => {
     event.preventDefault();
     write({
@@ -25,6 +26,22 @@ export function Reply({ address, contract, setShow }) {
   });
   const { isError: txIsError, isLoading: txIsLoading, isSuccess: txIsSuccess } = useWaitForTransaction({
     hash: data ? data.hash : null,
+    async onSuccess(data) {
+      const decoded = data.logs.filter(log =>
+          log.address.toLowerCase() === contract.address.toLowerCase())
+        .map(log => decodeEventLog({
+          abi: contract.abi,
+          data: log.data,
+          topics: log.topics,
+          strict: false,
+        }));
+      const loaded = await loadList([decoded[0].args.item]);
+      setShow(false);
+      setReplies((items) => {
+        const thresholdIndex = items.findIndex(item => item.id === 'threshold');
+        return [...items.slice(0, thresholdIndex + 1), loaded[0], ...items.slice(thresholdIndex + 1)];
+      });
+    },
   });
   return (
     <form onSubmit={submitReply}>

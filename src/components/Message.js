@@ -34,6 +34,7 @@ export function Message({ item, contract }) {
 
   const [setSortCalc, setSetSortCalc] = useState(false);
   const [disableSort, setDisableSort] = useState(false);
+  const [editedMsg, setEditedMsg] = useState(null);
   const [dirtyCount, setDirtyCount] = useState(0);
   const [replies, setReplies] = useState([
     { id: 'loadSorted', el: (<button onClick={loadSorted}>Load {item.sortedCount?.toString()} Sorted {item.sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
@@ -63,13 +64,7 @@ export function Message({ item, contract }) {
       setDisableSort(false);
     },
   });
-  async function loadItems(functionName, args, listFun) {
-    let list = await publicClient.readContract({
-      ...contract,
-      functionName,
-      args,
-    });
-    if(listFun) list = listFun(list);
+  async function loadList(list) {
     const raw = await publicClient.multicall({
       contracts: list.map(address => [
       {
@@ -94,6 +89,15 @@ export function Message({ item, contract }) {
           sortedCount: raw[addrIndex * 3 + 1].result,
           unsortedCount: raw[addrIndex * 3 + 2].result,
         }));
+  }
+  async function loadItems(functionName, args, listFun) {
+    let list = await publicClient.readContract({
+      ...contract,
+      functionName,
+      args,
+    });
+    if(listFun) list = listFun(list);
+    return loadList(list);
   }
   async function loadSorted() {
     setReplies((replies) => [{
@@ -134,10 +138,10 @@ export function Message({ item, contract }) {
     <div className="msg">
       <UserBadge address={item.owner} />
       <span className="postdate">Posted on <Link to={'/m/' + item.address}>{new Date(item.createdAt.toString() * 1000).toLocaleString()}</Link>{item.lastChanged > 0n && (<em className="edited" title={new Date(item.lastChanged.toString() * 1000).toLocaleString()}>Edited</em>)}</span>
-      <div className="text">{item.message}</div>
+      <div className="text">{editedMsg || item.message}</div>
       {item.parent !== ZERO_ADDRESS && <Link to={'/m/' + item.parent}><button>Parent</button></Link>}
-      <ReplyButton address={item.address} contract={contract} />
-      <EditButton item={item} contract={contract} />
+      <ReplyButton address={item.address} {...{contract, setReplies, loadList}} />
+      <EditButton {...{item, contract, setEditedMsg, editedMsg}} />
       {(item.unsortedCount > 0n || item.sortedCount > 0n) && (
         <DndContext
           sensors={sensors}
