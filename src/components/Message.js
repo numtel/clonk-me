@@ -23,14 +23,12 @@ import { usePublicClient, useContractWrite, useWaitForTransaction, useAccount } 
 import { ReplyButton } from './Reply.js';
 import { EditButton } from './Edit.js';
 import UserBadge from './UserBadge.js';
-import messageABI from '../abi/Message.json';
-import { msgProps } from '../contracts.js';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 // TODO Embed other messages [Msg chain:80001 0x2345...]
-export function Message({ item, chainId }) {
-  const publicClient = usePublicClient({ chainId });
+export function Message({ item, contract }) {
+  const publicClient = usePublicClient({ chainId: contract.chainId });
   const { address } = useAccount();
   const isOwner = address && address.toLowerCase() === item.owner?.toLowerCase();
 
@@ -43,9 +41,7 @@ export function Message({ item, chainId }) {
     { id: 'loadUnsorted', el: (<button onClick={loadUnsorted}>Load {item.unsortedCount?.toString()} Unsorted {item.unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
   ]);
   const { data:setSortData, isLoading:setSortLoading, isError:setSortError, isSuccess:setSortSuccess, write:setSortWrite } = useContractWrite({
-    address: item.address,
-    abi: messageABI,
-    chainId,
+    ...contract,
     functionName: 'setSort',
     onError() {
       setDisableSort(false);
@@ -69,24 +65,35 @@ export function Message({ item, chainId }) {
   });
   async function loadItems(functionName, args, listFun) {
     let list = await publicClient.readContract({
-      address: item.address,
-      abi: messageABI,
+      ...contract,
       functionName,
       args,
     });
     if(listFun) list = listFun(list);
     const raw = await publicClient.multicall({
-      contracts: list.map(address => msgProps.map(functionName => ({
-        address,
-        abi: messageABI,
-        functionName,
-      }))).flat(),
+      contracts: list.map(address => [
+      {
+        ...contract,
+        functionName: 'getMsg',
+        args: [address],
+      },
+      {
+        ...contract,
+        functionName: 'sortedCount',
+        args: [address],
+      },
+      {
+        ...contract,
+        functionName: 'unsortedCount',
+        args: [address],
+      },
+      ]).flat(),
     });
     return list.map((address, addrIndex) =>
-      msgProps.reduce((out, cur, index) => {
-        out[cur] = raw[addrIndex * msgProps.length + index].result;
-        return out;
-      }, { address, chainId, id: address }));
+      Object.assign({ address, id:address }, raw[addrIndex * 3].result, {
+          sortedCount: raw[addrIndex * 3 + 1].result,
+          unsortedCount: raw[addrIndex * 3 + 2].result,
+        }));
   }
   async function loadSorted() {
     setReplies((replies) => [{
@@ -95,7 +102,7 @@ export function Message({ item, chainId }) {
     },
     ...replies.filter(item => item.id !== 'loadSorted')]);
     // TODO pagination
-    const sorted = (await loadItems('fetchSorted', [ZERO_ADDRESS, 10n])).map(item => {
+    const sorted = (await loadItems('fetchSorted', [item.address, ZERO_ADDRESS, 10n])).map(item => {
       item.sorted = true;
       item.aboveThreshold = true;
       return item;
@@ -108,7 +115,7 @@ export function Message({ item, chainId }) {
         el: (<div className="loading-replies">Loading unsorted replies...</div>),
       }]);
     // TODO pagination
-    const unsorted = await loadItems('fetchUnsorted', [0, 10n, false], list => list[0]);
+    const unsorted = await loadItems('fetchUnsorted', [item.address, 0, 10n, false], list => list[0]);
     setReplies((replies) => [...replies.filter(item => item.id !== 'loadUnsorted' && (!item.address || item.aboveThreshold)), ...unsorted]);
   }
 
@@ -129,8 +136,8 @@ export function Message({ item, chainId }) {
       <span className="postdate">Posted on <Link to={'/m/' + item.address}>{new Date(item.createdAt.toString() * 1000).toLocaleString()}</Link>{item.lastChanged > 0n && (<em className="edited" title={new Date(item.lastChanged.toString() * 1000).toLocaleString()}>Edited</em>)}</span>
       <div className="text">{item.message}</div>
       {item.parent !== ZERO_ADDRESS && <Link to={'/m/' + item.parent}><button>Parent</button></Link>}
-      <ReplyButton address={item.address} chainId={chainId} />
-      <EditButton item={item} chainId={chainId} />
+      <ReplyButton address={item.address} contract={contract} />
+      <EditButton item={item} contract={contract} />
       {(item.unsortedCount > 0n || item.sortedCount > 0n) && (
         <DndContext
           sensors={sensors}
@@ -141,7 +148,7 @@ export function Message({ item, chainId }) {
             items={replies}
             strategy={verticalListSortingStrategy}
           >
-            {replies.map(item => <SortableItem key={item.id} isOwner={isOwner} id={item.id} data={item} />)}
+            {replies.map(item => <SortableItem key={item.id} isOwner={isOwner} contract={contract} id={item.id} data={item} />)}
           </SortableContext>
         </DndContext>
       )}
@@ -193,10 +200,9 @@ export function Message({ item, chainId }) {
     }
     const suggested = await publicClient.multicall({
       contracts: dirtyGroups.map(dirtyGroup => ({
-        address: item.address,
-        abi: messageABI,
+        ...contract,
         functionName: 'suggestSorts',
-        args: [dirtyGroup.insertAfter, dirtyGroup.items],
+        args: [item.address, dirtyGroup.insertAfter, dirtyGroup.items],
       })).filter(grp => grp.insertAfter !== null),
     });
 
@@ -207,7 +213,7 @@ export function Message({ item, chainId }) {
         : suggested[grpIndex].result).flat();
     setSetSortCalc(false);
     setSortWrite({
-      args: [ ofItems, sortValues ],
+      args: [ item.address, ofItems, sortValues ],
     });
   }
 
@@ -243,7 +249,7 @@ export function Message({ item, chainId }) {
 }
 
 
-function SortableItem({ id, data, isOwner }) {
+function SortableItem({ id, data, isOwner, contract }) {
   const {
     attributes,
     listeners,
@@ -266,7 +272,7 @@ function SortableItem({ id, data, isOwner }) {
     <div ref={setNodeRef} style={style} className={`drag-item ${data.dirty ? 'dirty' : ''}`}>
       {data.el ? data.el : (<>
         {isOwner && <div {...attributes} {...listeners} className={`drag-handle`}>Handle</div>}
-        <Message chainId={data.chainId} item={data} />
+        <Message contract={contract} item={data} />
       </>)}
     </div>
   );

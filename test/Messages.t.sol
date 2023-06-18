@@ -6,55 +6,58 @@ import "forge-std/Test.sol";
 import "../contracts/Messages.sol";
 
 contract MessagesTest is Test {
-  function testTransferOwnership() public {
+  function testTransferOwnership(string memory msg1, string memory msg2, address newOwner) public {
     Messages factory = new Messages();
-    Message root = Message(factory.postNew(address(0), "Foo"));
+    address root = factory.postNew(address(0), msg1);
 
     address[] memory toTransfer = new address[](1);
-    toTransfer[0] = address(root);
+    toTransfer[0] = root;
 
     // Only works for message creator
     vm.expectRevert();
     vm.prank(address(0));
-    factory.transferOwnership(toTransfer, address(1));
+    factory.transferOwnership(toTransfer, newOwner);
 
-    factory.transferOwnership(toTransfer, address(1));
+    factory.transferOwnership(toTransfer, newOwner);
 
     // Both accounts have the post listed now
     (address[] memory msgs, uint totalCount) = factory.fetchUserMessages(address(this), 0, 1);
     assertEq(totalCount, 1);
-    assertEq(msgs[0], address(root));
+    assertEq(msgs[0], root);
 
-    (msgs, totalCount) = factory.fetchUserMessages(address(1), 0, 1);
+    (msgs, totalCount) = factory.fetchUserMessages(newOwner, 0, 1);
     assertEq(totalCount, 1);
-    assertEq(msgs[0], address(root));
+    assertEq(msgs[0], root);
 
-    assertEq(root.owner(), address(1));
+    assertEq(factory.getMsg(root).owner, newOwner);
+
+    vm.prank(newOwner);
+    factory.setMessage(root, msg2);
+
+    assertEq(factory.getMsg(root).message, msg2);
   }
 
-  function testEdit(string memory msg1, string memory msg2) public {
+  function testEdit(address prankster, string memory msg1, string memory msg2) public {
+    vm.assume(prankster != address(this));
+
     Messages factory = new Messages();
-    Message root = Message(factory.postNew(address(0), msg1));
-    assertEq(root.createdAt(), block.timestamp);
-    assertEq(root.lastChanged(), 0);
-    assertEq(root.message(), msg1);
+    address rootAddr = factory.postNew(address(0), msg1);
+    Messages.Message memory root = factory.getMsg(rootAddr);
+    assertEq(root.createdAt, block.timestamp);
+    assertEq(root.lastChanged, 0);
+    assertEq(root.message, msg1);
 
 
     // Only works for message creator
     vm.expectRevert();
-    vm.prank(address(0));
-    root.setMessage(msg2);
+    vm.prank(prankster);
+    factory.setMessage(rootAddr, msg2);
 
 
-    root.setMessage(msg2);
-    assertEq(root.message(), msg2);
-    assertEq(root.lastChanged(), block.timestamp);
-  }
-
-  function testFailAddReplyNotFactory(address addr1) public {
-    Messages factory = new Messages();
-    Message root = Message(factory.postNew(address(0), "fooey"));
-    root.addReply(addr1);
+    factory.setMessage(rootAddr, msg2);
+    root = factory.getMsg(rootAddr);
+    assertEq(root.message, msg2);
+    assertEq(root.lastChanged, block.timestamp);
   }
 
   function testUserMessages(string memory msg1, string memory msg2, string memory msg3) public {
@@ -75,5 +78,11 @@ contract MessagesTest is Test {
     assertEq(fetched[0], reply1);
     assertEq(fetched[1], reply2);
     assertEq(totalCount, 3);
+
+    (fetched, totalCount,) = factory.fetchUnsorted(root, 0, 10, false);
+    assertEq(fetched.length, 2);
+    assertEq(fetched[0], reply1);
+    assertEq(fetched[1], reply2);
+    assertEq(totalCount, 2);
   }
 }

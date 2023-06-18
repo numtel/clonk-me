@@ -1,23 +1,18 @@
 import React, { useState } from 'react';
 import { useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
 
-import { chainContracts } from '../contracts.js';
-import factoryABI from '../abi/Messages.json';
-
-
-export function ReplyButton({ address, chainId }) {
+export function ReplyButton({ address, contract }) {
   const [show, setShow] = useState(false);
   const { address: walletAddress } = useAccount();
 
   if(!walletAddress) return;
-  if(show) return (<Reply address={address} chainId={chainId} setShow={setShow} />);
+  if(show) return (<Reply address={address} contract={contract} setShow={setShow} />);
   return (<button onClick={() => setShow(true)}>
     Reply...
   </button>);
 }
 
-export function Reply({ address, chainId, setShow }) {
-  const contracts = chainContracts(chainId);
+export function Reply({ address, contract, setShow }) {
   const submitReply = (event) => {
     event.preventDefault();
     write({
@@ -25,9 +20,7 @@ export function Reply({ address, chainId, setShow }) {
     });
   };
   const { data, isLoading, isError, isSuccess, write } = useContractWrite({
-    address: contracts.factory,
-    abi: factoryABI,
-    chainId,
+    ...contract,
     functionName: 'postNew',
   });
   const { isError: txIsError, isLoading: txIsLoading, isSuccess: txIsSuccess } = useWaitForTransaction({

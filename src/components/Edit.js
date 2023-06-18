@@ -1,30 +1,26 @@
 import React, { useState } from 'react';
 import { useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
 
-import messageABI from '../abi/Message.json';
-
-export function EditButton({ item, chainId }) {
+export function EditButton({ item, contract }) {
   const [show, setShow] = useState(false);
   const { address } = useAccount();
 
   if(!address || address.toLowerCase() !== item.owner.toLowerCase()) return;
-  if(show) return (<Edit item={item} chainId={chainId} setShow={setShow} />);
+  if(show) return (<Edit item={item} contract={contract} setShow={setShow} />);
   return (<button onClick={() => setShow(true)}>
     Edit...
   </button>);
 }
 
-export function Edit({ item, chainId, setShow }) {
+export function Edit({ item, contract, setShow }) {
   const submitReply = (event) => {
     event.preventDefault();
     write({
-      args: [event.target.message.value]
+      args: [item.address, event.target.message.value]
     });
   };
   const { data, isLoading, isError, isSuccess, write } = useContractWrite({
-    address: item.address,
-    abi: messageABI,
-    chainId,
+    ...contract,
     functionName: 'setMessage',
   });
   const { isError: txIsError, isLoading: txIsLoading, isSuccess: txIsSuccess } = useWaitForTransaction({
