@@ -2,18 +2,18 @@ import React, { useState } from 'react';
 import { useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
 import { decodeEventLog } from 'viem';
 
-export function ReplyButton({ address, contract, setReplies, loadList }) {
+export function ReplyButton(props) {
   const [show, setShow] = useState(false);
   const { address: walletAddress } = useAccount();
 
   if(!walletAddress) return;
-  if(show) return (<Reply {...{address, contract, setShow, setReplies, loadList}} />);
+  if(show) return (<Reply {...props} {...{setShow}} />);
   return (<button onClick={() => setShow(true)}>
     Reply...
   </button>);
 }
 
-export function Reply({ address, contract, setShow, setReplies, loadList }) {
+export function Reply({ address, contract, setShow, setReplies, loadList, setForceShowReplies }) {
   const submitReply = (event) => {
     event.preventDefault();
     write({
@@ -37,6 +37,7 @@ export function Reply({ address, contract, setShow, setReplies, loadList }) {
         }));
       const loaded = await loadList([decoded[0].args.item]);
       setShow(false);
+      setForceShowReplies(true);
       setReplies((items) => {
         const thresholdIndex = items.findIndex(item => item.id === 'threshold');
         return [...items.slice(0, thresholdIndex + 1), loaded[0], ...items.slice(thresholdIndex + 1)];

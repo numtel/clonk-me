@@ -34,6 +34,7 @@ export function Message({ item, contract }) {
 
   const [setSortCalc, setSetSortCalc] = useState(false);
   const [disableSort, setDisableSort] = useState(false);
+  const [forceShowReplies, setForceShowReplies] = useState(false);
   const [editedMsg, setEditedMsg] = useState(null);
   const [dirtyCount, setDirtyCount] = useState(0);
   const [replies, setReplies] = useState([
@@ -140,9 +141,9 @@ export function Message({ item, contract }) {
       <span className="postdate">Posted on <Link to={'/m/' + item.address}>{new Date(item.createdAt.toString() * 1000).toLocaleString()}</Link>{item.lastChanged > 0n && (<em className="edited" title={new Date(item.lastChanged.toString() * 1000).toLocaleString()}>Edited</em>)}</span>
       <div className="text">{editedMsg || item.message}</div>
       {item.parent !== ZERO_ADDRESS && <Link to={'/m/' + item.parent}><button>Parent</button></Link>}
-      <ReplyButton address={item.address} {...{contract, setReplies, loadList}} />
+      <ReplyButton address={item.address} {...{contract, setReplies, loadList, setForceShowReplies}} />
       <EditButton {...{item, contract, setEditedMsg, editedMsg}} />
-      {(item.unsortedCount > 0n || item.sortedCount > 0n) && (
+      {(item.unsortedCount > 0n || item.sortedCount > 0n || forceShowReplies) && (
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

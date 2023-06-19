@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { chainContracts } from '../contracts.js';
 import { UserMessages } from '../components/MessageLoaders.js';
 
-export default function User() {
+export function User() {
   const { chain } = useNetwork();
   const { address } = useParams();
   const contracts = chainContracts(chain);
