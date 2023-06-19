@@ -29,36 +29,45 @@ contract SortableAddressSetTest is Test {
     sortValues[2] = 100;
     instance.setSort(toSort, sortValues);
 
-    address[] memory fetched = instance.fetchSorted(address(0), 10);
+    address[] memory fetched = instance.fetchSorted(address(0), 10, false);
     assertEq(fetched.length, 3);
     assertEq(fetched[0], a3);
     assertEq(fetched[1], a1);
     assertEq(fetched[2], a2);
 
-    fetched = instance.fetchSorted(address(0), 3);
+    fetched = instance.fetchSorted(address(0), 3, false);
     assertEq(fetched.length, 3);
     assertEq(fetched[0], a3);
     assertEq(fetched[1], a1);
     assertEq(fetched[2], a2);
 
-    fetched = instance.fetchSorted(address(0), 2);
+    fetched = instance.fetchSorted(address(0), 2, false);
     assertEq(fetched.length, 2);
     assertEq(fetched[0], a3);
     assertEq(fetched[1], a1);
 
-    fetched = instance.fetchSorted(a3, 10);
+    fetched = instance.fetchSorted(a3, 10, false);
     assertEq(fetched.length, 2);
     assertEq(fetched[0], a1);
     assertEq(fetched[1], a2);
 
-    fetched = instance.fetchSorted(a3, 1);
+    fetched = instance.fetchSorted(a3, 1, false);
     assertEq(fetched.length, 1);
     assertEq(fetched[0], a1);
 
-    fetched = instance.fetchSorted(a3, 2);
+    fetched = instance.fetchSorted(a3, 2, false);
     assertEq(fetched.length, 2);
     assertEq(fetched[0], a1);
     assertEq(fetched[1], a2);
+
+    fetched = instance.fetchSorted(a2, 1, true);
+    assertEq(fetched.length, 1);
+    assertEq(fetched[0], a1);
+
+    fetched = instance.fetchSorted(a2, 2, true);
+    assertEq(fetched.length, 2);
+    assertEq(fetched[0], a1);
+    assertEq(fetched[1], a3);
   }
 
   function testUnsort(address a1, address a2, address a3) public {
@@ -289,6 +298,27 @@ contract SortableAddressSetTest is Test {
     assertEq(unsorted.length, 2);
     assertEq(unsorted[0], a3);
     assertEq(unsorted[1], a2);
+  }
+
+  function testGetSortIndex(address a1, address a2, address a3) public {
+    vm.assume(a1 != address(0) && a2 != address(0) && a3 != address(0));
+    // No dupes!
+    vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
+
+    instance.insert(a1);
+    instance.insert(a2);
+    instance.insert(a3);
+
+    address[] memory toSort = new address[](2);
+    toSort[0] = a1;
+    toSort[1] = a2;
+    uint[] memory sortValues = new uint[](2);
+    sortValues[0] = 100;
+    sortValues[1] = 200;
+    instance.setSort(toSort, sortValues);
+
+    assertEq(instance.getSortIndex(a1), 0);
+    assertEq(instance.getSortIndex(a2), 1);
   }
 }
 

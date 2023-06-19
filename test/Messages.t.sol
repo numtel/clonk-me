@@ -21,11 +21,11 @@ contract MessagesTest is Test {
     factory.transferOwnership(toTransfer, newOwner);
 
     // Both accounts have the post listed now
-    (address[] memory msgs, uint totalCount) = factory.fetchUserMessages(address(this), 0, 1);
-    assertEq(totalCount, 1);
-    assertEq(msgs[0], root);
+    (address[] memory msgs, uint totalCount,) = factory.fetchUserMessages(address(this), 0, 1);
+    assertEq(totalCount, 0);
+    assertEq(msgs.length, 0);
 
-    (msgs, totalCount) = factory.fetchUserMessages(newOwner, 0, 1);
+    (msgs, totalCount,) = factory.fetchUserMessages(newOwner, 0, 1);
     assertEq(totalCount, 1);
     assertEq(msgs[0], root);
 
@@ -66,13 +66,13 @@ contract MessagesTest is Test {
     address reply1 = factory.postNew(root, msg2);
     address reply2 = factory.postNew(root, msg3);
 
-    (address[] memory fetched, uint totalCount) = factory.fetchUserMessages(address(this), 0, 1);
+    (address[] memory fetched, uint totalCount,) = factory.fetchUserMessages(address(this), 0, 1);
 
     assertEq(fetched.length, 1);
     assertEq(fetched[0], root);
     assertEq(totalCount, 3);
 
-    (fetched, totalCount) = factory.fetchUserMessages(address(this), 1, 2);
+    (fetched, totalCount,) = factory.fetchUserMessages(address(this), 1, 2);
 
     assertEq(fetched.length, 2);
     assertEq(fetched[0], reply1);
@@ -84,5 +84,36 @@ contract MessagesTest is Test {
     assertEq(fetched[0], reply1);
     assertEq(fetched[1], reply2);
     assertEq(totalCount, 2);
+}
+
+  function testFetchReplies(string memory msg1, string memory msg2, string memory msg3) public {
+    Messages factory = new Messages();
+    address root = factory.postNew(address(0), msg1);
+    address reply1 = factory.postNew(root, msg2);
+    address reply2 = factory.postNew(root, msg3);
+    address reply3 = factory.postNew(root, msg3);
+    address reply4 = factory.postNew(root, msg3);
+    address reply5 = factory.postNew(root, msg3);
+
+    address[] memory toSort = new address[](3);
+    toSort[0] = reply1;
+    toSort[1] = reply2;
+    toSort[2] = reply3;
+    uint[] memory sortValues = new uint[](3);
+    sortValues[0] = 200;
+    sortValues[1] = 300;
+    sortValues[2] = 100;
+    factory.setSort(root, toSort, sortValues);
+
+    (address[] memory fetched, uint totalCount,) = factory.fetchUnsorted(root, 0, 3, false);
+    assertEq(fetched.length, 2);
+    assertEq(fetched[0], reply4);
+    assertEq(fetched[1], reply5);
+    assertEq(totalCount, 5);
+
+    assertEq(factory.getSortIndex(reply1), 1);
+    assertEq(factory.getSortIndex(reply2), 2);
+    assertEq(factory.getSortIndex(reply3), 0);
+    assertEq(factory.getSortIndex(reply4), type(uint).max);
   }
 }

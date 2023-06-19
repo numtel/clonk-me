@@ -21,6 +21,19 @@ library SortableAddressSet {
     self.itemExists[toAdd] = true;
   }
 
+  function getSortIndex(Set storage self, address item) internal view returns(uint) {
+    uint sortVal = self.itemSorts[item];
+    if(sortVal == 0) return type(uint).max;
+
+    uint pos = self.tree.first();
+    uint index;
+    while(pos != sortVal) {
+      pos = self.tree.next(pos);
+      index++;
+    }
+    return index;
+  }
+
   function setSort(Set storage self, address[] memory items, uint[] memory sortValues) internal {
     require(items.length == sortValues.length);
     for(uint i = 0; i < items.length; i++) {
@@ -52,7 +65,6 @@ library SortableAddressSet {
 
       address[] memory selection = new address[](fetchCount);
       uint activeCount;
-      uint i;
       lastScanned = startIndex;
       totalCount = items.itemList.length;
 
@@ -61,9 +73,10 @@ library SortableAddressSet {
       }
 
       while(true) {
-        selection[i] = items.itemList[lastScanned];
-        if(items.itemSorts[selection[i]] == 0) activeCount++;
-        if(activeCount == fetchCount) break;
+        if(items.itemSorts[items.itemList[lastScanned]] == 0) {
+          selection[activeCount++] = items.itemList[lastScanned];
+          if(activeCount == fetchCount) break;
+        }
         if(reverseScan) {
           if(lastScanned == 0) break;
           lastScanned--;
@@ -71,23 +84,20 @@ library SortableAddressSet {
           if(lastScanned == items.itemList.length - 1) break;
           lastScanned++;
         }
-        i++;
       }
 
+      // Crop the output
       out = new address[](activeCount);
-      uint j;
-      for(i=0; i<fetchCount; i++) {
-        if(items.itemSorts[selection[i]] == 0) {
-          out[j++] = selection[i];
-        }
+      for(uint i=0; i<activeCount; i++) {
+        out[i] = selection[i];
       }
     }
   }
 
-  function fetchSorted(Set storage self, address start, uint maxReturned) internal view returns(address[] memory out) {
+  function fetchSorted(Set storage self, address start, uint maxReturned, bool reverseScan) internal view returns(address[] memory out) {
     uint foundCount;
     uint[] memory foundAll = new uint[](maxReturned);
-    foundAll[0] = start == address(0) ? self.tree.first() : self.tree.next(self.itemSorts[start]);
+    foundAll[0] = start == address(0) ? self.tree.first() : reverseScan ? self.tree.prev(self.itemSorts[start]) : self.tree.next(self.itemSorts[start]);
 
     if(foundAll[0] == 0) return new address[](0);
 
@@ -96,7 +106,7 @@ library SortableAddressSet {
         foundCount++;
         break;
       }
-      foundAll[++foundCount] = self.tree.next(foundAll[foundCount]);
+      foundAll[++foundCount] = reverseScan ? self.tree.prev(foundAll[foundCount]) : self.tree.next(foundAll[foundCount]);
     }
 
     out = new address[](foundCount);

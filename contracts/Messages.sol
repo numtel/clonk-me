@@ -6,6 +6,7 @@ import "./SortableAddressSet.sol";
 contract Messages {
   using SortableAddressSet for SortableAddressSet.Set;
   mapping(address => address[]) public userMessages;
+  mapping(address => uint) public userMessageCount;
 
   event NewMessage(address indexed item, address indexed author, address indexed parent, string message);
   event MessageChanged(address indexed item, string oldMsg, string newMsg);
@@ -38,6 +39,7 @@ contract Messages {
       replies[parent].insert(newAddr);
     }
     userMessages[msg.sender].push(newAddr);
+    userMessageCount[msg.sender]++;
     emit NewMessage(newAddr, msg.sender, parent, message);
     return newAddr;
   }
@@ -61,12 +63,16 @@ contract Messages {
     return replies[item].fetchUnsorted(startIndex, fetchCount, reverseScan);
   }
 
-  function fetchSorted(address item, address start, uint maxReturned) public view returns(address[] memory out) {
-    return replies[item].fetchSorted(start, maxReturned);
+  function fetchSorted(address item, address start, uint maxReturned, bool reverseScan) public view returns(address[] memory out) {
+    return replies[item].fetchSorted(start, maxReturned, reverseScan);
   }
 
   function suggestSorts(address item, address insertAfter, address[] memory toAdd) external view returns(uint[] memory out) {
     return replies[item].suggestSorts(insertAfter, toAdd);
+  }
+
+  function getSortIndex(address item) external view returns(uint) {
+    return replies[msgs[item].parent].getSortIndex(item);
   }
 
   function setSort(address item, address[] memory ofItems, uint[] memory sortValues) external {
@@ -74,31 +80,51 @@ contract Messages {
     replies[item].setSort(ofItems, sortValues);
   }
 
-  function fetchUserMessages(address user, uint startIndex, uint fetchCount) external view returns(address[] memory out, uint totalCount) {
-    if(userMessages[user].length > 0) {
+  function fetchUserMessages(address user, uint startIndex, uint fetchCount) external view returns(address[] memory out, uint totalCount, uint lastScanned) {
+    totalCount = userMessageCount[user];
+    if(totalCount > 0) {
+      require(startIndex < totalCount);
 
-      require(startIndex < userMessages[user].length);
-
-      if(startIndex + fetchCount >= userMessages[user].length) {
-        fetchCount = userMessages[user].length - startIndex;
+      if(startIndex + fetchCount >= totalCount) {
+        fetchCount = totalCount - startIndex;
       }
 
-      totalCount = userMessages[user].length;
-      out = new address[](fetchCount);
-      for(uint i = 0; i < fetchCount; i++) {
-        out[i] = userMessages[user][i + startIndex];
+      address[] memory selection = new address[](fetchCount);
+      uint activeCount;
+      lastScanned = startIndex;
+      while(true) {
+        address curAddr = userMessages[user][lastScanned];
+        Message storage cur = msgs[curAddr];
+        if(cur.owner == user) {
+          selection[activeCount++] = curAddr;
+          if(activeCount == fetchCount) break;
+        }
+        if(lastScanned == userMessages[user].length - 1) break;
+        lastScanned++;
+      }
+
+      // Crop the output
+      out = new address[](activeCount);
+      for(uint i=0; i<activeCount; i++) {
+        out[i] = selection[i];
       }
     }
   }
 
+  // Should accounts have to accept a transfer?
+  // No drive-by give powerful position to vitalik?
   function transferOwnership(address[] memory messages, address newOwner) external {
     for(uint i = 0; i < messages.length; i++) {
       Message storage cur = msgs[messages[i]];
       require(cur.owner == msg.sender);
       emit MessageOwnerChanged(messages[i], msg.sender, newOwner);
       cur.owner = newOwner;
+      userMessageCount[msg.sender]--;
+      userMessageCount[newOwner]++;
       // Messages are added to the new owner's profile
       // but not removed from old owner's
+      // The fetchUserMessages function filters them on read
+      //  (no gas this way)
       userMessages[newOwner].push(messages[i]);
     }
   }
