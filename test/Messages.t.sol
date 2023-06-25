@@ -21,11 +21,11 @@ contract MessagesTest is Test {
     factory.transferOwnership(toTransfer, newOwner);
 
     // Both accounts have the post listed now
-    (address[] memory msgs, uint totalCount,) = factory.fetchUserMessages(address(this), 0, 1);
-    assertEq(totalCount, 0);
+    (address[] memory msgs, uint totalCount,) = factory.fetchUserMessages(address(this), 0, 1, false);
+    assertEq(totalCount, 1);
     assertEq(msgs.length, 0);
 
-    (msgs, totalCount,) = factory.fetchUserMessages(newOwner, 0, 1);
+    (msgs, totalCount,) = factory.fetchUserMessages(newOwner, 0, 1, false);
     assertEq(totalCount, 1);
     assertEq(msgs[0], root);
 
@@ -66,17 +66,27 @@ contract MessagesTest is Test {
     address reply1 = factory.postNew(root, msg2);
     address reply2 = factory.postNew(root, msg3);
 
-    (address[] memory fetched, uint totalCount,) = factory.fetchUserMessages(address(this), 0, 1);
-
+    (address[] memory fetched, uint totalCount,) = factory.fetchUserMessages(address(this), 0, 1, false);
     assertEq(fetched.length, 1);
     assertEq(fetched[0], root);
     assertEq(totalCount, 3);
 
-    (fetched, totalCount,) = factory.fetchUserMessages(address(this), 1, 2);
-
+    (fetched, totalCount,) = factory.fetchUserMessages(address(this), 1, 2, false);
     assertEq(fetched.length, 2);
     assertEq(fetched[0], reply1);
     assertEq(fetched[1], reply2);
+    assertEq(totalCount, 3);
+
+    (fetched, totalCount,) = factory.fetchUserMessages(address(this), 0, 2, true);
+    assertEq(fetched.length, 2);
+    assertEq(fetched[0], reply2);
+    assertEq(fetched[1], reply1);
+    assertEq(totalCount, 3);
+
+    (fetched, totalCount,) = factory.fetchUserMessages(address(this), 1, 2, true);
+    assertEq(fetched.length, 2);
+    assertEq(fetched[0], reply1);
+    assertEq(fetched[1], root);
     assertEq(totalCount, 3);
 
     (fetched, totalCount,) = factory.fetchUnsorted(root, 0, 10, false);

@@ -80,8 +80,8 @@ contract Messages {
     replies[item].setSort(ofItems, sortValues);
   }
 
-  function fetchUserMessages(address user, uint startIndex, uint fetchCount) external view returns(address[] memory out, uint totalCount, uint lastScanned) {
-    totalCount = userMessageCount[user];
+  function fetchUserMessages(address user, uint startIndex, uint fetchCount, bool reverseScan) external view returns(address[] memory out, uint totalCount, uint lastScanned) {
+    totalCount = userMessages[user].length;
     if(totalCount > 0) {
       require(startIndex < totalCount);
 
@@ -91,7 +91,12 @@ contract Messages {
 
       address[] memory selection = new address[](fetchCount);
       uint activeCount;
+
       lastScanned = startIndex;
+      if(reverseScan) {
+        lastScanned = totalCount - 1 - startIndex;
+      }
+
       while(true) {
         address curAddr = userMessages[user][lastScanned];
         Message storage cur = msgs[curAddr];
@@ -99,8 +104,13 @@ contract Messages {
           selection[activeCount++] = curAddr;
           if(activeCount == fetchCount) break;
         }
-        if(lastScanned == userMessages[user].length - 1) break;
-        lastScanned++;
+        if(reverseScan) {
+          if(lastScanned == 0) break;
+          lastScanned--;
+        } else {
+          if(lastScanned == totalCount - 1) break;
+          lastScanned++;
+        }
       }
 
       // Crop the output

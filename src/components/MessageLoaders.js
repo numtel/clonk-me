@@ -1,4 +1,5 @@
-import { useContractReads } from 'wagmi';
+import React, { useState, useEffect } from 'react';
+import { useContractReads, usePublicClient } from 'wagmi';
 
 import { Message } from './Message.js';
 
@@ -40,16 +41,42 @@ export function LoadMessages({ addresses, contract }) {
     ));
 }
 
-export function UserMessages({ address, contract }) {
-  // TODO add pagination
+export function UserMessages({ address, contract, pageSize }) {
+  const publicClient = usePublicClient({ chainId: contract.chainId });
+  const [list, setList] = useState(() => {
+    loadMore(0);
+    return [];
+  });
+  const [lastScanned, setLastScanned] = useState(null);
   const { data, isError, isLoading } = useContractReads({
     contracts: [{
       ...contract,
-      functionName: 'fetchUserMessages',
-      args: [address, 0n, 10n],
+      functionName: 'userMessageCount',
+      args: [address],
     }],
   });
-  if(isLoading) return (<div>Loading...</div>);
-  else if(isError) return (<div>Error!</div>);
-  else if(data) return (<LoadMessages addresses={data[0].result[0]} contract={contract} />);
+  async function loadMore(startIndex) {
+    const newData = await publicClient.readContract({
+      ...contract,
+      functionName: 'fetchUserMessages',
+      args: [address, startIndex, pageSize, true],
+    });
+    setLastScanned(newData[1] - newData[2]);
+    setList(list => {
+      return [...list, ...newData[0]];
+    })
+  }
+  return (
+    <>
+      {isLoading && (<div>Loading...</div>)}
+      {isError && (<div>Error!</div>)}
+      {data && (
+        <p>Number of posts: {data[0].result.toString()}</p>
+      )}
+      {list.length > 0 && (<>
+        <LoadMessages addresses={list} contract={contract} />
+        {data && (list.length < data[0].result) && (<button onClick={() => loadMore(lastScanned)}>Load More Posts</button>)}
+      </>)}
+    </>
+  );
 }

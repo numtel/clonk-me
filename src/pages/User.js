@@ -10,6 +10,6 @@ export function User() {
   const contracts = chainContracts(chain);
   return (<div id="user">
     <p>Account {address}</p>
-    <UserMessages address={address} contract={contracts.messages} />
+    <UserMessages address={address} pageSize={30} contract={contracts.messages} />
   </div>);
 }
