@@ -14,7 +14,10 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 
 const { chains, publicClient } = configureChains(
-  [mainnet, polygonMumbai],
+  [mainnet, {...polygonMumbai, rpcUrls: {
+    public: { http: ['https://rpc.ankr.com/polygon_mumbai'] },
+    default: { http: ['https://rpc.ankr.com/polygon_mumbai'] },
+  }}],
   [publicProvider()]
 );
 

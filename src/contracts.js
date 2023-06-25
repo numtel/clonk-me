@@ -5,7 +5,7 @@ export const defaultChain = 80001;
 const byChain = {
   80001: { // mumbai
     messages: {
-      address: '0x00c428712084c376da8b5c0581cec05183d7d822',
+      address: '0x8c318bfa9884366664e349109f1206f9d56920a6',
       abi: messagesABI,
       chainId: 80001,
     },
