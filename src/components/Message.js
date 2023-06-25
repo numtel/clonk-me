@@ -23,6 +23,7 @@ import Linkify from 'react-linkify';
 
 import { ReplyButton } from './Reply.js';
 import { EditButton } from './Edit.js';
+import { TransferButton } from './Transfer.js';
 import UserBadge from './UserBadge.js';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -33,12 +34,11 @@ const SORTED_PAGE_SIZE = 30n;
 export function Message({ item, contract }) {
   const publicClient = usePublicClient({ chainId: contract.chainId });
   const { address } = useAccount();
-  const isOwner = address && address.toLowerCase() === item.owner?.toLowerCase();
-
   const [setSortCalc, setSetSortCalc] = useState(false);
   const [disableSort, setDisableSort] = useState(false);
   const [forceShowReplies, setForceShowReplies] = useState(false);
   const [editedMsg, setEditedMsg] = useState(null);
+  const [newOwner, setNewOwner] = useState(null);
   const [dirtyCount, setDirtyCount] = useState(0);
   const [replies, setReplies] = useState([
     { id: 'loadSorted', el: (<button onClick={() => loadSorted()}>Load {item.sortedCount?.toString()} Sorted {item.sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
@@ -68,6 +68,8 @@ export function Message({ item, contract }) {
       setDisableSort(false);
     },
   });
+  const isOwner = address && address.toLowerCase() === (newOwner ? newOwner.toLowerCase() : item.owner?.toLowerCase());
+
   async function loadList(list) {
     const raw = await publicClient.multicall({
       contracts: list.map(address => [
@@ -160,12 +162,13 @@ export function Message({ item, contract }) {
   );
   return (
     <div className="msg">
-      <UserBadge address={item.owner} />
+      <UserBadge address={newOwner || item.owner} />
       <span className="postdate"> posted <Link to={'/m/' + item.address}>{remaining(Math.round(Date.now() / 1000) - item.createdAt.toString(), true)} ago</Link>{item.lastChanged > 0n && (<em className="edited" title={remaining(Math.round(Date.now() / 1000) - item.lastChanged.toString(), true) + ' ago'}>Edited</em>)}</span>
       <Linkify><div className="text">{editedMsg || item.message}</div></Linkify>
       {item.parent !== ZERO_ADDRESS && <Link to={'/m/' + item.parent}><button>Parent</button></Link>}
       <ReplyButton address={item.address} {...{contract, setReplies, loadList, setForceShowReplies}} />
       <EditButton {...{item, contract, setEditedMsg, editedMsg}} />
+      <TransferButton {...{item, contract, setNewOwner, newOwner}} />
       {(item.unsortedCount > 0n || item.sortedCount > 0n || forceShowReplies) && (
         <DndContext
           sensors={sensors}
