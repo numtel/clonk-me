@@ -1,5 +1,8 @@
 @font-face { font-family: ComicMono; font-weight: 400; src: url(fonts/ComicMono.ttf); }
-body, textarea, button { font-family:ComicMono, sans-serif; }
+body, textarea, button { font-family:sans-serif; }
+
+a { color: #333; }
+a:visited { color: #353; }
 
 * { box-sizing: border-box; }
 #root { max-width:720px; margin: 20px auto;}
@@ -16,16 +19,17 @@ header h1 { margin:0; padding:0; color:#000; }
 .dirty .msg { background: #ff95; }
 .drag-item>button { margin:0 auto; }
 .drag-handle {width: 15px; font-size:0; background:#0002; cursor:ns-resize;margin-right:5px;}
-.user-badge {border: 1px solid black; border-radius:2px; padding: 2px; margin:2px; display:inline-block; background:#0601; }
 .postdate {font-size:90%;}
 em.edited {font-size:80%;}
 em.edited::before { content: "*"; }
-.msg .text { padding: 15px 0; white-space: pre-line; }
+.msg .text { padding: 15px 0; white-space: pre-line; font-family:ComicMono, sans-serif; }
 
-button {margin-right:6px; background:#0801; border: 1px solid #333; color: black; cursor:pointer; border-radius:2px;}
+button {margin-right:6px; background:#0801; border: 1px solid #999; color: black; cursor:pointer; border-radius:4px;}
+button:hover { background:#0f01; }
 button:disabled { background:#2221; cursor:default; }
-fieldset {margin:15px;}
-textarea {width:100%; font-family:sans-serif; height: 25vh; margin-bottom:15px;}
+fieldset {margin:15px; background:#0001; border:none;}
+legend {float:left; margin-bottom:5px; }
+textarea {width:100%; font-family:ComicMono, sans-serif; height: 25vh; margin-bottom:15px;}
 
 .save-sort-banner { position:fixed; bottom: 0; left:0; right: 0; background:#fff; border-top:1px solid #ccc; display:flex; justify-content:flex-end; padding:10px;}
 .save-sort-banner button { font-size: 130%; }

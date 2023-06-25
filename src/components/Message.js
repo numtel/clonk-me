@@ -160,7 +160,7 @@ export function Message({ item, contract }) {
   return (
     <div className="msg">
       <UserBadge address={item.owner} />
-      <span className="postdate">Posted on <Link to={'/m/' + item.address}>{new Date(item.createdAt.toString() * 1000).toLocaleString()}</Link>{item.lastChanged > 0n && (<em className="edited" title={new Date(item.lastChanged.toString() * 1000).toLocaleString()}>Edited</em>)}</span>
+      <span className="postdate"> posted <Link to={'/m/' + item.address}>{remaining(Math.round(Date.now() / 1000) - item.createdAt.toString(), true)} ago</Link>{item.lastChanged > 0n && (<em className="edited" title={remaining(Math.round(Date.now() / 1000) - item.lastChanged.toString(), true) + ' ago'}>Edited</em>)}</span>
       <div className="text">{editedMsg || item.message}</div>
       {item.parent !== ZERO_ADDRESS && <Link to={'/m/' + item.parent}><button>Parent</button></Link>}
       <ReplyButton address={item.address} {...{contract, setReplies, loadList, setForceShowReplies}} />
@@ -303,4 +303,25 @@ function SortableItem({ id, data, isOwner, contract }) {
       </>)}
     </div>
   );
+}
+
+
+export function remaining(seconds, onlyFirst) {
+  const units = [
+    { value: 1, unit: 'second' },
+    { value: 60, unit: 'minute' },
+    { value: 60 * 60, unit: 'hour' },
+    { value: 60 * 60 * 24, unit: 'day' },
+  ];
+  let remaining = Number(seconds);
+  let out = [];
+  for(let i = units.length - 1; i >= 0;  i--) {
+    if(remaining >= units[i].value) {
+      const count = Math.floor(remaining / units[i].value);
+      out.push(count.toString(10) + ' ' + units[i].unit + (count !== 1 ? 's' : ''));
+      if(onlyFirst) return out[0];
+      remaining = remaining - (count * units[i].value);
+    }
+  }
+  return out.join(', ');
 }
