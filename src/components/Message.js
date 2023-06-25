@@ -25,6 +25,8 @@ import { EditButton } from './Edit.js';
 import UserBadge from './UserBadge.js';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+const UNSORTED_PAGE_SIZE = 30n;
+const SORTED_PAGE_SIZE = 30n;
 
 // TODO Embed other messages [Msg chain:80001 0x2345...]
 export function Message({ item, contract }) {
@@ -38,9 +40,9 @@ export function Message({ item, contract }) {
   const [editedMsg, setEditedMsg] = useState(null);
   const [dirtyCount, setDirtyCount] = useState(0);
   const [replies, setReplies] = useState([
-    { id: 'loadSorted', el: (<button onClick={loadSorted}>Load {item.sortedCount?.toString()} Sorted {item.sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
+    { id: 'loadSorted', el: (<button onClick={() => loadSorted()}>Load {item.sortedCount?.toString()} Sorted {item.sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
     { id: 'threshold', el: (<div className="threshold">Messages below this threshold are unsorted</div>) },
-    { id: 'loadUnsorted', el: (<button onClick={loadUnsorted}>Load {item.unsortedCount?.toString()} Unsorted {item.unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
+    { id: 'loadUnsorted', el: (<button onClick={() => loadUnsorted()}>Load {item.unsortedCount?.toString()} Unsorted {item.unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
   ]);
   const { data:setSortData, isLoading:setSortLoading, isError:setSortError, isSuccess:setSortSuccess, write:setSortWrite } = useContractWrite({
     ...contract,
@@ -100,28 +102,48 @@ export function Message({ item, contract }) {
     if(listFun) list = listFun(list);
     return loadList(list);
   }
-  async function loadSorted() {
-    setReplies((replies) => [{
-      id: 'loadSorted',
-      el: (<div className="loading-replies">Loading sorted replies...</div>),
-    },
-    ...replies.filter(item => item.id !== 'loadSorted')]);
-    // TODO pagination
-    const sorted = (await loadItems('fetchSorted', [item.address, ZERO_ADDRESS, 10n])).map(item => {
+  async function loadSorted(lastItem) {
+    setReplies((replies) => [
+      ...replies.filter(item => item.id !== 'loadSorted' && item.aboveThreshold),
+      {
+        id: 'loadSorted',
+        el: (<div className="loading-replies">Loading sorted replies...</div>),
+      },
+      ...replies.filter(item => item.id !== 'loadSorted' && !item.aboveThreshold)
+    ]);
+    const sorted = (await loadItems('fetchSorted', [item.address, lastItem || ZERO_ADDRESS, SORTED_PAGE_SIZE, false])).map(item => {
       item.sorted = true;
       item.aboveThreshold = true;
       return item;
     });
-    setReplies((replies) => [...sorted, ...replies.filter(item => item.id !== 'loadSorted' && !item.aboveThreshold)]);
+    setReplies((replies) => {
+      if(sorted.length > 0 && sorted.length === Number(SORTED_PAGE_SIZE)) {
+        const nextStart = sorted[sorted.length - 1].address;
+        sorted.push({ id: 'loadSorted', el: (<button onClick={() => loadSorted(nextStart)}>Load More sorted Replies</button>) });
+      }
+      const out = [ ...replies.filter(item => item.aboveThreshold), ...sorted, ...replies.filter(item => item.id !== 'loadSorted' && !item.aboveThreshold)];
+      return out;
+    });
   }
-  async function loadUnsorted() {
+  async function loadUnsorted(lastScanned) {
     setReplies((replies) => [...replies.filter(item => item.id !== 'loadUnsorted'), {
         id: 'loadUnsorted',
         el: (<div className="loading-replies">Loading unsorted replies...</div>),
       }]);
-    // TODO pagination
-    const unsorted = await loadItems('fetchUnsorted', [item.address, 0, 10n, false], list => list[0]);
-    setReplies((replies) => [...replies.filter(item => item.id !== 'loadUnsorted' && (!item.address || item.aboveThreshold)), ...unsorted]);
+    lastScanned = lastScanned || 0n;
+    let hasMore;
+    const unsorted = await loadItems('fetchUnsorted', [item.address, lastScanned, UNSORTED_PAGE_SIZE, true], list => {
+      lastScanned = list[1] - list[2];
+      hasMore = list[2] > 0;
+      return list[0]
+    });
+    setReplies((replies) => {
+      const out = [...replies.filter(item => item.id !== 'loadUnsorted'), ...unsorted]
+      if(hasMore) {
+        out.push({ id: 'loadUnsorted', el: (<button onClick={() => loadUnsorted(lastScanned)}>Load More Unsorted Replies</button>) });
+      }
+      return out;
+    });
   }
 
   const sensors = useSensors(
