@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useContractReads, usePublicClient } from 'wagmi';
 
 import { Message } from './Message.js';

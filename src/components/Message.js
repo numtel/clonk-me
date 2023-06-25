@@ -19,6 +19,7 @@ import {
 import {useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
 import { usePublicClient, useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
+import Linkify from 'react-linkify';
 
 import { ReplyButton } from './Reply.js';
 import { EditButton } from './Edit.js';
@@ -161,7 +162,7 @@ export function Message({ item, contract }) {
     <div className="msg">
       <UserBadge address={item.owner} />
       <span className="postdate"> posted <Link to={'/m/' + item.address}>{remaining(Math.round(Date.now() / 1000) - item.createdAt.toString(), true)} ago</Link>{item.lastChanged > 0n && (<em className="edited" title={remaining(Math.round(Date.now() / 1000) - item.lastChanged.toString(), true) + ' ago'}>Edited</em>)}</span>
-      <div className="text">{editedMsg || item.message}</div>
+      <Linkify><div className="text">{editedMsg || item.message}</div></Linkify>
       {item.parent !== ZERO_ADDRESS && <Link to={'/m/' + item.parent}><button>Parent</button></Link>}
       <ReplyButton address={item.address} {...{contract, setReplies, loadList, setForceShowReplies}} />
       <EditButton {...{item, contract, setEditedMsg, editedMsg}} />
@@ -325,3 +326,8 @@ export function remaining(seconds, onlyFirst) {
   }
   return out.join(', ');
 }
+
+function LinkComponent(decoratedHref, decoratedText, key) {
+  return (<a href={decoratedHref} target="_blank" key={key}>{decoratedText}</a>);
+}
+Linkify.defaultProps.componentDecorator = LinkComponent;
