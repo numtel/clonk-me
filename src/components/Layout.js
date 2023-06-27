@@ -1,17 +1,34 @@
-import { useNetwork } from 'wagmi';
+import React, { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Outlet, Link } from "react-router-dom";
 
-// TODO use custom connectbutton that allows chain choosing even without wallet connected
+import { defaultChain, byChain } from '../contracts.js';
+
+export const ChainContext = React.createContext(null);
+
 export function Layout() {
-  const { chain } = useNetwork();
+  const [ disconnectedChain, setDisconnectedChain ] = useState(defaultChain);
+  const chainId = String(disconnectedChain);
   return (<>
     <header>
       <Link to="/"><h1>clonk.me</h1></Link>
-      <ConnectButton />
+      <ConnectButton chainStatus="none" showBalance={false} />
+      <div>
+        {Object.keys(byChain).map((x) => (
+          <button
+            disabled={x === chainId}
+            key={x}
+            onClick={() => {
+              setDisconnectedChain(x)
+            }}
+          >
+            {byChain[x].name}
+          </button>
+        ))}
+      </div>
     </header>
-    {(chain && (chain.id === 1 || chain.unsupported)) ? (<>
-      <p>Please select Polygon or Mumbai, this chain is not yet supported.</p>
-    </>) : (<Outlet />)}
+    <ChainContext.Provider value={{ chainId }}>
+      <Outlet />
+    </ChainContext.Provider>
   </>);
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
+import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
 import { decodeEventLog } from 'viem';
 
 export function EditButton({ item, contract, setEditedMsg, editedMsg }) {
@@ -14,6 +14,9 @@ export function EditButton({ item, contract, setEditedMsg, editedMsg }) {
 }
 
 export function Edit({ item, contract, setShow, setEditedMsg, editedMsg }) {
+  const { chain } = useNetwork();
+  const { switchNetwork } = useSwitchNetwork();
+  const shouldSwitchChain = chain && contract.chainId !== chain.id;
   const submitReply = (event) => {
     event.preventDefault();
     write({
@@ -44,7 +47,14 @@ export function Edit({ item, contract, setShow, setEditedMsg, editedMsg }) {
       <fieldset>
         <legend>Edit message</legend>
         <textarea name="message" defaultValue={editedMsg || item.message}></textarea>
-        <button type="submit">Submit</button>
+        {shouldSwitchChain ? (
+          <button onClick={(event) => {
+            event.preventDefault();
+            switchNetwork(contract.chainId);
+          }}>Switch to {contract.chainName}</button>
+        ) : (
+          <button type="submit">Submit</button>
+        )}
         {setShow && <button onClick={() => setShow(false)}>Cancel</button>}
         {isLoading && <p>Waiting for user confirmation...</p>}
         {isSuccess && (

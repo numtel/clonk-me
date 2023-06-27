@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
+import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
 import { decodeEventLog } from 'viem';
 
 export function TransferButton({ item, contract, setNewOwner, newOwner }) {
@@ -14,6 +14,9 @@ export function TransferButton({ item, contract, setNewOwner, newOwner }) {
 }
 
 export function Transfer({ item, contract, setShow, setNewOwner, newOwner }) {
+  const { chain } = useNetwork();
+  const { switchNetwork } = useSwitchNetwork();
+  const shouldSwitchChain = chain && contract.chainId !== chain.id;
   const submitReply = (event) => {
     event.preventDefault();
     write({
@@ -44,7 +47,14 @@ export function Transfer({ item, contract, setShow, setNewOwner, newOwner }) {
       <fieldset>
         <legend>Transfer ownership</legend>
         <input name="newOwner" defaultValue={item.owner} />
-        <button type="submit">Submit</button>
+        {shouldSwitchChain ? (
+          <button onClick={(event) => {
+            event.preventDefault();
+            switchNetwork(contract.chainId);
+          }}>Switch to {contract.chainName}</button>
+        ) : (
+          <button type="submit">Submit</button>
+        )}
         {setShow && <button onClick={() => setShow(false)}>Cancel</button>}
         {isLoading && <p>Waiting for user confirmation...</p>}
         {isSuccess && (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useContractReads, usePublicClient } from 'wagmi';
 
 import { Message } from './Message.js';
@@ -41,12 +41,21 @@ export function LoadMessages({ addresses, contract }) {
     ));
 }
 
-export function UserMessages({ address, contract, pageSize }) {
+// XXX: Only one UserMessages instance per page so this is fine
+let prevChainId;
+
+export function UserMessages({ address, contract, pageSize, chainId }) {
   const publicClient = usePublicClient({ chainId: contract.chainId });
   const [list, setList] = useState(() => {
-    loadMore(0);
     return [];
   });
+  useEffect(() => {
+    if(chainId !== prevChainId) {
+      setList([]);
+      prevChainId = chainId;
+      loadMore(0);
+    }
+  }, [ chainId ]);
   const [lastScanned, setLastScanned] = useState(null);
   const { data, isError, isLoading } = useContractReads({
     contracts: [{
@@ -80,3 +89,4 @@ export function UserMessages({ address, contract, pageSize }) {
     </>
   );
 }
+

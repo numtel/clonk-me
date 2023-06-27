@@ -18,7 +18,7 @@ import {
 
 import {useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
-import { usePublicClient, useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
+import { useNetwork, useSwitchNetwork, usePublicClient, useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
 import Linkify from 'react-linkify';
 
 import { ReplyButton } from './Reply.js';
@@ -32,6 +32,9 @@ const SORTED_PAGE_SIZE = 30n;
 
 // TODO Embed other messages [Msg chain:80001 0x2345...]
 export function Message({ item, contract }) {
+  const { chain } = useNetwork();
+  const { switchNetwork } = useSwitchNetwork();
+  const shouldSwitchChain = chain && contract.chainId !== chain.id;
   const publicClient = usePublicClient({ chainId: contract.chainId });
   const { address } = useAccount();
   const [setSortCalc, setSetSortCalc] = useState(false);
@@ -193,7 +196,14 @@ export function Message({ item, contract }) {
             : txIsLoading ? (<div className="status">Waiting for transaction...</div>)
             : txIsSuccess ? (<div className="status">Transaction success!</div>)
             : (<div className="status">Transaction sent...</div>))
-          : (<button onClick={saveSort}>Save Sort</button>)}
+          : shouldSwitchChain ? (
+            <button onClick={(event) => {
+              event.preventDefault();
+              switchNetwork(contract.chainId);
+            }}>Switch to {contract.chainName}</button>
+          ) : (
+            <button onClick={saveSort}>Save Sort</button>
+          )}
         </div>
       )}
     </div>

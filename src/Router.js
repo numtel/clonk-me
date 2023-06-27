@@ -6,6 +6,7 @@ import { Home } from './pages/Home.js';
 import { User } from './pages/User.js';
 
 export function Router() {
+  // TODO need chainId in route!
   return (
     <BrowserRouter>
       <Routes>
