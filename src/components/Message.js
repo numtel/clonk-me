@@ -341,6 +341,6 @@ export function remaining(seconds, onlyFirst) {
 }
 
 function LinkComponent(decoratedHref, decoratedText, key) {
-  return (<a href={decoratedHref} target="_blank" key={key}>{decoratedText}</a>);
+  return (<a href={decoratedHref} target="_blank" rel="noreferrer" key={key}>{decoratedText}</a>);
 }
 Linkify.defaultProps.componentDecorator = LinkComponent;
