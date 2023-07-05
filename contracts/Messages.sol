@@ -75,7 +75,6 @@ contract Messages {
     return replies[msgs[item].parent].getSortIndex(item);
   }
 
-  // TODO add special sort level to delete the reply
   function setSort(address item, address[] memory ofItems, uint[] memory sortValues) external {
     require(msg.sender == msgs[item].owner);
     replies[item].setSort(ofItems, sortValues);

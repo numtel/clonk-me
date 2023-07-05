@@ -43,13 +43,17 @@ library SortableAddressSet {
         self.tree.remove(self.itemSorts[items[i]]);
         self.sortItems[self.itemSorts[items[i]]] = address(0);
         if(sortValues[i] == 0) self.sortedCount--;
-      } else {
+      } else if(sortValues[i] != type(uint).max) {
         self.sortedCount++;
       }
       self.itemSorts[items[i]] = sortValues[i];
       if(sortValues[i] != 0) {
         self.sortItems[sortValues[i]] = items[i];
-        self.tree.insert(sortValues[i]);
+        // Setting sort value to max is an effective delete
+        //  and it prevents the address from being added again
+        if(sortValues[i] != type(uint).max) {
+          self.tree.insert(sortValues[i]);
+        }
       }
     }
   }

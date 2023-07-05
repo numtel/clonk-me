@@ -98,6 +98,33 @@ contract SortableAddressSetTest is Test {
     assertEq(instance.sortedCount, 2);
   }
 
+  function testRemove(address a1, address a2, address a3) public {
+    vm.assume(a1 != address(0) && a2 != address(0) && a3 != address(0));
+    // No dupes!
+    vm.assume(a1 != a2 && a1 != a3 && a2 != a3);
+
+    instance.insert(a1);
+    instance.insert(a2);
+    instance.insert(a3);
+
+    address[] memory toSort = new address[](1);
+    toSort[0] = a1;
+    uint[] memory sortValues = new uint[](1);
+    sortValues[0] = type(uint).max;
+    instance.setSort(toSort, sortValues);
+    assertEq(instance.sortedCount, 0);
+
+    (address[] memory out, uint totalCount, uint lastScanned) = instance.fetchUnsorted(0, 10, false);
+    assertEq(out.length, 2);
+    assertEq(totalCount, 3);
+    assertEq(lastScanned, 2);
+    assertEq(out[0], a2);
+    assertEq(out[1], a3);
+
+    out = instance.fetchSorted(address(0), 10, false);
+    assertEq(out.length, 0);
+  }
+
   function testIsSequence(address a1, address a2, address a3) public {
     vm.assume(a1 != address(0) && a2 != address(0) && a3 != address(0));
     // No dupes!

@@ -75,7 +75,6 @@ contract NFTReplies {
     return replies[collection][tokenId].suggestSorts(insertAfter, toAdd);
   }
 
-  // TODO add special sort level to delete the reply
   function setSort(address collection, uint256 tokenId, address[] memory ofItems, uint[] memory sortValues) external {
     require(IERC721(collection).ownerOf(tokenId) == msg.sender);
     replies[collection][tokenId].setSort(ofItems, sortValues);
