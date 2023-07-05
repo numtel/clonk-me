@@ -35,11 +35,12 @@ contract NFTReplies {
   // So users don't have to make 2 tx for a reply
   function addNewReply(
     address parentCollection, uint256 parentTokenId,
-    address childCollection, string memory tokenURI
+    address childCollection, bytes memory data
   ) external {
-    MintableERC721 collection = MintableERC721(childCollection);
-    uint256 newTokenId = collection.mint(tokenURI);
-    collection.safeTransferFrom(address(this), msg.sender, newTokenId);
+    (bool success, bytes memory returned) = childCollection.call(data);
+    require(success);
+    uint256 newTokenId = uint256(bytes32(returned));
+    IERC721(childCollection).safeTransferFrom(address(this), msg.sender, newTokenId);
     addReply(parentCollection, parentTokenId, childCollection, newTokenId);
   }
 
@@ -79,9 +80,4 @@ contract NFTReplies {
     require(IERC721(collection).ownerOf(tokenId) == msg.sender);
     replies[collection][tokenId].setSort(ofItems, sortValues);
   }
-}
-
-interface MintableERC721 {
-  function mint(string memory tokenURI) external returns (uint256);
-  function safeTransferFrom(address from, address to, uint256 tokenId) external;
 }

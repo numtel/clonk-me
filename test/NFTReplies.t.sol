@@ -25,7 +25,8 @@ contract NFTRepliesTest is Test, ERC721Holder {
 
   function testAddNewReply() public {
     uint tokenId1 = collection.mint('Heyo');
-    replies.addNewReply(address(collection), tokenId1, address(collection), 'Foo');
+    bytes memory mintData = abi.encodeWithSignature('mint(string)', 'Foo');
+    replies.addNewReply(address(collection), tokenId1, address(collection), mintData);
 
     (address[] memory internalOut,,) = replies.fetchUnsorted(address(collection), tokenId1, 0, 10, false);
     NFTReplies.Token[] memory tokens = replies.convertInternalToTokens(internalOut);
