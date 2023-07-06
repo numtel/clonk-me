@@ -1,4 +1,5 @@
 import messagesABI from './abi/Messages.json';
+import repliesABI from './abi/Replies.json';
 
 export const defaultChain = 137;
 
@@ -20,6 +21,11 @@ export const byChain = {
       abi: messagesABI,
       chainId: 80001,
       chainName: 'Mumbai',
+    },
+    replies: {
+      address: '0x10c05fe61d4ca86a29f9afe5607bbde533f04a1e',
+      abi: repliesABI,
+      chainId: 80001,
     },
     root: '0x696296b40866AeF2f07C4ee66eCE1e06bc6654c5',
   },

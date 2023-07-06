@@ -1,6 +1,7 @@
 @font-face { font-family: ComicMono; font-weight: 400; src: url(fonts/ComicMono.ttf); }
 body, textarea, button { font-family:sans-serif; }
 
+body {margin-bottom: 100px; }
 a { color: #333; }
 a:visited { color: #353; }
 
