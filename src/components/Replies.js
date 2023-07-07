@@ -100,6 +100,11 @@ export function Replies({ chainId, collection, tokenId, owner, unsortedCount, so
           functionName: 'sortedCount',
           args: [token.collection, token.tokenId],
         },
+        {
+          ...contracts.replies,
+          functionName: 'replyAddedTime',
+          args: [token.collection, token.tokenId],
+        },
       ]).flat(),
     });
     return list.map((address, addrIndex) =>
@@ -112,6 +117,7 @@ export function Replies({ chainId, collection, tokenId, owner, unsortedCount, so
           owner: raw[addrIndex * 4 + 1].result,
           unsortedCount: raw[addrIndex * 4 + 2].result,
           sortedCount: raw[addrIndex * 4 + 3].result,
+          replyAddedTime: raw[addrIndex * 4 + 4].result,
         }));
   }
   async function loadSorted(lastItem) {

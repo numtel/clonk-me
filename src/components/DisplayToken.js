@@ -1,4 +1,5 @@
 import { erc721ABI, useContractReads } from 'wagmi';
+import { Link } from 'react-router-dom';
 
 import { chainContracts } from '../contracts.js';
 import UserBadge from './UserBadge.js';
@@ -56,12 +57,35 @@ export function DisplayTokens({ chainId, tokens }) {
   ));
 }
 
-export function DisplayToken({ chainId, collection, tokenId, tokenURI, owner, unsortedCount, sortedCount }) {
+export function DisplayToken({ chainId, collection, tokenId, tokenURI, owner, unsortedCount, sortedCount, replyAddedTime }) {
   return (
     <div className="msg">
       <UserBadge address={owner} />
+      {replyAddedTime && replyAddedTime > 0 && (
+        <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>
+      )}
       <iframe title="NFT display" src={tokenURI}></iframe>
       <Replies {...{chainId, collection, tokenId, owner, unsortedCount, sortedCount}} />
     </div>
   );
+}
+
+export function remaining(seconds, onlyFirst) {
+  const units = [
+    { value: 1, unit: 'second' },
+    { value: 60, unit: 'minute' },
+    { value: 60 * 60, unit: 'hour' },
+    { value: 60 * 60 * 24, unit: 'day' },
+  ];
+  let remaining = Number(seconds);
+  let out = [];
+  for(let i = units.length - 1; i >= 0;  i--) {
+    if(remaining >= units[i].value) {
+      const count = Math.floor(remaining / units[i].value);
+      out.push(count.toString(10) + ' ' + units[i].unit + (count !== 1 ? 's' : ''));
+      if(onlyFirst) return out[0];
+      remaining = remaining - (count * units[i].value);
+    }
+  }
+  return out.join(', ');
 }
