@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   DndContext,
@@ -38,12 +38,23 @@ export function Replies({ chainId, collection, tokenId, owner, unsortedCount, so
   const [disableSort, setDisableSort] = useState(false);
   const [forceShowReplies, setForceShowReplies] = useState(false);
   const [dirtyCount, setDirtyCount] = useState(0);
-  // TODO these sorted/unsorted counts can drift from the prop values
   const [replies, setReplies] = useState([
-    { id: 'loadSorted', el: (<button onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
+    { id: 'loadSorted', el: sortedCount === 0n ? (<></>) : (<button onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
     { id: 'threshold', el: (<div className="threshold">Messages below this threshold are unsorted</div>) },
-    { id: 'loadUnsorted', el: (<button onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
+    { id: 'loadUnsorted', el: unsortedCount === 0n ? (<></>) : (<button onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
   ]);
+  useEffect(() => {
+    setReplies(replies => {
+      for(let i = 0; i < replies.length; i++) {
+        if(replies[i].id === 'loadSorted') {
+          replies[i].el = sortedCount === 0n ? (<></>) : (<button onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>);
+        } else if(replies[i].id === 'loadUnsorted') {
+          replies[i].el = unsortedCount === 0n ? (<></>) : (<button onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>);
+        }
+      }
+      return replies;
+    });
+  }, [unsortedCount, sortedCount]);
   const { data:setSortData, isLoading:setSortLoading, isError:setSortError, isSuccess:setSortSuccess, write:setSortWrite } = useContractWrite({
     ...contracts.replies,
     functionName: 'setSort',

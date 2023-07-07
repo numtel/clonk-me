@@ -24,6 +24,7 @@ header h1 { margin:0; padding:0; color:#000; }
 em.edited {font-size:80%;}
 em.edited::before { content: "*"; }
 .msg .text { padding: 15px 0; white-space: pre-line; font-family:ComicMono, sans-serif; }
+.msg iframe { display: block; width: 100%; border:none; margin-top:4px; }
 
 button {margin-right:6px; background:#0801; border: 1px solid #999; color: black; cursor:pointer; border-radius:4px;}
 button:hover { background:#0f01; }
