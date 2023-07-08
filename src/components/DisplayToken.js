@@ -55,7 +55,8 @@ export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
   ));
 }
 
-export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, owner, unsortedCount, sortedCount, replyAddedTime }) {
+export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, owner, unsortedCount, sortedCount, replyAddedTime, children }) {
+  // TODO don't load the tokenURI immediately, give user preview and click link to load unless .startsWith('data:,')
   return (
     <div className="msg">
       <UserBadge address={owner} />
@@ -63,6 +64,7 @@ export function DisplayToken({ chainId, setSortSavers, disableSort, collection, 
         <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>
       )}
       <iframe title="NFT display" src={tokenURI}></iframe>
+      {children}
       <Replies {...{chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount}} />
     </div>
   );

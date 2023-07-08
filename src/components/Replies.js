@@ -22,12 +22,13 @@ import { erc721ABI, usePublicClient, useAccount } from 'wagmi';
 
 import { chainContracts } from '../contracts.js';
 import { DisplayToken } from './DisplayToken.js';
+import { RescindButton } from './RescindButton.js';
 
 const UNSORTED_PAGE_SIZE = 30n;
 const SORTED_PAGE_SIZE = 30n;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 // TODO threshold for removal
-const removeSortVal = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn;
+const REMOVE_SORT_VAL = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn;
 
 export function Replies({ chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount }) {
   const contracts = chainContracts(chainId);
@@ -40,6 +41,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
     { id: 'loadUnsorted', el: unsortedCount === 0n ? (<></>) : (<button onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
   ]);
   const repliesRef = useRef();
+  const dirtyCountRef = useRef();
   repliesRef.current = replies;
   useEffect(() => {
     setReplies(replies => {
@@ -104,6 +106,8 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
           unsortedCount: raw[addrIndex * 5 + 2].result,
           sortedCount: raw[addrIndex * 5 + 3].result,
           replyAddedTime: raw[addrIndex * 5 + 4].result,
+          parentCollection: collection,
+          parentTokenId: tokenId,
         }));
   }
   async function loadSorted(lastItem) {
@@ -176,7 +180,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
             items={replies}
             strategy={verticalListSortingStrategy}
           >
-            {replies.map(item => <SortableItem key={item.id} {...{isOwner, setSortSavers}} id={item.id} data={item} />)}
+            {replies.map(item => <SortableItem key={item.id} {...{isOwner, toggleEliminated, setSortSavers}} id={item.id} data={item} />)}
           </SortableContext>
         </DndContext>
       )}
@@ -193,6 +197,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
       if(replies[i].id === 'threshold') {
         afterThreshold = true;
       }
+      if(replies[i].eliminate) continue;
       if(replies[i].dirty) {
         if(!thisDirtySeq) {
           thisDirtySeq = {
@@ -226,7 +231,53 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
       dirtyGroup.afterThreshold
         ? [...new Array(dirtyGroup.items.length)].map(x=>0n)
         : suggested[grpIndex].result).flat();
+
+    for(let i=0; i<replies.length; i++) {
+      if(replies[i].eliminate) {
+        ofItems.push(replies[i].address);
+        sortValues.push(REMOVE_SORT_VAL);
+      }
+    }
     return [ collection, tokenId, ofItems, sortValues ];
+  }
+
+  function updateSortSaver() {
+    setSortSavers(savers => {
+      const myId = `${chainId}/${collection}/${tokenId}`;
+      const out = [...savers.filter(saver => saver.id !== myId)];
+      if(dirtyCountRef.current > 0) out.push({
+        fun: saveSort,
+        id: myId,
+        onSuccess(data) {
+          setReplies((replies) => replies.map(reply => {
+            if(reply.eliminate) {
+              reply.el = (<></>);
+            }
+            if(reply.sorted && reply.dirty && !reply.aboveThreshold) {
+              delete reply.sorted;
+            }
+            delete reply.dirty;
+            return reply;
+          }));
+          dirtyCountRef.current = 0;
+        },
+      });
+      return out;
+    });
+  }
+
+  function toggleEliminated(id, ogValue) {
+    setReplies(items => {
+      items = items.map(item => {
+        if(item.id === id) {
+          item.eliminate = item.dirty = !ogValue;
+        }
+        return item;
+      });
+      dirtyCountRef.current = items.reduce((out, cur) => out += cur.dirty ? 1 : 0, 0);
+      updateSortSaver();
+      return items;
+    });
   }
 
   function handleDragEnd(event) {
@@ -253,29 +304,17 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
           items[oldIndex].dirty = false;
         }
         items[oldIndex].aboveThreshold = isNowAboveThreshold;
-        setSortSavers(savers => {
-          const myId = `${chainId}/${collection}/${tokenId}`;
-          return [...savers.filter(saver => saver.id !== myId), {
-            fun: saveSort,
-            id: myId,
-            onSuccess(data) {
-              setReplies((replies) => replies.map(reply => {
-                if(reply.sorted && reply.dirty && !reply.aboveThreshold) {
-                  delete reply.sorted;
-                }
-                delete reply.dirty;
-                return reply;
-              }));
-            },
-          }];
-        });
+        dirtyCountRef.current = items.reduce((out, cur) => out += cur.dirty ? 1 : 0, 0);
+        updateSortSaver();
         return arrayMove(items, oldIndex, newIndex);
       });
     }
   }
 }
 
-function SortableItem({ id, data, isOwner, setSortSavers }) {
+function SortableItem({ id, data, isOwner, setSortSavers, toggleEliminated }) {
+  const [eliminate, setEliminate] = useState(false);
+  const { address } = useAccount();
   const {
     attributes,
     listeners,
@@ -294,11 +333,26 @@ function SortableItem({ id, data, isOwner, setSortSavers }) {
     transition,
   };
 
+
   return (
-    <div ref={setNodeRef} style={style} className={`drag-item ${data.dirty ? 'dirty' : ''}`}>
+    <div ref={setNodeRef} style={style} className={`drag-item ${data.dirty ? data.eliminate ? 'eliminate' : 'dirty' : ''}`}>
       {data.el ? data.el : (<>
         {isOwner && <div {...attributes} {...listeners} className={`drag-handle`}>Handle</div>}
-        <DisplayToken {...data} {...{setSortSavers}} />
+        <DisplayToken {...data} {...{setSortSavers}}>
+          <div className="controls">
+            <button>Reply</button>
+            {data.owner.toLowerCase() === address.toLowerCase() && (
+              <RescindButton
+                chainId={data.chainId}
+                parentCollection={data.parentCollection}
+                parentTokenId={data.parentTokenId}
+                replyCollection={data.collection}
+                replyTokenId={data.tokenId}
+                />
+            )}
+            {isOwner && (<button onClick={() => toggleEliminated(id, data.eliminate)}>Eliminate</button>)}
+          </div>
+        </DisplayToken>
       </>)}
     </div>
   );

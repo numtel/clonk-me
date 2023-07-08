@@ -18,6 +18,7 @@ header h1 { margin:0; padding:0; color:#000; }
 .threshold {text-align:center; width:100%; font-size:80%; background: #0002; }
 .drag-item {display:flex; margin:10px 5px;}
 .dirty .msg { background: #ff95; }
+.eliminate .msg { background: #f995; }
 .drag-item>button { margin:0 auto; }
 .drag-handle {width: 15px; font-size:0; background:#0002; cursor:ns-resize;margin-right:5px;}
 .postdate {font-size:90%;}
@@ -25,6 +26,7 @@ em.edited {font-size:80%;}
 em.edited::before { content: "*"; }
 .msg .text { padding: 15px 0; white-space: pre-line; font-family:ComicMono, sans-serif; }
 .msg iframe { display: block; width: 100%; border:none; margin-top:4px; }
+.controls { margin-top: 8px; }
 
 button {margin-right:6px; background:#0801; border: 1px solid #999; color: black; cursor:pointer; border-radius:4px;}
 button:hover { background:#0f01; }
