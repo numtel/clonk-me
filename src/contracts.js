@@ -14,6 +14,14 @@ export const byChain = {
     },
     root: '0xd961512c485f01fb972ff25de42a3097aa661140',
   },
+  5: {
+    name: 'Goerli',
+    replies: {
+      address: '0x95752672818c960b3875e6223aea34a9a55b769f',
+      abi: repliesABI,
+      chainId: 5,
+    },
+  },
   80001: {
     name: 'Mumbai',
     messages: {

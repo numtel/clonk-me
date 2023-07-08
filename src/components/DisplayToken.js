@@ -5,9 +5,7 @@ import { chainContracts } from '../contracts.js';
 import UserBadge from './UserBadge.js';
 import { Replies } from './Replies.js';
 
-const removeSortVal = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn;
-
-export function DisplayTokens({ chainId, tokens }) {
+export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
   const contracts = chainContracts(chainId);
   const { data, isError, isLoading } = useContractReads({
     contracts: tokens.map(token => [
@@ -45,7 +43,7 @@ export function DisplayTokens({ chainId, tokens }) {
   );
   else if(data) return tokens.map((token, index) => (
     <DisplayToken
-      {...{chainId}}
+      {...{chainId, setSortSavers, disableSort}}
       key={`${token.collection}-${token.tokenId}`}
       collection={token.collection}
       tokenId={token.tokenId}
@@ -57,7 +55,7 @@ export function DisplayTokens({ chainId, tokens }) {
   ));
 }
 
-export function DisplayToken({ chainId, collection, tokenId, tokenURI, owner, unsortedCount, sortedCount, replyAddedTime }) {
+export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, owner, unsortedCount, sortedCount, replyAddedTime }) {
   return (
     <div className="msg">
       <UserBadge address={owner} />
@@ -65,7 +63,7 @@ export function DisplayToken({ chainId, collection, tokenId, tokenURI, owner, un
         <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>
       )}
       <iframe title="NFT display" src={tokenURI}></iframe>
-      <Replies {...{chainId, collection, tokenId, owner, unsortedCount, sortedCount}} />
+      <Replies {...{chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount}} />
     </div>
   );
 }

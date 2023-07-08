@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   DndContext,
@@ -18,7 +18,7 @@ import {
 
 import {useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
-import { erc721ABI, useNetwork, useSwitchNetwork, usePublicClient, useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
+import { erc721ABI, usePublicClient, useAccount } from 'wagmi';
 
 import { chainContracts } from '../contracts.js';
 import { DisplayToken } from './DisplayToken.js';
@@ -26,23 +26,21 @@ import { DisplayToken } from './DisplayToken.js';
 const UNSORTED_PAGE_SIZE = 30n;
 const SORTED_PAGE_SIZE = 30n;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+// TODO threshold for removal
+const removeSortVal = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn;
 
-export function Replies({ chainId, collection, tokenId, owner, unsortedCount, sortedCount }) {
+export function Replies({ chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount }) {
   const contracts = chainContracts(chainId);
-  const { chain } = useNetwork();
-  const { switchNetwork } = useSwitchNetwork();
-  const shouldSwitchChain = chain && Number(chainId) !== chain.id;
   const publicClient = usePublicClient({ chainId: Number(chainId) });
   const { address } = useAccount();
-  const [setSortCalc, setSetSortCalc] = useState(false);
-  const [disableSort, setDisableSort] = useState(false);
   const [forceShowReplies, setForceShowReplies] = useState(false);
-  const [dirtyCount, setDirtyCount] = useState(0);
   const [replies, setReplies] = useState([
     { id: 'loadSorted', el: sortedCount === 0n ? (<></>) : (<button onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
     { id: 'threshold', el: (<div className="threshold">Messages below this threshold are unsorted</div>) },
     { id: 'loadUnsorted', el: unsortedCount === 0n ? (<></>) : (<button onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
   ]);
+  const repliesRef = useRef();
+  repliesRef.current = replies;
   useEffect(() => {
     setReplies(replies => {
       for(let i = 0; i < replies.length; i++) {
@@ -55,29 +53,6 @@ export function Replies({ chainId, collection, tokenId, owner, unsortedCount, so
       return replies;
     });
   }, [unsortedCount, sortedCount]);
-  const { data:setSortData, isLoading:setSortLoading, isError:setSortError, isSuccess:setSortSuccess, write:setSortWrite } = useContractWrite({
-    ...contracts.replies,
-    functionName: 'setSort',
-    onError() {
-      setDisableSort(false);
-    },
-  });
-  const { isError: txIsError, isLoading: txIsLoading, isSuccess: txIsSuccess } = useWaitForTransaction({
-    hash: setSortData ? setSortData.hash : null,
-    onSuccess(data) {
-      setReplies((replies) => replies.map(reply => {
-        if(reply.sorted && reply.dirty && !reply.aboveThreshold) {
-          delete reply.sorted;
-        }
-        delete reply.dirty;
-        return reply;
-      }));
-      setDirtyCount(0);
-    },
-    onSettled() {
-      setDisableSort(false);
-    },
-  });
   const isOwner = address && address.toLowerCase() === owner?.toLowerCase();
   async function loadList(list) {
     const tokens = await publicClient.readContract({
@@ -114,7 +89,7 @@ export function Replies({ chainId, collection, tokenId, owner, unsortedCount, so
         {
           ...contracts.replies,
           functionName: 'replyAddedTime',
-          args: [token.collection, token.tokenId],
+          args: [collection, tokenId, token.collection, token.tokenId],
         },
       ]).flat(),
     });
@@ -124,11 +99,11 @@ export function Replies({ chainId, collection, tokenId, owner, unsortedCount, so
           chainId,
           collection: tokens[addrIndex].collection,
           tokenId: tokens[addrIndex].tokenId,
-          tokenURI: raw[addrIndex * 4].result,
-          owner: raw[addrIndex * 4 + 1].result,
-          unsortedCount: raw[addrIndex * 4 + 2].result,
-          sortedCount: raw[addrIndex * 4 + 3].result,
-          replyAddedTime: raw[addrIndex * 4 + 4].result,
+          tokenURI: raw[addrIndex * 5].result,
+          owner: raw[addrIndex * 5 + 1].result,
+          unsortedCount: raw[addrIndex * 5 + 2].result,
+          sortedCount: raw[addrIndex * 5 + 3].result,
+          replyAddedTime: raw[addrIndex * 5 + 4].result,
         }));
   }
   async function loadSorted(lastItem) {
@@ -201,36 +176,16 @@ export function Replies({ chainId, collection, tokenId, owner, unsortedCount, so
             items={replies}
             strategy={verticalListSortingStrategy}
           >
-            {replies.map(item => <SortableItem key={item.id} isOwner={isOwner} id={item.id} data={item} />)}
+            {replies.map(item => <SortableItem key={item.id} {...{isOwner, setSortSavers}} id={item.id} data={item} />)}
           </SortableContext>
         </DndContext>
-      )}
-      {dirtyCount > 0 && (
-        <div className="save-sort-banner">
-          {setSortCalc ? (<div className="status">Retrieving optimal sort values...</div>)
-          : setSortLoading ? (<div className="status">Waiting for wallet...</div>)
-          : setSortError ? (<div className="status">Error saving sort values.</div>)
-          : setSortSuccess ? (
-            txIsError ? (<div className="status">Transaction error!</div>)
-            : txIsLoading ? (<div className="status">Waiting for transaction...</div>)
-            : txIsSuccess ? (<div className="status">Transaction success!</div>)
-            : (<div className="status">Transaction sent...</div>))
-          : shouldSwitchChain ? (
-            <button onClick={(event) => {
-              event.preventDefault();
-              switchNetwork(Number(chainId));
-            }}>Switch to {contracts.name}</button>
-          ) : (
-            <button onClick={saveSort}>Save Sort</button>
-          )}
-        </div>
       )}
     </div>
   );
 
   async function saveSort() {
-    setDisableSort(true);
-    setSetSortCalc(true);
+    // This callback must use latest values
+    const replies = repliesRef.current;
     const dirtyGroups = [];
     let thisDirtySeq = null;
     let afterThreshold = false;
@@ -271,10 +226,7 @@ export function Replies({ chainId, collection, tokenId, owner, unsortedCount, so
       dirtyGroup.afterThreshold
         ? [...new Array(dirtyGroup.items.length)].map(x=>0n)
         : suggested[grpIndex].result).flat();
-    setSetSortCalc(false);
-    setSortWrite({
-      args: [ collection, tokenId, ofItems, sortValues ],
-    });
+    return [ collection, tokenId, ofItems, sortValues ];
   }
 
   function handleDragEnd(event) {
@@ -301,14 +253,29 @@ export function Replies({ chainId, collection, tokenId, owner, unsortedCount, so
           items[oldIndex].dirty = false;
         }
         items[oldIndex].aboveThreshold = isNowAboveThreshold;
-        setDirtyCount(items.reduce((out, cur) => out += cur.dirty ? 1 : 0, 0));
+        setSortSavers(savers => {
+          const myId = `${chainId}/${collection}/${tokenId}`;
+          return [...savers.filter(saver => saver.id !== myId), {
+            fun: saveSort,
+            id: myId,
+            onSuccess(data) {
+              setReplies((replies) => replies.map(reply => {
+                if(reply.sorted && reply.dirty && !reply.aboveThreshold) {
+                  delete reply.sorted;
+                }
+                delete reply.dirty;
+                return reply;
+              }));
+            },
+          }];
+        });
         return arrayMove(items, oldIndex, newIndex);
       });
     }
   }
 }
 
-function SortableItem({ id, data, isOwner }) {
+function SortableItem({ id, data, isOwner, setSortSavers }) {
   const {
     attributes,
     listeners,
@@ -331,7 +298,7 @@ function SortableItem({ id, data, isOwner }) {
     <div ref={setNodeRef} style={style} className={`drag-item ${data.dirty ? 'dirty' : ''}`}>
       {data.el ? data.el : (<>
         {isOwner && <div {...attributes} {...listeners} className={`drag-handle`}>Handle</div>}
-        <DisplayToken {...data} />
+        <DisplayToken {...data} {...{setSortSavers}} />
       </>)}
     </div>
   );
