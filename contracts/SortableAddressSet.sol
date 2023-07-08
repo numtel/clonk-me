@@ -13,6 +13,7 @@ library SortableAddressSet {
     mapping(address => uint) itemSorts;
     mapping(uint => address) sortItems;
     uint sortedCount;
+    uint removedCount;
   }
 
   function insert(Set storage self, address toAdd) internal {
@@ -43,6 +44,7 @@ library SortableAddressSet {
         self.tree.remove(self.itemSorts[items[i]]);
         self.sortItems[self.itemSorts[items[i]]] = address(0);
         if(sortValues[i] == 0) self.sortedCount--;
+        if(self.itemSorts[items[i]] == type(uint).max) self.removedCount--;
       } else if(sortValues[i] != type(uint).max) {
         self.sortedCount++;
       }
@@ -53,6 +55,8 @@ library SortableAddressSet {
         //  and it prevents the address from being added again
         if(sortValues[i] != type(uint).max) {
           self.tree.insert(sortValues[i]);
+        } else {
+          self.removedCount++;
         }
       }
     }

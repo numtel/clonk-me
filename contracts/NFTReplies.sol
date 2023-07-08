@@ -20,6 +20,7 @@ contract NFTReplies {
     return address(uint160(uint256(keccak256(abi.encodePacked(collection, tokenId)))));
   }
 
+  // TODO keep track of parents? (would have to tie in with sorting removals)
   function addReply(
     address parentCollection, uint256 parentTokenId,
     address childCollection, uint256 childTokenId
@@ -53,7 +54,7 @@ contract NFTReplies {
   }
 
   function unsortedCount(address collection, uint256 tokenId) public view returns(uint) {
-    return replies[collection][tokenId].itemList.length - replies[collection][tokenId].sortedCount;
+    return replies[collection][tokenId].itemList.length - replies[collection][tokenId].sortedCount - replies[collection][tokenId].removedCount;
   }
 
   function fetchUnsorted(address collection, uint256 tokenId, uint startIndex, uint fetchCount, bool reverseScan) public view returns(address[] memory out, uint totalCount, uint lastScanned) {
@@ -75,8 +76,30 @@ contract NFTReplies {
     return replies[collection][tokenId].suggestSorts(insertAfter, toAdd);
   }
 
-  function setSort(address collection, uint256 tokenId, address[] memory ofItems, uint[] memory sortValues) external {
+  function setSort(address collection, uint256 tokenId, address[] memory ofItems, uint[] memory sortValues) public {
     require(IERC721(collection).ownerOf(tokenId) == msg.sender);
     replies[collection][tokenId].setSort(ofItems, sortValues);
+  }
+
+  struct SortSet {
+    address collection;
+    uint256 tokenId;
+    address[] ofItems;
+    uint[] sortValues;
+  }
+
+  function setSortMany(SortSet[] memory sorts) external {
+    for(uint i = 0; i < sorts.length; i++) {
+      setSort(sorts[i].collection, sorts[i].tokenId, sorts[i].ofItems, sorts[i].sortValues);
+    }
+  }
+
+  function rescindReply(address parentCollection, uint256 parentTokenId, address replyCollection, uint256 replyTokenId) public {
+    require(IERC721(replyCollection).ownerOf(replyTokenId) == msg.sender);
+    address[] memory ofItems = new address[](1);
+    ofItems[0] = calcInternalAddr(replyCollection, replyTokenId);
+    uint256[] memory sortValues = new uint256[](1);
+    sortValues[0] = type(uint).max;
+    replies[parentCollection][parentTokenId].setSort(ofItems, sortValues);
   }
 }
