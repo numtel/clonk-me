@@ -8,7 +8,7 @@ import "./SortableAddressSet.sol";
 contract NFTReplies {
   using SortableAddressSet for SortableAddressSet.Set;
   mapping(address => mapping(uint256 => SortableAddressSet.Set)) replies;
-  mapping(address => uint256) _replyAddedTime;
+  mapping(address => mapping(address => uint256)) _replyAddedTime;
   mapping(address => Token) _reverseInternalAddr;
 
   struct Token {
@@ -27,9 +27,10 @@ contract NFTReplies {
   ) public {
     require(IERC721(childCollection).ownerOf(childTokenId) == msg.sender);
 
+    address parentInternalAddr = calcInternalAddr(parentCollection, parentTokenId);
     address internalAddr = calcInternalAddr(childCollection, childTokenId);
     replies[parentCollection][parentTokenId].insert(internalAddr);
-    _replyAddedTime[internalAddr] = block.timestamp;
+    _replyAddedTime[parentInternalAddr][internalAddr] = block.timestamp;
     _reverseInternalAddr[internalAddr] = Token(childCollection, childTokenId);
   }
 
@@ -45,8 +46,8 @@ contract NFTReplies {
     addReply(parentCollection, parentTokenId, childCollection, newTokenId);
   }
 
-  function replyAddedTime(address collection, uint256 tokenId) external view returns(uint) {
-    return _replyAddedTime[calcInternalAddr(collection, tokenId)];
+  function replyAddedTime(address parentCollection, uint256 parentTokenId, address replyCollection, uint256 replyTokenId) external view returns(uint) {
+    return _replyAddedTime[calcInternalAddr(parentCollection, parentTokenId)][calcInternalAddr(replyCollection, replyTokenId)];
   }
 
   function sortedCount(address collection, uint256 tokenId) public view returns(uint) {
