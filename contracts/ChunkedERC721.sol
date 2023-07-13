@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC4906.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC165.sol";
 
-contract ChunkedERC721 is ERC721, IERC4906 {
+contract ChunkedERC721 is ERC721Enumerable, IERC4906 {
   uint256 public tokenCount;
   mapping(uint256 => string[]) _tokenURIs;
 
   constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
-  function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, IERC165) returns (bool) {
+  function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721Enumerable, IERC165) returns (bool) {
     return interfaceId == bytes4(0x49064906) || super.supportsInterface(interfaceId);
   }
 
