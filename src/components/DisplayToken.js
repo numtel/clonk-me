@@ -1,5 +1,7 @@
+import React, { useState } from 'react';
 import { erc721ABI, useContractReads } from 'wagmi';
 import { Link } from 'react-router-dom';
+import Linkify from 'react-linkify';
 
 import { chainContracts } from '../contracts.js';
 import UserBadge from './UserBadge.js';
@@ -56,14 +58,23 @@ export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
 }
 
 export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, owner, unsortedCount, sortedCount, replyAddedTime, children }) {
-  // TODO don't load the tokenURI immediately, give user preview and click link to load unless .startsWith('data:,')
+  const [loadURI, setLoadURI] = useState(false);
   return (
     <div className="msg">
       <UserBadge address={owner} />
       {replyAddedTime && replyAddedTime > 0 && (
         <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>
       )}
-      <iframe title="NFT display" src={tokenURI}></iframe>
+      {tokenURI.startsWith('data:,') ? (
+        <Linkify><div className="text">{decodeURIComponent(tokenURI.slice(6))}</div></Linkify>
+      ) : loadURI ? (
+        <iframe title="NFT display" src={tokenURI}></iframe>
+      ) : (
+        <div className="preload"><a href={tokenURI} onClick={(event) => {
+          event.preventDefault();
+          setLoadURI(true);
+        }}>Load external resource: {tokenURI}</a></div>
+      )}
       {children}
       <Replies {...{chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount}} />
     </div>
@@ -89,3 +100,8 @@ export function remaining(seconds, onlyFirst) {
   }
   return out.join(', ');
 }
+
+function LinkComponent(decoratedHref, decoratedText, key) {
+  return (<a href={decoratedHref} target="_blank" rel="noreferrer" key={key}>{decoratedText}</a>);
+}
+Linkify.defaultProps.componentDecorator = LinkComponent;
