@@ -21,6 +21,15 @@ contract NFTRepliesTest is Test, ERC721Holder {
     uint tokenId1 = collection.mint('Heyo');
     uint tokenId2 = collection.mint('Foo');
     replies.addReply(address(collection), tokenId1, address(collection), tokenId2);
+
+    assertEq(replies.notificationCount(address(this)), 1);
+    (address parentInternal, address childInternal) = replies.notifications(address(this), 0);
+    (address parentCollection, uint parentTokenId) = replies.reverseInternalAddr(parentInternal);
+    (address childCollection, uint childTokenId) = replies.reverseInternalAddr(childInternal);
+    assertEq(parentCollection, address(collection));
+    assertEq(parentTokenId, tokenId1);
+    assertEq(childCollection, address(collection));
+    assertEq(childTokenId, tokenId2);
   }
 
   function testAddNewReply() public {

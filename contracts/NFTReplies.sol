@@ -9,7 +9,13 @@ contract NFTReplies {
   using SortableAddressSet for SortableAddressSet.Set;
   mapping(address => mapping(uint256 => SortableAddressSet.Set)) replies;
   mapping(address => mapping(address => uint256)) _replyAddedTime;
-  mapping(address => Token) _reverseInternalAddr;
+  mapping(address => Token) public reverseInternalAddr;
+  mapping(address => NewReply[]) public notifications;
+
+  struct NewReply {
+    address parentInternal;
+    address childInternal;
+  }
 
   struct Token {
     address collection;
@@ -31,7 +37,13 @@ contract NFTReplies {
     address internalAddr = calcInternalAddr(childCollection, childTokenId);
     replies[parentCollection][parentTokenId].insert(internalAddr);
     _replyAddedTime[parentInternalAddr][internalAddr] = block.timestamp;
-    _reverseInternalAddr[internalAddr] = Token(childCollection, childTokenId);
+    reverseInternalAddr[internalAddr] = Token(childCollection, childTokenId);
+    if(reverseInternalAddr[parentInternalAddr].collection == address(0)) {
+      reverseInternalAddr[parentInternalAddr] = Token(parentCollection, parentTokenId);
+    }
+
+    notifications[IERC721(parentCollection).ownerOf(parentTokenId)].push(
+      NewReply(parentInternalAddr, internalAddr));
   }
 
   // So users don't have to make 2 tx for a reply
@@ -48,6 +60,10 @@ contract NFTReplies {
 
   function replyAddedTime(address parentCollection, uint256 parentTokenId, address replyCollection, uint256 replyTokenId) external view returns(uint) {
     return _replyAddedTime[calcInternalAddr(parentCollection, parentTokenId)][calcInternalAddr(replyCollection, replyTokenId)];
+  }
+
+  function notificationCount(address recipient) external view returns(uint) {
+    return notifications[recipient].length;
   }
 
   function sortedCount(address collection, uint256 tokenId) public view returns(uint) {
@@ -69,7 +85,7 @@ contract NFTReplies {
   function convertInternalToTokens(address[] memory input) public view returns(Token[] memory out) {
     out = new Token[](input.length);
     for(uint i = 0; i < out.length; i++) {
-      out[i] = _reverseInternalAddr[input[i]];
+      out[i] = reverseInternalAddr[input[i]];
     }
   }
 
