@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import {
   DndContext,
   closestCenter,
@@ -313,7 +312,6 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
 }
 
 function SortableItem({ id, data, isOwner, setSortSavers, toggleEliminated }) {
-  const [eliminate, setEliminate] = useState(false);
   const { address } = useAccount();
   const {
     attributes,
