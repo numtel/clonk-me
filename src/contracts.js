@@ -17,7 +17,7 @@ export const byChain = {
   5: {
     name: 'Goerli',
     replies: {
-      address: '0x95752672818c960b3875e6223aea34a9a55b769f',
+      address: '0x7d27fa9db0993c05e4cd337a66721fa6dc2008a3',
       abi: repliesABI,
       chainId: 5,
     },
