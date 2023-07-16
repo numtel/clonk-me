@@ -4,10 +4,11 @@ pragma solidity ^0.8.19;
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC4906.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC165.sol";
+import "./Base64Url.sol";
 
 contract ChunkedERC721 is ERC721Enumerable, IERC4906 {
   uint256 public tokenCount;
-  mapping(uint256 => string[]) _tokenURIs;
+  mapping(uint256 => bytes[]) _tokenURIs;
 
   constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
@@ -17,11 +18,11 @@ contract ChunkedERC721 is ERC721Enumerable, IERC4906 {
 
   function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
     _requireMinted(tokenId);
-    bytes memory buffer = abi.encodePacked(_tokenURIs[tokenId][0]);
+    bytes memory chunks;
     for(uint i = 1; i < _tokenURIs[tokenId].length; i++) {
-      buffer = abi.encodePacked(buffer, _tokenURIs[tokenId][i]);
+      chunks = abi.encodePacked(chunks, _tokenURIs[tokenId][i]);
     }
-    return string(buffer);
+    return string(abi.encodePacked(_tokenURIs[tokenId][0], Base64Url.encode(chunks)));
   }
 
   function mint(string memory _tokenURI) external returns (uint256) {
@@ -34,13 +35,13 @@ contract ChunkedERC721 is ERC721Enumerable, IERC4906 {
   function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal {
     require(_exists(tokenId));
     if(_tokenURIs[tokenId].length == 0) {
-      _tokenURIs[tokenId].push(_tokenURI);
+      _tokenURIs[tokenId].push(bytes(_tokenURI));
     } else {
       while(_tokenURIs[tokenId].length > 1) {
         _tokenURIs[tokenId].pop();
       }
+      _tokenURIs[tokenId][0] = bytes(_tokenURI);
     }
-    _tokenURIs[tokenId][0] = _tokenURI;
 
     emit MetadataUpdate(tokenId);
   }
@@ -50,7 +51,7 @@ contract ChunkedERC721 is ERC721Enumerable, IERC4906 {
     _setTokenURI(tokenId, _tokenURI);
   }
 
-  function appendTokenURI(uint256 tokenId, string memory chunk) external {
+  function appendTokenURI(uint256 tokenId, bytes memory chunk) external {
     require(ownerOf(tokenId) == msg.sender);
     _tokenURIs[tokenId].push(chunk);
     emit MetadataUpdate(tokenId);
