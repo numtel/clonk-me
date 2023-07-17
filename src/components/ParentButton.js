@@ -32,10 +32,10 @@ function ParentList({ chainId, collection, tokenId, parentCount }) {
     contracts: toLoad,
   });
   if(isLoading) return (
-    <div>Loading token details...</div>
+    <div>Loading parents...</div>
   );
   else if(isError) return (
-    <div>Error loading token!</div>
+    <div>Error loading parents!</div>
   );
   else if(data) return data.map((token, index) => (
     <Link key={`/nft/${chainId}/${token.result.collection}/${token.result.tokenId}`} to={`/nft/${chainId}/${token.result.collection}/${token.result.tokenId}`}>

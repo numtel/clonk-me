@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
+import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount, erc721ABI } from 'wagmi';
 import { decodeEventLog } from 'viem';
 
-export function TransferButton({ item, contract, setNewOwner, newOwner }) {
+// TODO update for ERC721
+export function TransferButton({ chainId, collection, tokenId }) {
   const [show, setShow] = useState(false);
   const { address } = useAccount();
 

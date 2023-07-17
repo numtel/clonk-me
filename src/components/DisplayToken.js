@@ -79,6 +79,9 @@ function TokenWrapper(props) {
   return (<DisplayToken {...props} {...{setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}>
     <div className="controls">
       <ParentButton {...props} />
+      <Link to={`/nft/${props.chainId}/${props.collection}/${props.tokenId}`}>
+        <button>Permalink</button>
+      </Link>
       <ReplyButton
         collection={props.collection}
         tokenId={props.tokenId}

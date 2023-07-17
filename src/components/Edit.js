@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
 import { decodeEventLog } from 'viem';
 
+// TODO update for ChunkedERC721
 export function EditButton({ item, contract, setEditedMsg, editedMsg }) {
   const [show, setShow] = useState(false);
   const { address } = useAccount();

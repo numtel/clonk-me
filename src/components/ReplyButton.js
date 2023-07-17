@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount, usePublicClient } from 'wagmi';
+import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount } from 'wagmi';
 import { decodeEventLog, encodeFunctionData } from 'viem';
 import { chainContracts, convertToInternal } from '../contracts.js';
 
@@ -16,7 +16,6 @@ export function ReplyButton(props) {
 
 export function Reply({ collection, tokenId, chainId, setShow, setChildRepliesRef, loadListRef, setChildForceShowRepliesRef }) {
   const contracts = chainContracts(chainId);
-  const publicClient = usePublicClient({ chainId: Number(chainId) });
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
   const shouldSwitchChain = chain && Number(chainId) !== chain.id;
