@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount, usePublicClient } from 'wagmi';
 import { decodeEventLog, encodeFunctionData } from 'viem';
-import { chainContracts } from '../contracts.js';
+import { chainContracts, convertToInternal } from '../contracts.js';
 
 export function ReplyButton(props) {
   const [show, setShow] = useState(false);
@@ -48,12 +48,7 @@ export function Reply({ collection, tokenId, chainId, setShow, setChildRepliesRe
           topics: log.topics,
           strict: false,
         }));
-      const internalAddr = await publicClient.readContract({
-        ...contracts.replies,
-        functionName: 'calcInternalAddr',
-        args: [contracts.ChunkedERC721.address, decoded[0].args.tokenId]
-      });
-      const loaded = await loadListRef.current([internalAddr]);
+      const loaded = await loadListRef.current([convertToInternal(contracts.ChunkedERC721.address, decoded[0].args.tokenId)]);
       setShow(false);
       setChildForceShowRepliesRef.current(true);
       setChildRepliesRef.current((items) => {

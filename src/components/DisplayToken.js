@@ -3,13 +3,15 @@ import { erc721ABI, useContractReads } from 'wagmi';
 import { Link } from 'react-router-dom';
 import Linkify from 'react-linkify';
 
-import { chainContracts } from '../contracts.js';
+import { chainContracts, convertToInternal } from '../contracts.js';
 import UserBadge from './UserBadge.js';
 import { Replies } from './Replies.js';
 import { ReplyButton } from './ReplyButton.js';
+import { ParentButton } from './ParentButton.js';
 
 export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
   const contracts = chainContracts(chainId);
+  const QUERY_PER_TOKEN = 6;
   const { data, isError, isLoading } = useContractReads({
     contracts: tokens.map(token => [
       {
@@ -36,6 +38,16 @@ export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
         functionName: 'sortedCount',
         args: [token.collection, token.tokenId],
       },
+      {
+        ...contracts.replies,
+        functionName: 'parentCount',
+        args: [convertToInternal(token.collection, token.tokenId)],
+      },
+      {
+        ...contracts.replies,
+        functionName: 'fetchParent',
+        args: [convertToInternal(token.collection, token.tokenId), 0],
+      },
     ]).flat(),
   });
   if(isLoading) return (
@@ -50,10 +62,12 @@ export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
       key={`${token.collection}-${token.tokenId}`}
       collection={token.collection}
       tokenId={token.tokenId}
-      tokenURI={data[index * 4].result}
-      owner={data[index * 4 + 1].result}
-      unsortedCount={data[index * 4 + 2].result}
-      sortedCount={data[index * 4 + 3].result}
+      tokenURI={data[index * QUERY_PER_TOKEN].result}
+      owner={data[index * QUERY_PER_TOKEN + 1].result}
+      unsortedCount={data[index * QUERY_PER_TOKEN + 2].result}
+      sortedCount={data[index * QUERY_PER_TOKEN + 3].result}
+      parentCount={data[index * QUERY_PER_TOKEN + 4].result}
+      parentZero={data[index * QUERY_PER_TOKEN + 5].result}
     />
   ));
 }
@@ -64,6 +78,7 @@ function TokenWrapper(props) {
   const loadListRef = useRef();
   return (<DisplayToken {...props} {...{setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}>
     <div className="controls">
+      <ParentButton {...props} />
       <ReplyButton
         collection={props.collection}
         tokenId={props.tokenId}

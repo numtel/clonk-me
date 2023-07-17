@@ -73,6 +73,10 @@ contract NFTReplies {
     return parents[internalAddr].length;
   }
 
+  function fetchParent(address internalAddr, uint index) external view returns(Token memory) {
+    return reverseInternalAddr[parents[internalAddr][index]];
+  }
+
   function sortedCount(address collection, uint256 tokenId) public view returns(uint) {
     return replies[collection][tokenId].sortedCount;
   }

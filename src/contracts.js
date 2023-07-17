@@ -1,3 +1,5 @@
+import { encodePacked, keccak256 } from 'viem';
+
 import messagesABI from './abi/Messages.json';
 import repliesABI from './abi/NFTReplies.json';
 import chunkedERC721ABI from './abi/ChunkedERC721.json';
@@ -18,7 +20,7 @@ export const byChain = {
   5: {
     name: 'Goerli',
     replies: {
-      address: '0x16e52d44c601083f75292a12bfc8f4bd43a3b803',
+      address: '0x36A93a593c9c149197369D36d199DAA15EedF3D2',
       abi: repliesABI,
       chainId: 5,
     },
@@ -51,3 +53,6 @@ export function chainContracts(chain) {
   else return byChain[defaultChain];
 }
 
+export function convertToInternal(collection, tokenId) {
+  return '0x' + keccak256(encodePacked(['address', 'uint256'], [collection, tokenId])).slice(-40);
+}
