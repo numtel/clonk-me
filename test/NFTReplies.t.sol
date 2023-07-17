@@ -30,6 +30,9 @@ contract NFTRepliesTest is Test, ERC721Holder {
     assertEq(parentTokenId, tokenId1);
     assertEq(childCollection, address(collection));
     assertEq(childTokenId, tokenId2);
+
+    assertEq(replies.parentCount(childInternal), 1);
+    assertEq(replies.parents(childInternal, 0), parentInternal);
   }
 
   function testAddNewReply() public {

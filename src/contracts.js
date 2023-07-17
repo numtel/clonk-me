@@ -1,5 +1,5 @@
 import messagesABI from './abi/Messages.json';
-import repliesABI from './abi/Replies.json';
+import repliesABI from './abi/NFTReplies.json';
 
 export const defaultChain = 137;
 
@@ -17,7 +17,7 @@ export const byChain = {
   5: {
     name: 'Goerli',
     replies: {
-      address: '0x7d27fa9db0993c05e4cd337a66721fa6dc2008a3',
+      address: '0x16e52d44c601083f75292a12bfc8f4bd43a3b803',
       abi: repliesABI,
       chainId: 5,
     },

@@ -11,6 +11,7 @@ contract NFTReplies {
   mapping(address => mapping(address => uint256)) _replyAddedTime;
   mapping(address => Token) public reverseInternalAddr;
   mapping(address => NewReply[]) public notifications;
+  mapping(address => address[]) public parents;
 
   struct NewReply {
     address parentInternal;
@@ -26,7 +27,6 @@ contract NFTReplies {
     return address(uint160(uint256(keccak256(abi.encodePacked(collection, tokenId)))));
   }
 
-  // TODO keep track of parents? (would have to tie in with sorting removals)
   function addReply(
     address parentCollection, uint256 parentTokenId,
     address childCollection, uint256 childTokenId
@@ -42,6 +42,9 @@ contract NFTReplies {
       reverseInternalAddr[parentInternalAddr] = Token(parentCollection, parentTokenId);
     }
 
+    // Parents are not removed if a reply is eliminated
+    parents[internalAddr].push(parentInternalAddr);
+    // Notifications go to the current owner of the token
     notifications[IERC721(parentCollection).ownerOf(parentTokenId)].push(
       NewReply(parentInternalAddr, internalAddr));
   }
@@ -64,6 +67,10 @@ contract NFTReplies {
 
   function notificationCount(address recipient) external view returns(uint) {
     return notifications[recipient].length;
+  }
+
+  function parentCount(address internalAddr) external view returns(uint) {
+    return parents[internalAddr].length;
   }
 
   function sortedCount(address collection, uint256 tokenId) public view returns(uint) {
