@@ -50,7 +50,7 @@ function LoadPage({ contracts, address, count, start, perPage }) {
     toLoad.push({
       ...contracts.ChunkedERC721,
       functionName: 'tokenOfOwnerByIndex',
-      args: [address, start + i],
+      args: [address, count - 1 - (start + i)],
     });
   }
   const { data, isError, isLoading } = useContractReads({
