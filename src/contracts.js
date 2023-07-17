@@ -1,5 +1,6 @@
 import messagesABI from './abi/Messages.json';
 import repliesABI from './abi/NFTReplies.json';
+import chunkedERC721ABI from './abi/ChunkedERC721.json';
 
 export const defaultChain = 137;
 
@@ -19,6 +20,11 @@ export const byChain = {
     replies: {
       address: '0x16e52d44c601083f75292a12bfc8f4bd43a3b803',
       abi: repliesABI,
+      chainId: 5,
+    },
+    ChunkedERC721: {
+      address: '0xb208648581f5ea464fcd2c22fe2b59e2bf339a69',
+      abi: chunkedERC721ABI,
       chainId: 5,
     },
   },

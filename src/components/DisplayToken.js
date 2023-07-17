@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { erc721ABI, useContractReads } from 'wagmi';
 import { Link } from 'react-router-dom';
 import Linkify from 'react-linkify';
@@ -6,6 +6,7 @@ import Linkify from 'react-linkify';
 import { chainContracts } from '../contracts.js';
 import UserBadge from './UserBadge.js';
 import { Replies } from './Replies.js';
+import { ReplyButton } from './ReplyButton.js';
 
 export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
   const contracts = chainContracts(chainId);
@@ -44,7 +45,7 @@ export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
     <div>Error loading token!</div>
   );
   else if(data) return tokens.map((token, index) => (
-    <DisplayToken
+    <TokenWrapper
       {...{chainId, setSortSavers, disableSort}}
       key={`${token.collection}-${token.tokenId}`}
       collection={token.collection}
@@ -57,7 +58,23 @@ export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
   ));
 }
 
-export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, owner, unsortedCount, sortedCount, replyAddedTime, children }) {
+function TokenWrapper(props) {
+  const setChildRepliesRef = useRef();
+  const setChildForceShowRepliesRef = useRef();
+  const loadListRef = useRef();
+  return (<DisplayToken {...props} {...{setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}>
+    <div className="controls">
+      <ReplyButton
+        collection={props.collection}
+        tokenId={props.tokenId}
+        chainId={props.chainId}
+        {...{setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}
+        />
+    </div>
+  </DisplayToken>);
+}
+
+export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, owner, unsortedCount, sortedCount, replyAddedTime, children, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
   const [loadURI, setLoadURI] = useState(false);
   return (
     <div className="msg">
@@ -76,7 +93,7 @@ export function DisplayToken({ chainId, setSortSavers, disableSort, collection, 
         }}>Load external resource: {tokenURI}</a></div>
       )}
       {children}
-      <Replies {...{chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount}} />
+      <Replies {...{chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}} />
     </div>
   );
 }

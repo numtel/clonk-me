@@ -22,14 +22,14 @@ import { erc721ABI, usePublicClient, useAccount } from 'wagmi';
 import { chainContracts } from '../contracts.js';
 import { DisplayToken } from './DisplayToken.js';
 import { RescindButton } from './RescindButton.js';
+import { ReplyButton } from './ReplyButton.js';
 
 const UNSORTED_PAGE_SIZE = 30n;
 const SORTED_PAGE_SIZE = 30n;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-// TODO threshold for removal
 const REMOVE_SORT_VAL = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn;
 
-export function Replies({ chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount }) {
+export function Replies({ chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
   const contracts = chainContracts(chainId);
   const publicClient = usePublicClient({ chainId: Number(chainId) });
   const { address } = useAccount();
@@ -42,6 +42,8 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
   const repliesRef = useRef();
   const dirtyCountRef = useRef();
   repliesRef.current = replies;
+  if(setChildRepliesRef) setChildRepliesRef.current = setReplies;
+  if(setChildForceShowRepliesRef) setChildForceShowRepliesRef.current = setForceShowReplies;
   useEffect(() => {
     setReplies(replies => {
       for(let i = 0; i < replies.length; i++) {
@@ -109,6 +111,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
           parentTokenId: tokenId,
         }));
   }
+  if(loadListRef) loadListRef.current = loadList;
   async function loadSorted(lastItem) {
     setReplies((replies) => [
       ...replies.filter(item => item.id !== 'loadSorted' && item.aboveThreshold),
@@ -179,7 +182,18 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
             items={replies}
             strategy={verticalListSortingStrategy}
           >
-            {replies.map(item => <SortableItem key={item.id} {...{isOwner, toggleEliminated, setSortSavers}} id={item.id} data={item} />)}
+            {replies.map(item => <SortableItem
+              {...{
+                isOwner,
+                toggleEliminated,
+                setSortSavers,
+                setReplies,
+                setForceShowReplies,
+              }}
+              key={item.id}
+              id={item.id}
+              data={item}
+              />)}
           </SortableContext>
         </DndContext>
       )}
@@ -311,7 +325,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
   }
 }
 
-function SortableItem({ id, data, isOwner, setSortSavers, toggleEliminated }) {
+function SortableItem({ id, data, isOwner, setSortSavers, toggleEliminated, ...extraProps }) {
   const { address } = useAccount();
   const {
     attributes,
@@ -320,6 +334,9 @@ function SortableItem({ id, data, isOwner, setSortSavers, toggleEliminated }) {
     transform,
     transition,
   } = useSortable({id});
+  const setChildRepliesRef = useRef();
+  const setChildForceShowRepliesRef = useRef();
+  const loadListRef = useRef();
 
   if(transform) {
     // Don't deform the item while dragging
@@ -336,9 +353,15 @@ function SortableItem({ id, data, isOwner, setSortSavers, toggleEliminated }) {
     <div ref={setNodeRef} style={style} className={`drag-item ${data.dirty ? data.eliminate ? 'eliminate' : 'dirty' : ''}`}>
       {data.el ? data.el : (<>
         {isOwner && <div {...attributes} {...listeners} className={`drag-handle`}>Handle</div>}
-        <DisplayToken {...data} {...{setSortSavers}}>
+        <DisplayToken {...data} {...{setSortSavers, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}>
           <div className="controls">
-            <button>Reply</button>
+            <ReplyButton
+              collection={data.collection}
+              tokenId={data.tokenId}
+              chainId={data.chainId}
+              {...{setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}
+              {...extraProps}
+              />
             {data.owner.toLowerCase() === address.toLowerCase() && (
               <RescindButton
                 chainId={data.chainId}
