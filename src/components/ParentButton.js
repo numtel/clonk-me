@@ -17,6 +17,7 @@ export function ParentButton({ chainId, collection, tokenId, parentCount, parent
   );
 }
 
+// TODO how to render many parents?
 function ParentList({ chainId, collection, tokenId, parentCount }) {
   const contracts = chainContracts(chainId);
   const internalAddr = convertToInternal(collection, tokenId);

@@ -13,6 +13,8 @@ header h1 { margin:0; padding:0; color:#000; }
 @media (max-width:500px) {
   header { flex-direction:column; }
 }
+header .notifications {}
+header .notifications.new { color:orangered; }
 
 .msg { flex:1; padding:20px 20px 10px 20px; background:#0061; margin:10px 0; border-radius:5px; }
 .threshold {text-align:center; width:100%; font-size:80%; background: #0002; }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useContractReads } from 'wagmi';
 
 import { byChain, chainContracts } from '../contracts.js';
@@ -12,6 +12,7 @@ export function User() {
 
   return (<div id="user">
     <p>Account {address}</p>
+    <p><Link to={`/u/${address}/inbox`}>Notifications Inbox</Link></p>
     {Object.keys(byChain).map(x => (
       <PerChain key={x} contracts={chainContracts(x)} {...{address}} />
     ))}
@@ -41,6 +42,7 @@ function PerChain({ contracts, address }) {
   </div>);
 }
 
+// TODO can't have multiple RootTokenList due to the sort
 function LoadPage({ contracts, address, count, start, perPage }) {
   const [loadMore, setLoadMore] = useState(false);
   const toLoad = [];
