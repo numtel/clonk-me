@@ -4,6 +4,7 @@ import { useContractReads } from 'wagmi';
 
 import { byChain, chainContracts } from '../contracts.js';
 import { RootTokenList } from '../components/RootTokenList.js';
+import { SortSaver } from '../components/SortSaver.js';
 
 const POST_PER_PAGE = 10;
 
@@ -14,7 +15,9 @@ export function User() {
     <p>Account {address}</p>
     <p><Link to={`/u/${address}/inbox`}>Notifications Inbox</Link></p>
     {Object.keys(byChain).map(x => (
-      <PerChain key={x} contracts={chainContracts(x)} {...{address}} />
+      <SortSaver chainId={x}>
+        <PerChain key={x} contracts={chainContracts(x)} {...{address}} />
+      </SortSaver>
     ))}
   </div>);
 }
@@ -42,7 +45,6 @@ function PerChain({ contracts, address }) {
   </div>);
 }
 
-// TODO can't have multiple RootTokenList due to the sort
 function LoadPage({ contracts, address, count, start, perPage }) {
   const [loadMore, setLoadMore] = useState(false);
   const toLoad = [];

@@ -4,7 +4,6 @@ import { useContractReads, useAccount } from 'wagmi';
 
 import { byChain } from '../contracts.js';
 
-import {NOTIFICATION_LOCALSTORAGE_KEY} from '../pages/Inbox.js';
 import {InboxContext} from './Layout.js';
 
 export function InboxButton() {
@@ -20,6 +19,7 @@ export function InboxButton() {
   const { data, isError, isLoading } = useContractReads({
     contracts: toLoad,
   });
+  if(!address) return null;
   if(isLoading) return (
     <div>Loading notifications...</div>
   );
