@@ -14,7 +14,7 @@ export const byChain = {
       chainId: 5,
     },
     ChunkedERC721: {
-      address: '0xb208648581f5ea464fcd2c22fe2b59e2bf339a69',
+      address: '0x6b4d2a78e69b98bd0b30356ffb3702096e0d5a51',
       abi: chunkedERC721ABI,
       chainId: 5,
     },

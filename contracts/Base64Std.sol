@@ -2,27 +2,27 @@
 pragma solidity ^0.8.0;
 
 /**
- * @dev Encode and decode base64 url
+ * @dev Encode and decode standard base64 
  * @author hiromin <tannguyen1742@gmail.com>
  */
-library Base64Url {
+library Base64Std {
     /**
-     * @dev Base64Url Encoding/Decoding Table
+     * @dev Base64Std Encoding/Decoding Table
      */
     string internal constant ENCODING_TABLE =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     /**
         @dev fast way to calculate this index table in python:
-               encode_table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+               encode_table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
                table = [None] * 256
                for i in range(len(encode_table)): # len = 64
                    table[ord(encode_table[i])] = bytes([i]).hex()
      */
     bytes internal constant DECODING_TABLE =
         hex"0000000000000000000000000000000000000000000000000000000000000000"
-        hex"000000000000000000000000003e00403435363738393a3b3c3d000000000000"
-        hex"00000102030405060708090a0b0c0d0e0f10111213141516171819000000003f"
+        hex"00000000000000000000003e0000003f3435363738393a3b3c3d000000000000"
+        hex"00000102030405060708090a0b0c0d0e0f101112131415161718190000000000"
         hex"001a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132330000000000";
 
     function encode(bytes memory data) internal pure returns (string memory) {
@@ -103,12 +103,12 @@ library Base64Url {
         return result;
     }
 
-    function decode(string memory base64Url)
+    function decode(string memory base64Str)
         internal
         pure
         returns (bytes memory)
     {
-        bytes memory data = bytes(base64Url);
+        bytes memory data = bytes(base64Str);
 
         require(data.length > 0, "Invalid base64 string");
 

@@ -104,6 +104,11 @@ export function DisplayToken({ chainId, setSortSavers, disableSort, collection, 
         <Linkify><div className="text">{decodeURIComponent(tokenURI.slice(6))}</div></Linkify>
       ) : loadURI ? (
         <iframe title="NFT display" src={tokenURI}></iframe>
+      ) : tokenURI.startsWith('data:') ? (
+        <div className="preload"><a href={tokenURI} onClick={(event) => {
+          event.preventDefault();
+          setLoadURI(true);
+        }}>Display embedded resource: {tokenURI.split(';')[0].slice(5)}</a></div>
       ) : (
         <div className="preload"><a href={tokenURI} onClick={(event) => {
           event.preventDefault();

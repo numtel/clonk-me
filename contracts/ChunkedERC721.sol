@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC4906.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC165.sol";
-import "./Base64Url.sol";
+import "./Base64Std.sol";
 
 contract ChunkedERC721 is ERC721Enumerable, IERC4906 {
   uint256 public tokenCount;
@@ -22,7 +22,7 @@ contract ChunkedERC721 is ERC721Enumerable, IERC4906 {
     for(uint i = 1; i < _tokenURIs[tokenId].length; i++) {
       chunks = abi.encodePacked(chunks, _tokenURIs[tokenId][i]);
     }
-    return string(abi.encodePacked(_tokenURIs[tokenId][0], Base64Url.encode(chunks)));
+    return string(abi.encodePacked(_tokenURIs[tokenId][0], Base64Std.encode(chunks)));
   }
 
   function mint(string memory _tokenURI) external returns (uint256) {
