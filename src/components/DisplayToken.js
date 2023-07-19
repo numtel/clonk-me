@@ -94,6 +94,7 @@ function TokenWrapper(props) {
 
 export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, owner, unsortedCount, sortedCount, replyAddedTime, children, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
   const [loadURI, setLoadURI] = useState(false);
+  if(!tokenURI) return null;
   return (
     <div className="msg">
       <UserBadge address={owner} />
