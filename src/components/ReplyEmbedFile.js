@@ -1,37 +1,48 @@
 import { useState, useEffect } from 'react';
-import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, usePublicClient, useAccount } from 'wagmi';
-import { decodeEventLog, encodeFunctionData, bytesToHex } from 'viem';
+import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, usePublicClient, useAccount, useFeeData } from 'wagmi';
+import { decodeEventLog, encodeFunctionData, bytesToHex, formatEther } from 'viem';
 import { chainContracts, convertToInternal } from '../contracts.js';
 
 export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChildRepliesRef, loadListRef, setChildForceShowRepliesRef }) {
   const contracts = chainContracts(chainId);
   const { chain } = useNetwork();
+  const { data: feeData, isError: feeDataError, isLoading: feeDataLoading } = useFeeData({ chainId: Number(chainId) });
   const { address: account } = useAccount();
   const { switchNetwork } = useSwitchNetwork();
   const [ chunks, setChunks ] = useState();
+  const [ gasEstimate, setGasEstimate ] = useState();
   const [ newTokenId, setNewTokenId ] = useState();
   const [ curChunk, setCurChunk ] = useState();
   const [ isCalculating, setIsCalculating ] = useState(false);
   const shouldSwitchChain = chain && Number(chainId) !== chain.id;
   const publicClient = usePublicClient({ chainId: Number(chainId) });
-  const submitReply = async (event) => {
-    event.preventDefault();
-    const files = event.target.file.files;
+  const fileSelect = async (event) => {
+    const files = event.target.files;
     if(files.length === 0) {
-      alert('No File Selected');
+      setChunks(null);
+      setGasEstimate(null);
       return;
     }
     const data = await fileToUint8Array(files[0]);
+    setIsCalculating(true);
+    const splits = await determineFileSplits(data);
+    setIsCalculating(false);
+    setGasEstimate(splits.gasEstimate * window.BigInt(splits.chunks.length));
+    setChunks(splits.chunks);
+  };
+  const submitReply = async (event) => {
+    event.preventDefault();
+    const files = event.target.file.files;
+    if(!chunks) {
+      alert('No File Selected');
+      return;
+    }
     const tokenURI = `data:${files[0].type};base64,`;
     const mintCalldata = encodeFunctionData({
       abi: contracts.ChunkedERC721.abi,
       functionName: 'mint',
       args: [ tokenURI ],
     });
-    setIsCalculating(true);
-    const splits = await determineFileSplits(data);
-    setIsCalculating(false);
-    setChunks(splits);
 
     write({
       args: [collection, tokenId, contracts.ChunkedERC721.address, mintCalldata]
@@ -61,7 +72,7 @@ export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChild
       <fieldset>
         <legend>Add reply</legend>
         <p>This operation requires multiple transactions depending on filesize.</p>
-        <input type="file" name="file" />
+        <input onChange={fileSelect} type="file" name="file" />
         {shouldSwitchChain ? (
           <button onClick={(event) => {
             event.preventDefault();
@@ -71,6 +82,11 @@ export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChild
           <button type="submit">Submit</button>
         )}
         {setShow && <button onClick={() => setShow(false)}>Cancel</button>}
+        {chunks ?
+          feeDataLoading ? (<p>Loading fee data...</p>)
+          : feeDataError ? (<p>Error loading fee data!</p>)
+          : (<p>Total Upload Estimate: {formatEther(gasEstimate * feeData.gasPrice)} {chain.nativeCurrency.symbol} at {feeData.formatted.gasPrice} GWEI</p>)
+          : null }
         {isCalculating && <p>Calculating chunk sizes...</p>}
         {isLoading && <p>Waiting for user confirmation...</p>}
         {isSuccess && (
@@ -88,10 +104,11 @@ export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChild
   async function determineFileSplits(data) {
     let hadError = true;
     let testData = data;
+    let gasEstimate;
     while(hadError) {
       hadError = false;
       try {
-        await publicClient.estimateContractGas({
+        gasEstimate = await publicClient.estimateContractGas({
           ...contracts.ChunkedERC721,
           functionName: 'appendTokenURI',
           account,
@@ -110,7 +127,7 @@ export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChild
       splits.push(data.slice(splitsLen, splitsLen + testData.length));
       splitsLen += testData.length;
     }
-    return splits;
+    return {chunks: splits, gasEstimate};
   }
 }
 
