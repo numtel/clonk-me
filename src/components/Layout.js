@@ -13,8 +13,10 @@ export function Layout() {
     <InboxContext.Provider value={inboxState}>
       <header>
         <Link to="/"><h1>clonk.me</h1></Link>
-        <ConnectButton chainStatus="none" showBalance={false} />
-        <InboxButton />
+        <div className="account">
+          <ConnectButton chainStatus="none" showBalance={false} />
+          <InboxButton />
+        </div>
       </header>
       <Outlet />
     </InboxContext.Provider>

@@ -7,7 +7,6 @@ export function Token() {
   // TODO validate these values
   const { chainId, collection, tokenId } = useParams();
   return (<div id="token">
-    <p>Token {chainId} {collection} {tokenId}</p>
     <SortSaver {...{chainId}}>
       <RootTokenList {...{chainId}} tokens={[{collection, tokenId}]} />
     </SortSaver>

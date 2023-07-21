@@ -59,7 +59,7 @@ export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
   else if(data) return tokens.map((token, index) => (
     <TokenWrapper
       {...{chainId, setSortSavers, disableSort}}
-      key={`${token.collection}-${token.tokenId}`}
+      key={index}
       collection={token.collection}
       tokenId={token.tokenId}
       tokenURI={data[index * QUERY_PER_TOKEN].result}

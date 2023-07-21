@@ -6,15 +6,24 @@ a { color: #333; }
 a:visited { color: #353; }
 
 * { box-sizing: border-box; }
-#root { max-width:720px; margin: 20px auto;}
-header {display:flex; padding:15px; justify-content:space-between; width:100%;}
+#root { margin: 20px;}
+header {display:flex; justify-content:space-between; width:100%;}
 header>a { text-decoration:none;}
 header h1 { margin:0; padding:0; color:#000; }
 @media (max-width:500px) {
   header { flex-direction:column; }
 }
-header .notifications {}
+header .account {display:flex; align-items:baseline;}
+header .notifications { margin-left: 10px;}
 header .notifications.new { color:orangered; }
+
+.tabs {display:flex; list-style:none; padding: 5px; border-bottom: 1px solid #777; }
+.tabs li { background:#0002; border-radius: 5px 5px 0 0; padding: 5px 8px; margin: 0 5px -5px 5px; }
+.tabs li.active {background:none; border: 1px solid #777; margin-bottom: -6px; border-bottom-color:#fff;}
+.tabs li.new { background:linear-gradient(orangered, #0002 40%); }
+.tabs li.active.new { background:linear-gradient(orangered, white 40%); }
+.tabs a {text-decoration:none;}
+.tabs button {margin:0; background:none; border: none; border-radius:0;}
 
 .msg { flex:1; padding:20px 20px 10px 20px; background:#0061; margin:10px 0; border-radius:5px; }
 .threshold {text-align:center; width:100%; font-size:80%; background: #0002; }
@@ -30,12 +39,14 @@ em.edited::before { content: "*"; }
 .msg iframe { display: block; width: 100%; border:none; margin-top:4px; }
 .msg .preload { padding: 4px; }
 .controls { margin-top: 8px; }
+.reply-type-chooser { margin: 5px 0; }
 
 button {margin-right:6px; background:#0801; border: 1px solid #999; color: black; cursor:pointer; border-radius:4px;}
 button:hover { background:#0f01; }
 button:disabled { background:#2221; cursor:default; }
 fieldset {margin:15px; background:#0001; border:none;}
 legend {float:left; margin-bottom:5px; }
+legend+* {clear:both; }
 textarea {width:100%; font-family:ComicMono, sans-serif; height: 25vh; margin-bottom:15px;}
 input {width:100%; margin-bottom:15px; }
 

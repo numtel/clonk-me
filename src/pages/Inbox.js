@@ -6,25 +6,38 @@ import { byChain, chainContracts } from '../contracts.js';
 import { SortSaver } from '../components/SortSaver.js';
 import { RootTokenList } from '../components/RootTokenList.js';
 import {InboxContext} from '../components/Layout.js';
+import UserBadge from '../components/UserBadge.js';
 
 const POST_PER_PAGE = 10;
 export const NOTIFICATION_LOCALSTORAGE_KEY = 'lastSeenNotificationCount';
 
 export function Inbox() {
+  const [ inboxData ] = useContext(InboxContext);
   const { address } = useParams();
+  const [ curChain, setCurChain] = useState(Object.keys(byChain)[0]);
   return (<div id="inbox">
-    <p>Inbox {address}</p>
-    <p><Link to={`/u/${address}`}>Account Profile</Link></p>
-    {Object.keys(byChain).map(x => (
-      <SortSaver chainId={x}>
-        <PerChain key={x} contracts={chainContracts(x)} {...{address}} />
+    <h2>Account: <UserBadge {...{address}} /></h2>
+    <ul className="tabs">
+      <li><Link to={`/u/${address}`}>Posts</Link></li>
+      <li className="active">Inbox</li>
+    </ul>
+    <ul className="chains tabs">
+      {Object.keys(byChain).map((x, index) => (
+        <PerChain key={x} contracts={chainContracts(x)} {...{address, index, curChain, setCurChain}} />
+      ))}
+    </ul>
+    {curChain && (
+      <SortSaver {...{chainId: curChain}}>
+        <LoadPage {...{contracts: chainContracts(curChain), address}} start={0} perPage={POST_PER_PAGE} count={Number(address in inboxData ? inboxData[address][curChain] : 0)} />
       </SortSaver>
-    ))}
+    )}
   </div>);
 }
 
-function PerChain({ contracts, address }) {
-  const [ , setInboxData ] = useContext(InboxContext);
+function PerChain({ contracts, address, index, curChain, setCurChain, setArticle }) {
+  const [ inboxData, setInboxData ] = useContext(InboxContext);
+  const chainId = contracts.replies.chainId;
+  const [curVal] = useState(address in inboxData ? inboxData[address][chainId] : 0);
   const { data, isError, isLoading } = useContractReads({
     contracts: [
       {
@@ -37,7 +50,6 @@ function PerChain({ contracts, address }) {
   useEffect(() => {
     if(!data || !data[0].result) return;
     const newVal = Number(data[0].result.toString());
-    const chainId = contracts.replies.chainId;
     const curData = JSON.parse(localStorage.getItem(NOTIFICATION_LOCALSTORAGE_KEY) || '{}');
     if(!(address in curData)) curData[address] = {};
     if((!(chainId in curData[address])) || (newVal > curData[address][chainId])) {
@@ -52,11 +64,11 @@ function PerChain({ contracts, address }) {
   else if(isError) return (
     <div>Error loading notifications!</div>
   );
-  else if(data) return (<div id="user">
-    <h2>Notifications on {contracts.name}</h2>
-    <p>Count: {data[0].result.toString()}</p>
-    <LoadPage {...{contracts, address}} start={0} perPage={POST_PER_PAGE} count={Number(data[0].result.toString())} />
-  </div>);
+  else if(data) {
+    return (<>
+      <li className={`${chainId === Number(curChain) ? 'active' : ''} ${data[0].result > curVal ? 'new' : ''}`}><button onClick={() => setCurChain(chainId)}>{contracts.name}</button></li>
+    </>);
+  }
 }
 
 function LoadPage({ contracts, address, count, start, perPage }) {

@@ -1,10 +1,11 @@
 
 import { chainContracts } from '../contracts.js';
-import { useNetwork, useContractWrite, useWaitForTransaction } from 'wagmi';
+import { useNetwork, useContractWrite, useWaitForTransaction, useSwitchNetwork } from 'wagmi';
 
 export function RescindButton({ chainId, parentCollection, parentTokenId, replyCollection, replyTokenId }) {
   const { chain } = useNetwork();
   const shouldSwitchChain = chain && Number(chainId) !== chain.id;
+  const { switchNetwork } = useSwitchNetwork();
   const contracts = chainContracts(chainId);
 
 
@@ -17,10 +18,8 @@ export function RescindButton({ chainId, parentCollection, parentTokenId, replyC
     hash: data && data.hash,
   });
 
-  if(shouldSwitchChain) return null;
-
   return (<>
-    <button onClick={write}>Rescind</button>
+    <button onClick={() => shouldSwitchChain ? switchNetwork(chainId) : write()}>{shouldSwitchChain ? 'Switch chain to Rescind' : 'Rescind' }</button>
     {isLoading && <p className="status">Waiting for user confirmation...</p>}
     {isSuccess && (
       txIsError ? (<p className="status">Transaction error!</p>)

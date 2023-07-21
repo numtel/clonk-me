@@ -27,5 +27,6 @@ function ReplyChooser({setShow}) {
     <button onClick={() => setShow('embedfile')}>File Upload</button>
     <button onClick={() => setShow('existing')}>Existing NFT</button>
     <button onClick={() => setShow('external')}>External URI</button>
+    <button onClick={() => setShow(false)}>Cancel</button>
   </div>);
 }

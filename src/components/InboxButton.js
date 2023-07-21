@@ -39,8 +39,11 @@ export function InboxButton() {
     return (
       <Link
         to={`/u/${address}/inbox`}
-        className={`notifications ${hasNew ? 'new' : ''}`}>
-        Inbox
+        className={`notifications ${hasNew ? 'new' : ''}`}
+        title={hasNew ? 'Unread Notifications' : 'No unread notifications'}>
+        <span className="material-symbols-outlined">
+          mail
+        </span>
       </Link>
     )
   }
