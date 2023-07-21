@@ -18,6 +18,7 @@ import {
 import {useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
 import { erc721ABI, usePublicClient, useAccount } from 'wagmi';
+import { isAddressEqual, isAddress } from 'viem';
 
 import { chainContracts } from '../contracts.js';
 import { DisplayToken } from './DisplayToken.js';
@@ -362,7 +363,7 @@ function SortableItem({ id, data, isOwner, setSortSavers, toggleEliminated, ...e
               {...{setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}
               {...extraProps}
               />
-            {data.owner.toLowerCase() === address.toLowerCase() && (
+            {isAddress(address) && isAddressEqual(data.owner, address) && (
               <RescindButton
                 chainId={data.chainId}
                 parentCollection={data.parentCollection}

@@ -45,10 +45,12 @@ function PerChain({ contracts, address, curChain, setCurChain, setCounts }) {
     ],
   });
   useEffect(() => {
-    setCounts(counts => {
-      counts[chainId] = data[0].result;
-      return {...counts};
-    });
+    if(data) {
+      setCounts(counts => {
+        counts[chainId] = data[0].result;
+        return {...counts};
+      });
+    }
   }, [data]);
   if(isLoading) return (
     <div>Loading posts...</div>

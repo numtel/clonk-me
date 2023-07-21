@@ -7,6 +7,9 @@ a:visited { color: #353; }
 
 * { box-sizing: border-box; }
 #root { margin: 20px;}
+@media (max-width:700px) {
+  #root {margin: 20px 5px;}
+}
 header {display:flex; justify-content:space-between; width:100%;}
 header>a { text-decoration:none;}
 header h1 { margin:0; padding:0; color:#000; }
