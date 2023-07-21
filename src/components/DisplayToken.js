@@ -92,6 +92,7 @@ function TokenWrapper(props) {
   </DisplayToken>);
 }
 
+// TODO load tokenURI from ipfs and eip4804 too!
 export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, owner, unsortedCount, sortedCount, replyAddedTime, children, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
   const [loadURI, setLoadURI] = useState(false);
   if(!tokenURI) return null;
