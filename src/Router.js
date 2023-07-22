@@ -6,6 +6,7 @@ import { User } from './pages/User.js';
 import { Token } from './pages/Token.js';
 import { Inbox } from './pages/Inbox.js';
 
+// TODO put chain id in latestposts/user profile/inbox routes
 export function Router() {
   return (
     <BrowserRouter>

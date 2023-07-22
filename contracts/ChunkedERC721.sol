@@ -57,4 +57,10 @@ contract ChunkedERC721 is ERC721Enumerable, IERC4906 {
     emit MetadataUpdate(tokenId);
   }
 
+  // Only for dry-runs, don't actually store data here,
+  // because you won't be able to retrieve it
+  function uploadEstimateDummy(bytes memory chunk) external {
+    _tokenURIs[0].push(chunk);
+  }
+
 }

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEnsName, /*useEnsAvatar*/ } from 'wagmi';
 
+// TODO add follow button (localstorage), homepage feed for followed posts
 export default function UserBadge({ address }) {
   const {data: ensName} = useEnsName({
     address,

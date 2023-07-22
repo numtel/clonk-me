@@ -85,7 +85,7 @@ export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChild
         {chunks ?
           feeDataLoading ? (<p>Loading fee data...</p>)
           : feeDataError ? (<p>Error loading fee data!</p>)
-          : (<p>Total Upload Estimate: {formatEther(gasEstimate * feeData.gasPrice)} {chain.nativeCurrency.symbol} at {feeData.formatted.gasPrice} GWEI</p>)
+          : (<p>Total Upload Estimate: {formatEther(gasEstimate * feeData.gasPrice)} {contracts.nativeCurrency} at {feeData.formatted.gasPrice} GWEI</p>)
           : null }
         {isCalculating && <p>Calculating chunk sizes...</p>}
         {isLoading && <p>Waiting for user confirmation...</p>}
@@ -110,10 +110,9 @@ export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChild
       try {
         gasEstimate = await publicClient.estimateContractGas({
           ...contracts.ChunkedERC721,
-          functionName: 'appendTokenURI',
+          functionName: 'uploadEstimateDummy',
           account,
-          // Dummy tokenId but gas price shouldn't matter on which token
-          args: [ 1, bytesToHex(testData) ],
+          args: [ bytesToHex(testData) ],
         });
       } catch(error) {
         hadError = true;
