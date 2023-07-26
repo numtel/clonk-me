@@ -35,7 +35,11 @@ header .notifications.new { color:orangered; }
 .eliminate .msg { background: #f995; }
 .drag-item>button { margin:0 auto; }
 .drag-handle {width: 15px; font-size:0; background:#0002; cursor:ns-resize;margin-right:5px;}
-.postdate {font-size:90%;}
+.msg .header { display:flex; }
+.different-owner { display:flex; flex-direction:column; }
+.different-owner .original::before {content: "Original Creator: "}
+.different-owner .current::before {content: "Current Owner: "}
+.postdate {font-size:90%; padding:0 5px;}
 em.edited {font-size:80%;}
 em.edited::before { content: "*"; }
 .msg .text { padding: 15px 0; white-space: pre-line; font-family:ComicMono, sans-serif; }

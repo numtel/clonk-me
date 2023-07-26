@@ -20,10 +20,11 @@ import {CSS} from '@dnd-kit/utilities';
 import { erc721ABI, usePublicClient, useAccount } from 'wagmi';
 import { isAddressEqual, isAddress } from 'viem';
 
-import { chainContracts } from '../contracts.js';
+import { chainContracts, convertToInternal } from '../contracts.js';
 import { DisplayToken } from './DisplayToken.js';
 import { RescindButton } from './RescindButton.js';
 import { ReplyButton } from './ReplyButton.js';
+import { EditButton } from './EditButton.js';
 
 const UNSORTED_PAGE_SIZE = 30n;
 const SORTED_PAGE_SIZE = 30n;
@@ -35,16 +36,22 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
   const publicClient = usePublicClient({ chainId: Number(chainId) });
   const { address } = useAccount();
   const [forceShowReplies, setForceShowReplies] = useState(false);
-  const [replies, setReplies] = useState([
-    { id: 'loadSorted', el: sortedCount === 0n ? (<></>) : (<button onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
-    { id: 'threshold', el: (<div className="threshold">Messages below this threshold are unsorted</div>) },
-    { id: 'loadUnsorted', el: unsortedCount === 0n ? (<></>) : (<button onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
-  ]);
+  function initReplies() {
+    return [
+      { id: 'loadSorted', el: sortedCount === 0n ? (<></>) : (<button onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
+      { id: 'threshold', el: (<div className="threshold">Messages below this threshold are unsorted</div>) },
+      { id: 'loadUnsorted', el: unsortedCount === 0n ? (<></>) : (<button onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
+    ];
+  }
+  const [replies, setReplies] = useState(initReplies);
   const repliesRef = useRef();
   const dirtyCountRef = useRef();
   repliesRef.current = replies;
   if(setChildRepliesRef) setChildRepliesRef.current = setReplies;
   if(setChildForceShowRepliesRef) setChildForceShowRepliesRef.current = setForceShowReplies;
+  useEffect(() => {
+    setReplies(initReplies);
+  }, [collection, tokenId]);
   useEffect(() => {
     setReplies(replies => {
       for(let i = 0; i < replies.length; i++) {
@@ -64,6 +71,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
       functionName: 'convertInternalToTokens',
       args: [list],
     });
+    const callCount = 6;
     const raw = await publicClient.multicall({
       contracts: tokens.map(token => [
         {
@@ -93,7 +101,12 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
         {
           ...contracts.replies,
           functionName: 'replyAddedTime',
-          args: [collection, tokenId, token.collection, token.tokenId],
+          args: [convertToInternal(collection, tokenId), convertToInternal(token.collection, token.tokenId)],
+        },
+        {
+          ...contracts.replies,
+          functionName: 'replyAddedAccount',
+          args: [convertToInternal(collection, tokenId), convertToInternal(token.collection, token.tokenId)],
         },
       ]).flat(),
     });
@@ -103,11 +116,12 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
           chainId,
           collection: tokens[addrIndex].collection,
           tokenId: tokens[addrIndex].tokenId,
-          tokenURI: raw[addrIndex * 5].result,
-          owner: raw[addrIndex * 5 + 1].result,
-          unsortedCount: raw[addrIndex * 5 + 2].result,
-          sortedCount: raw[addrIndex * 5 + 3].result,
-          replyAddedTime: raw[addrIndex * 5 + 4].result,
+          tokenURI: raw[addrIndex * callCount].result,
+          owner: raw[addrIndex * callCount + 1].result,
+          unsortedCount: raw[addrIndex * callCount + 2].result,
+          sortedCount: raw[addrIndex * callCount + 3].result,
+          replyAddedTime: raw[addrIndex * callCount + 4].result,
+          replyAddedAccount: raw[addrIndex * callCount + 5].result,
           parentCollection: collection,
           parentTokenId: tokenId,
         }));
@@ -328,6 +342,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
 
 function SortableItem({ id, data, isOwner, setSortSavers, toggleEliminated, ...extraProps }) {
   const { address } = useAccount();
+  const [editedTokenURI, setEditedTokenURI] = useState(null);
   const {
     attributes,
     listeners,
@@ -354,7 +369,7 @@ function SortableItem({ id, data, isOwner, setSortSavers, toggleEliminated, ...e
     <div ref={setNodeRef} style={style} className={`drag-item ${data.dirty ? data.eliminate ? 'eliminate' : 'dirty' : ''}`}>
       {data.el ? data.el : (<>
         {isOwner && <div {...attributes} {...listeners} className={`drag-handle`}>Handle</div>}
-        <DisplayToken {...data} {...{setSortSavers, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}>
+        <DisplayToken {...data} {...{editedTokenURI, setSortSavers, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}>
           <div className="controls">
             <ReplyButton
               collection={data.collection}
@@ -364,6 +379,14 @@ function SortableItem({ id, data, isOwner, setSortSavers, toggleEliminated, ...e
               {...extraProps}
               />
             {isAddress(address) && isAddressEqual(data.owner, address) && (
+              <>
+              <EditButton
+                collection={data.collection}
+                tokenId={data.tokenId}
+                tokenURI={data.tokenURI}
+                chainId={data.chainId}
+                {...{setEditedTokenURI}}
+                />
               <RescindButton
                 chainId={data.chainId}
                 parentCollection={data.parentCollection}
@@ -371,6 +394,7 @@ function SortableItem({ id, data, isOwner, setSortSavers, toggleEliminated, ...e
                 replyCollection={data.collection}
                 replyTokenId={data.tokenId}
                 />
+              </>
             )}
             {isOwner && (<button onClick={() => toggleEliminated(id, data.eliminate)}>Eliminate</button>)}
           </div>

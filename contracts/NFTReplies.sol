@@ -8,7 +8,8 @@ import "./SortableAddressSet.sol";
 contract NFTReplies {
   using SortableAddressSet for SortableAddressSet.Set;
   mapping(address => mapping(uint256 => SortableAddressSet.Set)) replies;
-  mapping(address => mapping(address => uint256)) _replyAddedTime;
+  mapping(address => mapping(address => uint256)) public replyAddedTime;
+  mapping(address => mapping(address => address)) public replyAddedAccount;
   mapping(address => Token) public reverseInternalAddr;
   mapping(address => NewReply[]) public notifications;
   mapping(address => address[]) public parents;
@@ -36,7 +37,8 @@ contract NFTReplies {
     address parentInternalAddr = calcInternalAddr(parentCollection, parentTokenId);
     address internalAddr = calcInternalAddr(childCollection, childTokenId);
     replies[parentCollection][parentTokenId].insert(internalAddr);
-    _replyAddedTime[parentInternalAddr][internalAddr] = block.timestamp;
+    replyAddedTime[parentInternalAddr][internalAddr] = block.timestamp;
+    replyAddedAccount[parentInternalAddr][internalAddr] = msg.sender;
     reverseInternalAddr[internalAddr] = Token(childCollection, childTokenId);
     if(reverseInternalAddr[parentInternalAddr].collection == address(0)) {
       reverseInternalAddr[parentInternalAddr] = Token(parentCollection, parentTokenId);
@@ -59,10 +61,6 @@ contract NFTReplies {
     uint256 newTokenId = uint256(bytes32(returned));
     IERC721(childCollection).safeTransferFrom(address(this), msg.sender, newTokenId);
     addReply(parentCollection, parentTokenId, childCollection, newTokenId);
-  }
-
-  function replyAddedTime(address parentCollection, uint256 parentTokenId, address replyCollection, uint256 replyTokenId) external view returns(uint) {
-    return _replyAddedTime[calcInternalAddr(parentCollection, parentTokenId)][calcInternalAddr(replyCollection, replyTokenId)];
   }
 
   function notificationCount(address recipient) external view returns(uint) {

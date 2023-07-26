@@ -3,6 +3,8 @@ import { encodePacked, keccak256 } from 'viem';
 import repliesABI from './abi/NFTReplies.json';
 import chunkedERC721ABI from './abi/ChunkedERC721.json';
 
+import {EditChunkedERC721} from './components/EditChunkedERC721.js';
+
 export const defaultChain = 137;
 
 export const byChain = {
@@ -10,7 +12,7 @@ export const byChain = {
     name: 'Mumbai',
     nativeCurrency: 'tMATIC',
     replies: {
-      address: '0x410271248184c57dda4b91f6d5faf34d9f47e68d',
+      address: '0x6b9d13d91800dbe046f00151b826d78e542ae15c',
       abi: repliesABI,
       chainId: 80001,
     },
@@ -24,7 +26,7 @@ export const byChain = {
     name: 'Goerli',
     nativeCurrency: 'gETH',
     replies: {
-      address: '0x36A93a593c9c149197369D36d199DAA15EedF3D2',
+      address: '0x1fb5a790dfeca87461917706922dd12e7d154007',
       abi: repliesABI,
       chainId: 5,
     },
@@ -35,6 +37,12 @@ export const byChain = {
     },
   },
 };
+
+export const methods = {
+  ChunkedERC721: {
+    edit: (props) => (<EditChunkedERC721 {...props} />),
+  }
+}
 
 
 export function chainContracts(chain) {

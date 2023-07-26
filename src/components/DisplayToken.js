@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { erc721ABI, useContractReads } from 'wagmi';
+import React, { useState, useRef, useEffect } from 'react';
+import { erc721ABI, useContractReads, useAccount } from 'wagmi';
+import { isAddressEqual, isAddress } from 'viem';
 import { Link } from 'react-router-dom';
 import Linkify from 'react-linkify';
 
@@ -7,6 +8,7 @@ import { chainContracts, convertToInternal } from '../contracts.js';
 import UserBadge from './UserBadge.js';
 import { Replies } from './Replies.js';
 import { ReplyButton } from './ReplyButton.js';
+import { EditButton } from './EditButton.js';
 import { ParentButton } from './ParentButton.js';
 
 export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
@@ -73,10 +75,15 @@ export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
 }
 
 function TokenWrapper(props) {
+  const { address } = useAccount();
   const setChildRepliesRef = useRef();
   const setChildForceShowRepliesRef = useRef();
   const loadListRef = useRef();
-  return (<DisplayToken {...props} {...{setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}>
+  const [editedTokenURI, setEditedTokenURI] = useState(null);
+  useEffect(() => {
+    setEditedTokenURI(null);
+  }, [props.collection, props.tokenId]);
+  return (<DisplayToken {...props} {...{editedTokenURI, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}>
     <div className="controls">
       <ParentButton {...props} />
       <Link to={`/nft/${props.chainId}/${props.collection}/${props.tokenId}`}>
@@ -88,20 +95,35 @@ function TokenWrapper(props) {
         chainId={props.chainId}
         {...{setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}
         />
+      {isAddress(address) && isAddressEqual(props.owner, address) && (
+        <EditButton
+          collection={props.collection}
+          tokenId={props.tokenId}
+          tokenURI={props.tokenURI}
+          chainId={props.chainId}
+          {...{setEditedTokenURI}}
+          />
+      )}
     </div>
   </DisplayToken>);
 }
 
 // TODO load tokenURI from ipfs and eip4804 too!
-export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, owner, unsortedCount, sortedCount, replyAddedTime, children, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
+export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, editedTokenURI, owner, unsortedCount, sortedCount, replyAddedTime, replyAddedAccount, children, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
   const [loadURI, setLoadURI] = useState(false);
+  if(editedTokenURI !== null) tokenURI = editedTokenURI;
   if(!tokenURI) return null;
   return (
     <div className="msg">
-      <UserBadge address={owner} />
-      {replyAddedTime && replyAddedTime > 0 && (
-        <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>
-      )}
+      <div className="header">
+        {!isAddress(replyAddedAccount) || isAddressEqual(replyAddedAccount, owner) ? (<UserBadge address={owner} />) : (<span className="different-owner">
+          <span className="original"><UserBadge address={replyAddedAccount} /></span>
+          <span className="current"><UserBadge address={owner} /></span>
+        </span>)}
+        {replyAddedTime && replyAddedTime > 0 && (
+          <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>
+        )}
+      </div>
       {tokenURI.startsWith('data:,') ? (
         <Linkify><div className="text">{decodeURIComponent(tokenURI.slice(6))}</div></Linkify>
       ) : loadURI ? (
