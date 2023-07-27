@@ -26,7 +26,8 @@ header .notifications.new { color:orangered; }
 .tabs li.new { background:linear-gradient(orangered, #0002 40%); }
 .tabs li.active.new { background:linear-gradient(orangered, white 40%); }
 .tabs a {text-decoration:none;}
-.tabs button {margin:0; background:none; border: none; border-radius:0;}
+.tabs button, button.icon {margin:0; background:none; border: none; border-radius:0;}
+.tabs button:hover, button.icon:hover {background:none;}
 
 .msg { flex:1; padding:20px 20px 10px 20px; background:#0061; margin:10px 0; border-radius:5px; }
 .threshold {text-align:center; width:100%; font-size:80%; background: #0002; }
