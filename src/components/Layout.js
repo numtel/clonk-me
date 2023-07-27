@@ -15,7 +15,7 @@ export function Layout() {
       <header>
         <Link to="/"><h1>clonk.me</h1></Link>
         <div className="account">
-          <ConnectButton chainStatus="none" showBalance={false} />
+          <ConnectButton />
           <InboxButton />
         </div>
       </header>

@@ -57,7 +57,7 @@ function PerChain({ contracts, curChain, setCurChain, setCounts }) {
 function LoadPage({ contracts, count, start, perPage }) {
   const [loadMore, setLoadMore] = useState(false);
   const toLoad = [];
-  const hasMore = start + perPage <= count;
+  const hasMore = start + perPage < count;
   for(let i = 0; i < perPage; i++) {
     if(start + i >= count) break;
     toLoad.push({
