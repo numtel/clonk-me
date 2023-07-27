@@ -74,6 +74,7 @@ export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
   ));
 }
 
+// TODO load reply time, account if parentCount == 1
 function TokenWrapper(props) {
   const { address } = useAccount();
   const setChildRepliesRef = useRef();
