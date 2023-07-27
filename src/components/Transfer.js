@@ -1,45 +1,41 @@
 import React, { useState } from 'react';
 import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount, erc721ABI } from 'wagmi';
-import { decodeEventLog } from 'viem';
+import { decodeEventLog, isAddressEqual, isAddress } from 'viem';
+import { chainContracts } from '../contracts.js';
 
-// TODO update for ERC721
-export function TransferButton({ chainId, collection, tokenId }) {
+export function TransferButton({ chainId, collection, tokenId, owner }) {
   const [show, setShow] = useState(false);
   const { address } = useAccount();
 
-  if(!address || address.toLowerCase() !== (newOwner ? newOwner.toLowerCase() : item.owner?.toLowerCase())) return;
-  if(show) return (<Transfer {...{item, contract, setNewOwner, newOwner, setShow}} />);
+  if(!isAddress(address) || (!isAddressEqual(address, owner))) return;
+  if(show) return (<Transfer {...{chainId, collection, tokenId, setShow}} />);
   return (<button onClick={() => setShow(true)}>
-    Transfer...
+    Transfer
   </button>);
 }
 
-export function Transfer({ item, contract, setShow, setNewOwner, newOwner }) {
+export function Transfer({ chainId, collection, tokenId, owner, setShow }) {
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
-  const shouldSwitchChain = chain && contract.chainId !== chain.id;
+  const { address } = useAccount();
+  const contracts = chainContracts(chainId);
+  const shouldSwitchChain = chain && Number(chainId) !== chain.id;
   const submitReply = (event) => {
     event.preventDefault();
     write({
-      args: [[item.address], event.target.newOwner.value]
+      args: [address, event.target.newOwner.value, tokenId]
     });
   };
   const { data, isLoading, isError, isSuccess, write } = useContractWrite({
-    ...contract,
-    functionName: 'transferOwnership',
+    abi: erc721ABI,
+    chainId,
+    address: collection,
+    functionName: 'safeTransferFrom',
   });
   const { isError: txIsError, isLoading: txIsLoading, isSuccess: txIsSuccess } = useWaitForTransaction({
     hash: data ? data.hash : null,
     onSuccess(data) {
-      const decoded = data.logs.filter(log =>
-          log.address.toLowerCase() === contract.address.toLowerCase())
-        .map(log => decodeEventLog({
-          abi: contract.abi,
-          data: log.data,
-          topics: log.topics,
-          strict: false,
-        }));
-      setNewOwner(decoded[0].args.newOwner);
+      // TODO update without refresh
       setShow(false);
     },
   });
@@ -47,12 +43,12 @@ export function Transfer({ item, contract, setShow, setNewOwner, newOwner }) {
     <form onSubmit={submitReply}>
       <fieldset>
         <legend>Transfer ownership</legend>
-        <input name="newOwner" defaultValue={item.owner} />
+        <input name="newOwner" defaultValue={owner} />
         {shouldSwitchChain ? (
           <button onClick={(event) => {
             event.preventDefault();
-            switchNetwork(contract.chainId);
-          }}>Switch to {contract.chainName}</button>
+            switchNetwork(chainId);
+          }}>Switch to {contracts.name}</button>
         ) : (
           <button type="submit">Submit</button>
         )}

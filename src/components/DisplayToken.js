@@ -10,6 +10,7 @@ import { Replies } from './Replies.js';
 import { ReplyButton } from './ReplyButton.js';
 import { EditButton } from './EditButton.js';
 import { ParentButton } from './ParentButton.js';
+import { TransferButton } from './Transfer.js';
 
 export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
   const contracts = chainContracts(chainId);
@@ -96,7 +97,7 @@ function TokenWrapper(props) {
         chainId={props.chainId}
         {...{setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}
         />
-      {isAddress(address) && isAddressEqual(props.owner, address) && (
+      {isAddress(address) && isAddressEqual(props.owner, address) && (<>
         <EditButton
           collection={props.collection}
           tokenId={props.tokenId}
@@ -104,7 +105,13 @@ function TokenWrapper(props) {
           chainId={props.chainId}
           {...{setEditedTokenURI}}
           />
-      )}
+        <TransferButton
+          collection={props.collection}
+          tokenId={props.tokenId}
+          chainId={props.chainId}
+          owner={props.owner}
+          />
+      </>)}
     </div>
   </DisplayToken>);
 }

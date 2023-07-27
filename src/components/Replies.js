@@ -25,6 +25,7 @@ import { DisplayToken } from './DisplayToken.js';
 import { RescindButton } from './RescindButton.js';
 import { ReplyButton } from './ReplyButton.js';
 import { EditButton } from './EditButton.js';
+import { TransferButton } from './Transfer.js';
 
 const UNSORTED_PAGE_SIZE = 30n;
 const SORTED_PAGE_SIZE = 30n;
@@ -386,6 +387,12 @@ function SortableItem({ id, data, isOwner, setSortSavers, toggleEliminated, ...e
                 tokenURI={data.tokenURI}
                 chainId={data.chainId}
                 {...{setEditedTokenURI}}
+                />
+              <TransferButton
+                collection={data.collection}
+                tokenId={data.tokenId}
+                chainId={data.chainId}
+                owner={data.owner}
                 />
               <RescindButton
                 chainId={data.chainId}
