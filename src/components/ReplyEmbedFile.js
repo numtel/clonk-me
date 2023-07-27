@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, usePublicClient, useAccount, useFeeData } from 'wagmi';
 import { decodeEventLog, encodeFunctionData, bytesToHex, formatEther } from 'viem';
 import { chainContracts, convertToInternal } from '../contracts.js';
 
-export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChildRepliesRef, loadListRef, setChildForceShowRepliesRef }) {
+export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChildRepliesRef, loadListRef, setChildForceShowRepliesRef, createRoot }) {
   const contracts = chainContracts(chainId);
   const { chain } = useNetwork();
   const { data: feeData, isError: feeDataError, isLoading: feeDataLoading } = useFeeData({ chainId: Number(chainId) });
@@ -38,17 +39,26 @@ export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChild
       return;
     }
     const tokenURI = `data:${files[0].type};base64,`;
-    const mintCalldata = encodeFunctionData({
-      abi: contracts.ChunkedERC721.abi,
-      functionName: 'mint',
-      args: [ tokenURI ],
-    });
+    if(!createRoot) {
+      const mintCalldata = encodeFunctionData({
+        abi: contracts.ChunkedERC721.abi,
+        functionName: 'mint',
+        args: [ tokenURI ],
+      });
 
-    write({
-      args: [collection, tokenId, contracts.ChunkedERC721.address, mintCalldata]
-    });
+      write({
+        args: [collection, tokenId, contracts.ChunkedERC721.address, mintCalldata]
+      });
+    } else {
+      write({
+        args: [tokenURI],
+      });
+    }
   };
-  const { data, isLoading, isError, isSuccess, write } = useContractWrite({
+  const { data, isLoading, isError, isSuccess, write } = useContractWrite(createRoot ? {
+    ...contracts.ChunkedERC721,
+    functionName: 'mint',
+  } : {
     ...contracts.replies,
     functionName: 'addNewReply',
   });
@@ -70,11 +80,11 @@ export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChild
   return (
     <form onSubmit={submitReply}>
       <fieldset>
-        <legend>Add reply</legend>
+        <legend>{createRoot ? 'Create New Post' : 'Add reply'}</legend>
         <p>This operation requires multiple transactions depending on filesize.</p>
         <p>If an upload transaction fails, refresh page and edit to resume upload.</p>
         <input onChange={fileSelect} type="file" name="file" />
-        {shouldSwitchChain ? (
+        {shouldSwitchChain && !createRoot ? (
           <button onClick={(event) => {
             event.preventDefault();
             switchNetwork(chainId);
@@ -94,7 +104,7 @@ export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChild
           txIsError ? (<p>Transaction error!</p>)
           : txIsLoading ? (<p>Waiting for transaction...</p>)
           : txIsSuccess ? chunks.map((chunk, index) => (
-            <UploadChunk {...{contracts, chainId, newTokenId, chunk, index, curChunk, setCurChunk, setShow, setChildRepliesRef, loadListRef, setChildForceShowRepliesRef}} count={chunks.length} key={index} />
+            <UploadChunk {...{contracts, chainId, newTokenId, chunk, index, curChunk, setCurChunk, setShow, setChildRepliesRef, loadListRef, setChildForceShowRepliesRef, createRoot}} count={chunks.length} key={index} />
           ))
           : (<p>Transaction sent...</p>))}
         {isError && <p>Error!</p>}
@@ -269,7 +279,8 @@ export function EditEmbedFile({ tokenId, tokenURI, chainId, setShow, setEditedTo
   }
 }
 
-function UploadChunk({ contracts, newTokenId, chainId, chunk, index, count, curChunk, setCurChunk, setShow, setChildRepliesRef, loadListRef, setChildForceShowRepliesRef, setEditedTokenURI, newTokenURI }) {
+function UploadChunk({ contracts, newTokenId, chainId, chunk, index, count, curChunk, setCurChunk, setShow, setChildRepliesRef, loadListRef, setChildForceShowRepliesRef, setEditedTokenURI, newTokenURI, createRoot }) {
+  const navigate = useNavigate();
   const { data, isLoading, isError, isSuccess, write } = useContractWrite({
     ...contracts.ChunkedERC721,
     functionName: 'appendTokenURI',
@@ -287,6 +298,9 @@ function UploadChunk({ contracts, newTokenId, chainId, chunk, index, count, curC
         if(setEditedTokenURI) {
           setEditedTokenURI(newTokenURI);
           setShow(false);
+        } else if(createRoot) {
+          setShow(false);
+          navigate(`/nft/${chainId}/${contracts.ChunkedERC721.address}/${newTokenId}`);
         } else {
           const loaded = await loadListRef.current([convertToInternal(contracts.ChunkedERC721.address, newTokenId)]);
           setShow(false);
