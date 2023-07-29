@@ -1,24 +1,38 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { Layout } from './components/Layout.js';
-import { Home } from './pages/Home.js';
+import { LatestPosts } from './pages/LatestPosts.js';
 import { User } from './pages/User.js';
 import { Token } from './pages/Token.js';
 import { Inbox } from './pages/Inbox.js';
+import { defaultChain } from './contracts.js';
 
-// TODO put chain id in latestposts/user profile/inbox routes
 export function Router() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
+          <Route index
+            element={<Navigate to={`/latest/${defaultChain}`} />}
+          />
+          <Route
+            path="latest/:chainId"
+            element={<LatestPosts />}
+          />
           <Route
             path="u/:address"
+            element={<UserProfileRoot />}
+          />
+          <Route
+            path="u/:address/:chainId"
             element={<User />}
           />
           <Route
             path="u/:address/inbox"
+            element={<InboxRoot />}
+          />
+          <Route
+            path="u/:address/inbox/:chainId"
             element={<Inbox />}
           />
           <Route
@@ -30,4 +44,14 @@ export function Router() {
       </Routes>
     </BrowserRouter>
   );
+}
+
+function UserProfileRoot() {
+  const { address } = useParams();
+  return (<Navigate to={`/u/${address}/${defaultChain}`} />)
+}
+
+function InboxRoot() {
+  const { address } = useParams();
+  return (<Navigate to={`/u/${address}/inbox/${defaultChain}`} />)
 }

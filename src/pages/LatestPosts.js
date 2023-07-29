@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useContractReads } from 'wagmi';
 
 import { byChain, chainContracts } from '../contracts.js';
@@ -8,13 +9,15 @@ import { SortSaver } from '../components/SortSaver.js';
 const POST_PER_PAGE = 10;
 
 export function LatestPosts() {
-  const [ curChain, setCurChain] = useState(Object.keys(byChain)[0]);
+  const { chainId: curChain } = useParams();
   const [ counts, setCounts] = useState({});
 
-  return (<div id="user">
+  return (<div id="latest">
+    <p>Post replies on any NFT! As an NFT holder, sort and moderate the replies you receive.</p>
+    <h2>Latest Posts</h2>
     <ul className="chains tabs">
       {Object.keys(byChain).map(x => (
-        <PerChain key={x} contracts={chainContracts(x)} {...{curChain, setCurChain, setCounts}} />
+        <PerChain key={x} contracts={chainContracts(x)} {...{curChain, setCounts}} />
       ))}
     </ul>
     {curChain && (
@@ -25,7 +28,7 @@ export function LatestPosts() {
   </div>);
 }
 
-function PerChain({ contracts, curChain, setCurChain, setCounts }) {
+function PerChain({ contracts, curChain, setCounts }) {
   const chainId = contracts.replies.chainId;
   const { data, isError, isLoading } = useContractReads({
     contracts: [
@@ -50,7 +53,7 @@ function PerChain({ contracts, curChain, setCurChain, setCounts }) {
     <div>Error loading posts!</div>
   );
   else if(data) return (
-    <li className={`${chainId === Number(curChain) ? 'active' : ''}`}><button onClick={() => setCurChain(chainId)}>{contracts.name}</button></li>
+    <li className={`${chainId === Number(curChain) ? 'active' : ''}`}><Link to={`/latest/${chainId}`}><button>{contracts.name}</button></Link></li>
   );
 }
 

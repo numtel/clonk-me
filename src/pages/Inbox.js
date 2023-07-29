@@ -13,17 +13,16 @@ export const NOTIFICATION_LOCALSTORAGE_KEY = 'lastSeenNotificationCount';
 
 export function Inbox() {
   const [ inboxData ] = useContext(InboxContext);
-  const { address } = useParams();
-  const [ curChain, setCurChain] = useState(Object.keys(byChain)[0]);
+  const { address, chainId: curChain } = useParams();
   return (<div id="inbox">
     <h2>Account: <UserBadge {...{address}} /></h2>
     <ul className="tabs">
-      <li><Link to={`/u/${address}`}>Posts</Link></li>
+      <li><Link to={`/u/${address}/${curChain}`}>Posts</Link></li>
       <li className="active">Inbox</li>
     </ul>
     <ul className="chains tabs">
       {Object.keys(byChain).map((x, index) => (
-        <PerChain key={x} contracts={chainContracts(x)} {...{address, index, curChain, setCurChain}} />
+        <PerChain key={x} contracts={chainContracts(x)} {...{address, index, curChain}} />
       ))}
     </ul>
     {curChain && (
@@ -34,7 +33,7 @@ export function Inbox() {
   </div>);
 }
 
-function PerChain({ contracts, address, index, curChain, setCurChain, setArticle }) {
+function PerChain({ contracts, address, index, curChain, setArticle }) {
   const [ inboxData, setInboxData ] = useContext(InboxContext);
   const chainId = contracts.replies.chainId;
   const [curVal] = useState(address in inboxData ? inboxData[address][chainId] : 0);
@@ -66,7 +65,7 @@ function PerChain({ contracts, address, index, curChain, setCurChain, setArticle
   );
   else if(data) {
     return (<>
-      <li className={`${chainId === Number(curChain) ? 'active' : ''} ${data[0].result > curVal ? 'new' : ''}`}><button onClick={() => setCurChain(chainId)}>{contracts.name}</button></li>
+      <li className={`${chainId === Number(curChain) ? 'active' : ''} ${data[0].result > curVal ? 'new' : ''}`}><Link to={`/u/${address}/inbox/${chainId}`}><button>{contracts.name}</button></Link></li>
     </>);
   }
 }

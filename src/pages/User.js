@@ -10,19 +10,18 @@ import UserBadge from '../components/UserBadge.js';
 const POST_PER_PAGE = 10;
 
 export function User() {
-  const { address } = useParams();
-  const [ curChain, setCurChain] = useState(Object.keys(byChain)[0]);
+  const { address, chainId: curChain } = useParams();
   const [ counts, setCounts] = useState({});
 
   return (<div id="user">
     <h2>Account: <UserBadge {...{address}} /></h2>
     <ul className="tabs">
       <li className="active">Posts</li>
-      <li><Link to={`/u/${address}/inbox`}>Inbox</Link></li>
+      <li><Link to={`/u/${address}/inbox/${curChain}`}>Inbox</Link></li>
     </ul>
     <ul className="chains tabs">
       {Object.keys(byChain).map(x => (
-        <PerChain key={x} contracts={chainContracts(x)} {...{address, curChain, setCurChain, setCounts}} />
+        <PerChain key={x} contracts={chainContracts(x)} {...{address, curChain, setCounts}} />
       ))}
     </ul>
     {curChain && (
@@ -33,7 +32,7 @@ export function User() {
   </div>);
 }
 
-function PerChain({ contracts, address, curChain, setCurChain, setCounts }) {
+function PerChain({ contracts, address, curChain, setCounts }) {
   const chainId = contracts.replies.chainId;
   const { data, isError, isLoading } = useContractReads({
     contracts: [
@@ -59,7 +58,7 @@ function PerChain({ contracts, address, curChain, setCurChain, setCounts }) {
     <div>Error loading posts!</div>
   );
   else if(data) return (
-    <li className={`${chainId === Number(curChain) ? 'active' : ''}`}><button onClick={() => setCurChain(chainId)}>{contracts.name}</button></li>
+    <li className={`${chainId === Number(curChain) ? 'active' : ''}`}><Link to={`/u/${address}/${chainId}`}><button>{contracts.name}</button></Link></li>
   );
 }
 

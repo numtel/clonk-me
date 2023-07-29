@@ -5,7 +5,7 @@ import chunkedERC721ABI from './abi/ChunkedERC721.json';
 
 import {EditChunkedERC721} from './components/EditChunkedERC721.js';
 
-export const defaultChain = 137;
+export const defaultChain = 80001;
 
 export const byChain = {
   80001: {
