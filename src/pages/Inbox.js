@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useContractReads } from 'wagmi';
+import { Helmet } from 'react-helmet';
 
 import { byChain, chainContracts } from '../contracts.js';
 import { SortSaver } from '../components/SortSaver.js';
@@ -15,6 +16,9 @@ export function Inbox() {
   const [ inboxData ] = useContext(InboxContext);
   const { address, chainId: curChain } = useParams();
   return (<div id="inbox">
+    <Helmet>
+      <title>Inbox {address} on {byChain[curChain].name}</title>
+    </Helmet>
     <h2>Account: <UserBadge {...{address}} /></h2>
     <ul className="tabs">
       <li><Link to={`/u/${address}/${curChain}`}>Posts</Link></li>
@@ -57,17 +61,9 @@ function PerChain({ contracts, address, index, curChain, setArticle }) {
       localStorage.setItem(NOTIFICATION_LOCALSTORAGE_KEY, JSON.stringify(curData));
     }
   }, [data]);
-  if(isLoading) return (
-    <div>Loading notifications...</div>
-  );
-  else if(isError) return (
-    <div>Error loading notifications!</div>
-  );
-  else if(data) {
-    return (<>
-      <li className={`${chainId === Number(curChain) ? 'active' : ''} ${data[0].result > curVal ? 'new' : ''}`}><Link to={`/u/${address}/inbox/${chainId}`}><button>{contracts.name}</button></Link></li>
-    </>);
-  }
+  return (<>
+    <li className={`${chainId === Number(curChain) ? 'active' : ''} ${data && (data[0].result > curVal) ? 'new' : ''}`}><Link to={`/u/${address}/inbox/${chainId}`}><button>{contracts.name}</button></Link></li>
+  </>);
 }
 
 function LoadPage({ contracts, address, count, start, perPage }) {

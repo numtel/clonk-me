@@ -5,7 +5,6 @@ import {ReplyPlaintext} from './ReplyPlaintext.js';
 import {ReplyEmbedFile} from './ReplyEmbedFile.js';
 import {ReplyExternal} from './ReplyExternal.js';
 
-// TODO why does page reload when chain changes? it resets a reply in progress
 export function CreateButton(props) {
   const { chain } = useNetwork();
   const [show, setShow] = useState(false);

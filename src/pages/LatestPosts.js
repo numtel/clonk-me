@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useContractReads } from 'wagmi';
+import { Helmet } from 'react-helmet';
 
 import { byChain, chainContracts } from '../contracts.js';
 import { RootTokenList } from '../components/RootTokenList.js';
@@ -13,6 +14,9 @@ export function LatestPosts() {
   const [ counts, setCounts] = useState({});
 
   return (<div id="latest">
+    <Helmet>
+      <title>{byChain[curChain].name} Latest Posts</title>
+    </Helmet>
     <p>Post replies on any NFT! As an NFT holder, sort and moderate the replies you receive.</p>
     <h2>Latest Posts</h2>
     <ul className="chains tabs">
@@ -46,13 +50,7 @@ function PerChain({ contracts, curChain, setCounts }) {
       });
     }
   }, [data]);
-  if(isLoading) return (
-    <div>Loading posts...</div>
-  );
-  else if(isError) return (
-    <div>Error loading posts!</div>
-  );
-  else if(data) return (
+  return (
     <li className={`${chainId === Number(curChain) ? 'active' : ''}`}><Link to={`/latest/${chainId}`}><button>{contracts.name}</button></Link></li>
   );
 }

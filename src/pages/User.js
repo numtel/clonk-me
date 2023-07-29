@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useContractReads } from 'wagmi';
+import { Helmet } from 'react-helmet';
 
 import { byChain, chainContracts } from '../contracts.js';
 import { RootTokenList } from '../components/RootTokenList.js';
@@ -14,6 +15,9 @@ export function User() {
   const [ counts, setCounts] = useState({});
 
   return (<div id="user">
+    <Helmet>
+      <title>User Profile {address} on {byChain[curChain].name}</title>
+    </Helmet>
     <h2>Account: <UserBadge {...{address}} /></h2>
     <ul className="tabs">
       <li className="active">Posts</li>
@@ -51,13 +55,7 @@ function PerChain({ contracts, address, curChain, setCounts }) {
       });
     }
   }, [data]);
-  if(isLoading) return (
-    <div>Loading posts...</div>
-  );
-  else if(isError) return (
-    <div>Error loading posts!</div>
-  );
-  else if(data) return (
+  return (
     <li className={`${chainId === Number(curChain) ? 'active' : ''}`}><Link to={`/u/${address}/${chainId}`}><button>{contracts.name}</button></Link></li>
   );
 }
