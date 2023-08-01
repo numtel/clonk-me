@@ -75,7 +75,6 @@ export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
   ));
 }
 
-// TODO load reply time, account if parentCount == 1
 function TokenWrapper(props) {
   const { address } = useAccount();
   const setChildRepliesRef = useRef();
@@ -85,7 +84,22 @@ function TokenWrapper(props) {
   useEffect(() => {
     setEditedTokenURI(null);
   }, [props.collection, props.tokenId]);
-  return (<DisplayToken {...props} {...{editedTokenURI, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}>
+  const contracts = chainContracts(props.chainId);
+  const { data, isError, isLoading } = useContractReads({
+    contracts: [
+      {
+        ...contracts.replies,
+        functionName: 'replyAddedAccount',
+        args: props.parentCount > 0 && !props.replyAddedAccount ? [ convertToInternal(props.parentZero.collection, props.parentZero.tokenId), convertToInternal(props.collection, props.tokenId) ] : undefined,
+      },
+      {
+        ...contracts.replies,
+        functionName: 'replyAddedTime',
+        args: props.parentCount > 0  && !props.replyAddedTime ? [ convertToInternal(props.parentZero.collection, props.parentZero.tokenId), convertToInternal(props.collection, props.tokenId) ] : undefined,
+      },
+    ]
+  });
+  return (<DisplayToken {...props} {...{editedTokenURI, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}} replyAddedAccount={props.replyAddedAccount || (data && data[0].result)} replyAddedTime={props.replyAddedTime || (data && data[1].result)}>
     <div className="controls">
       <ParentButton {...props} />
       <Link to={`/nft/${props.chainId}/${props.collection}/${props.tokenId}`}>
