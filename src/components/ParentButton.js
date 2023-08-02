@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { chainContracts, convertToInternal } from '../contracts.js';
-import { useContractReads } from 'wagmi';
+import { useContractReads, erc721ABI } from 'wagmi';
+import {Dialog} from './Dialog.js';
 
 export function ParentButton({ chainId, collection, tokenId, parentCount, parentZero }) {
   const [showList, setShowList] = useState(false);
@@ -11,13 +12,18 @@ export function ParentButton({ chainId, collection, tokenId, parentCount, parent
     </Link>
   );
   if(parentCount > 1n) return showList ? (
-    <ParentList {...{chainId, collection, tokenId, parentCount}} />
+    <Dialog show={true}>
+      <h3>Parents</h3>
+      <div className="button-list">
+        <ParentList {...{chainId, collection, tokenId, parentCount}} />
+        <button onClick={() => setShowList(false)}>Close</button>
+      </div>
+    </Dialog>
   ) : (
-    <button onClick={() => setShowList(true)}>Load {parentCount} Parents...</button>
+    <button onClick={() => setShowList(true)}>{parentCount.toString()} Parents</button>
   );
 }
 
-// TODO how to render many parents?
 function ParentList({ chainId, collection, tokenId, parentCount }) {
   const contracts = chainContracts(chainId);
   const internalAddr = convertToInternal(collection, tokenId);
@@ -40,7 +46,22 @@ function ParentList({ chainId, collection, tokenId, parentCount }) {
   );
   else if(data) return data.map((token, index) => (
     <Link key={`/nft/${chainId}/${token.result.collection}/${token.result.tokenId}`} to={`/nft/${chainId}/${token.result.collection}/${token.result.tokenId}`}>
-      <button>Parent {index + 1}</button>
+      <button><TokenReadable {...chainId} collection={token.result.collection} tokenId={token.result.tokenId} /></button>
     </Link>
   ));
+}
+
+function TokenReadable({ chainId, collection, tokenId }) {
+  const { data, isError, isLoading } = useContractReads({
+    contracts: [
+      {
+        chainId,
+        address: collection,
+        abi: erc721ABI,
+        functionName: 'name',
+      }
+    ],
+  });
+  if(data) return (<span>{data[0].result} #{tokenId.toString()}</span>);
+  else return (<span>{collection} #{tokenId.toString()}</span>);
 }

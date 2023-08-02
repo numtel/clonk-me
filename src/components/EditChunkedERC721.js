@@ -4,6 +4,7 @@ import { isAddressEqual, isAddress } from 'viem';
 
 import { chainContracts, convertToInternal } from '../contracts.js';
 import {EditEmbedFile} from './ReplyEmbedFile.js';
+import {Dialog} from './Dialog.js';
 
 
 export function EditChunkedERC721(props) {
@@ -47,6 +48,7 @@ export function EditPlaintext({ chainId, tokenId, tokenURI, setShow, setEditedTo
     },
   });
   return (
+    <Dialog show={true}>
     <form onSubmit={submitReply}>
       <fieldset>
         <legend>Edit plaintext reply</legend>
@@ -67,10 +69,13 @@ export function EditPlaintext({ chainId, tokenId, tokenURI, setShow, setEditedTo
           : txIsSuccess ? (<p>Transaction success!</p>)
           : (<p>Transaction sent...</p>))}
         {isError && <p>Error!</p>}
-        <button onClick={(event) => { event.preventDefault(); setForceType('embed'); }}>Convert to file upload</button>
-        <button onClick={(event) => { event.preventDefault(); setForceType('external'); }}>Convert to external resource</button>
+        <div className="button-list">
+          <button onClick={(event) => { event.preventDefault(); setForceType('embed'); }}>Convert to file upload</button>
+          <button onClick={(event) => { event.preventDefault(); setForceType('external'); }}>Convert to external resource</button>
+        </div>
       </fieldset>
     </form>
+    </Dialog>
   );
 }
 
@@ -100,6 +105,7 @@ export function EditExternal({ tokenId, tokenURI, chainId, setShow, setEditedTok
     },
   });
   return (
+    <Dialog show={true}>
     <form onSubmit={submitReply}>
       <fieldset>
         <legend>Edit external resource reply</legend>
@@ -125,10 +131,13 @@ export function EditExternal({ tokenId, tokenURI, chainId, setShow, setEditedTok
           : txIsSuccess ? (<p>Transaction success!</p>)
           : (<p>Transaction sent...</p>))}
         {isError && <p>Error!</p>}
-        <button onClick={(event) => { event.preventDefault(); setForceType('plaintext'); }}>Convert to plaintext</button>
-        <button onClick={(event) => { event.preventDefault(); setForceType('embed'); }}>Convert to file upload</button>
+        <div className="button-list">
+          <button onClick={(event) => { event.preventDefault(); setForceType('plaintext'); }}>Convert to plaintext</button>
+          <button onClick={(event) => { event.preventDefault(); setForceType('embed'); }}>Convert to file upload</button>
+        </div>
       </fieldset>
     </form>
+    </Dialog>
   );
 }
 

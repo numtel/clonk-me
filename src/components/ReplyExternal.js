@@ -2,6 +2,7 @@ import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction }
 import { useNavigate } from 'react-router-dom';
 import { decodeEventLog, encodeFunctionData } from 'viem';
 import { chainContracts, convertToInternal } from '../contracts.js';
+import {Dialog} from './Dialog.js';
 
 export function ReplyExternal({ collection, tokenId, chainId, setShow, setChildRepliesRef, loadListRef, setChildForceShowRepliesRef, createRoot }) {
   const contracts = chainContracts(chainId);
@@ -60,6 +61,7 @@ export function ReplyExternal({ collection, tokenId, chainId, setShow, setChildR
     },
   });
   return (
+    <Dialog show={true}>
     <form onSubmit={submitReply}>
       <fieldset>
         <legend>{createRoot ? 'Create New Post' : 'Add reply'}</legend>
@@ -87,6 +89,7 @@ export function ReplyExternal({ collection, tokenId, chainId, setShow, setChildR
         {isError && <p>Error!</p>}
       </fieldset>
     </form>
+    </Dialog>
   );
 }
 

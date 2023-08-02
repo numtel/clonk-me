@@ -4,6 +4,8 @@ import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, 
 import { decodeEventLog, encodeFunctionData, bytesToHex, formatEther } from 'viem';
 import { chainContracts, convertToInternal } from '../contracts.js';
 
+import {Dialog} from './Dialog.js';
+
 export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChildRepliesRef, loadListRef, setChildForceShowRepliesRef, createRoot }) {
   const contracts = chainContracts(chainId);
   const { chain } = useNetwork();
@@ -78,6 +80,7 @@ export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChild
     },
   });
   return (
+    <Dialog show={true}>
     <form onSubmit={submitReply}>
       <fieldset>
         <legend>{createRoot ? 'Create New Post' : 'Add reply'}</legend>
@@ -110,6 +113,7 @@ export function ReplyEmbedFile({ collection, tokenId, chainId, setShow, setChild
         {isError && <p>Error!</p>}
       </fieldset>
     </form>
+    </Dialog>
   );
 
   async function determineFileSplits(data) {
@@ -213,6 +217,7 @@ export function EditEmbedFile({ tokenId, tokenURI, chainId, setShow, setEditedTo
     },
   });
   return (
+    <Dialog show={true}>
     <form onSubmit={submitReply}>
       <fieldset>
         <legend>Edit embedded file reply</legend>
@@ -244,10 +249,13 @@ export function EditEmbedFile({ tokenId, tokenURI, chainId, setShow, setEditedTo
           ))
           : (<p>Transaction sent...</p>))}
         {isError && <p>Error!</p>}
-        <button onClick={(event) => { event.preventDefault(); setForceType('plaintext'); }}>Convert to plaintext</button>
-        <button onClick={(event) => { event.preventDefault(); setForceType('external'); }}>Convert to external resource</button>
+        <div className="button-list">
+          <button onClick={(event) => { event.preventDefault(); setForceType('plaintext'); }}>Convert to plaintext</button>
+          <button onClick={(event) => { event.preventDefault(); setForceType('external'); }}>Convert to external resource</button>
+        </div>
       </fieldset>
     </form>
+    </Dialog>
   );
 
   async function determineFileSplits(data, resumeByte) {

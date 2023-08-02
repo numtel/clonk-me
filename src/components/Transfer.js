@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount, erc721ABI } from 'wagmi';
 import { decodeEventLog, isAddressEqual, isAddress } from 'viem';
 import { chainContracts } from '../contracts.js';
+import {Dialog} from './Dialog.js';
 
 export function TransferButton({ chainId, collection, tokenId, owner }) {
   const [show, setShow] = useState(false);
@@ -40,9 +41,10 @@ export function Transfer({ chainId, collection, tokenId, owner, setShow }) {
     },
   });
   return (
+    <Dialog show={true}>
     <form onSubmit={submitReply}>
       <fieldset>
-        <legend>Transfer ownership</legend>
+        <legend>Specify new owner address</legend>
         <input name="newOwner" defaultValue={owner} />
         {shouldSwitchChain ? (
           <button onClick={(event) => {
@@ -62,6 +64,7 @@ export function Transfer({ chainId, collection, tokenId, owner, setShow }) {
         {isError && <p>Error!</p>}
       </fieldset>
     </form>
+    </Dialog>
   );
 }
 

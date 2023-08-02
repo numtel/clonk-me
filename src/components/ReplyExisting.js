@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction } from 'wagmi';
 import { chainContracts, convertToInternal } from '../contracts.js';
 
+import {Dialog} from './Dialog.js';
+
 export function ReplyExisting({ collection, tokenId, chainId, setShow, setChildRepliesRef, loadListRef, setChildForceShowRepliesRef }) {
   const [token, setToken] = useState();
   const contracts = chainContracts(chainId);
@@ -36,6 +38,7 @@ export function ReplyExisting({ collection, tokenId, chainId, setShow, setChildR
     },
   });
   return (
+    <Dialog show={true}>
     <form onSubmit={submitReply}>
       <fieldset>
         <legend>Add reply</legend>
@@ -69,6 +72,7 @@ export function ReplyExisting({ collection, tokenId, chainId, setShow, setChildR
         {isError && <p>Error!</p>}
       </fieldset>
     </form>
+    </Dialog>
   );
 }
 

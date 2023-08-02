@@ -49,11 +49,13 @@ em.edited::before { content: "*"; }
 .controls { margin-top: 8px; }
 .reply-type-chooser { margin: 5px 0; }
 
+.button-list { display:flex; flex-direction:column; margin-top:10px; }
+.button-list button { margin-bottom: 10px; }
 button {margin-right:6px; background:#0801; border: 1px solid #999; color: black; cursor:pointer; border-radius:4px;}
 button:hover { background:#0f01; }
 button:disabled { background:#2221; cursor:default; }
-fieldset {margin:15px; background:#0001; border:none;}
-legend {float:left; margin-bottom:5px; }
+fieldset {border:none;}
+legend {float:left; margin-bottom:5px; font-weight:bold; }
 legend+* {clear:both; }
 textarea {width:100%; font-family:ComicMono, sans-serif; height: 25vh; margin-bottom:15px;}
 input {width:100%; margin-bottom:15px; }
