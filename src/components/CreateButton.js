@@ -5,12 +5,14 @@ import {ReplyPlaintext} from './ReplyPlaintext.js';
 import {ReplyEmbedFile} from './ReplyEmbedFile.js';
 import {ReplyExternal} from './ReplyExternal.js';
 import {Dialog} from './Dialog.js';
+import {byChain} from '../contracts.js';
 
 export function CreateButton(props) {
   const { chain } = useNetwork();
   const [show, setShow] = useState(false);
   const { address: walletAddress } = useAccount();
 
+  if(!(chain.id in byChain)) return;
   if(!walletAddress) return;
   if(show === true) return(<ReplyChooser {...{setShow, show}} />);
   if(show === 'plaintext') return (<ReplyPlaintext createRoot={true} {...props} {...{setShow}} chainId={chain.id} />);
