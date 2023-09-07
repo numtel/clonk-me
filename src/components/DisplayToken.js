@@ -146,7 +146,7 @@ export function DisplayToken({ chainId, setSortSavers, disableSort, collection, 
         {replyAddedTime && replyAddedTime > 0 && (
           <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>
         )}
-        <Link target="_blank" rel="noreferrer" to={`${contracts.explorer}token/${collection}?a=${tokenId}`} title="View on Explorer" className="external">
+        <Link target="_blank" rel="noreferrer" to={`${contracts.explorer}nft/${collection}/${tokenId}`} title="View on Explorer" className="external">
           <span class="material-symbols-outlined">
             open_in_new
           </span>
