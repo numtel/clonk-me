@@ -26,10 +26,12 @@ export function CreateButton(props) {
 function ReplyChooser({setShow, show}) {
   return (<Dialog {...{show}}><div className="reply-type-chooser">
     <h3>Choose type for new post</h3>
-    <button onClick={() => setShow('plaintext')}>Plain Text</button>
-    <button onClick={() => setShow('embedfile')}>File Upload</button>
-    <button onClick={() => setShow('external')}>External URI</button>
-    <button onClick={() => setShow(false)}>Cancel</button>
+    <div className="button-list">
+      <button onClick={() => setShow('plaintext')}>Plain Text</button>
+      <button onClick={() => setShow('embedfile')}>File Upload</button>
+      <button onClick={() => setShow('external')}>External URI</button>
+      <button onClick={() => setShow(false)}>Cancel</button>
+    </div>
   </div></Dialog>);
 }
 

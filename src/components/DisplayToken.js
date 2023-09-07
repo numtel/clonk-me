@@ -132,6 +132,7 @@ function TokenWrapper(props) {
 
 // TODO load tokenURI from ipfs and eip4804 too!
 export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, editedTokenURI, owner, unsortedCount, sortedCount, replyAddedTime, replyAddedAccount, children, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
+  const contracts = chainContracts(chainId);
   const [loadURI, setLoadURI] = useState(false);
   if(editedTokenURI !== null) tokenURI = editedTokenURI;
   if(!tokenURI) return null;
@@ -145,6 +146,11 @@ export function DisplayToken({ chainId, setSortSavers, disableSort, collection, 
         {replyAddedTime && replyAddedTime > 0 && (
           <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>
         )}
+        <Link target="_blank" rel="noreferrer" to={`${contracts.explorer}token/${collection}?a=${tokenId}`} title="View on Explorer" className="external">
+          <span class="material-symbols-outlined">
+            open_in_new
+          </span>
+        </Link>
       </div>
       {tokenURI.startsWith('data:,') ? (
         <Linkify><div className="text">{decodeURIComponent(tokenURI.slice(6))}</div></Linkify>

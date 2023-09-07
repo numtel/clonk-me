@@ -13,12 +13,19 @@ const POST_PER_PAGE = 10;
 export function User() {
   const { address, chainId: curChain } = useParams();
   const [ counts, setCounts] = useState({});
+  const contracts = chainContracts(curChain);
 
   return (<div id="user">
     <Helmet>
       <title>User Profile {address} on {byChain[curChain].name}</title>
     </Helmet>
-    <h2>Account: <UserBadge {...{address}} /></h2>
+    <h2>Account: <UserBadge {...{address}} />
+      <Link target="_blank" rel="noreferrer" to={`${contracts.explorer}address/${address}`} title="View on Explorer" className="external">
+        <span class="material-symbols-outlined">
+          open_in_new
+        </span>
+      </Link>
+    </h2>
     <ul className="tabs">
       <li className="active">Posts</li>
       <li><Link to={`/u/${address}/inbox/${curChain}`}>Inbox</Link></li>

@@ -10,6 +10,7 @@ export const defaultChain = 80001;
 export const byChain = {
   80001: {
     name: 'Mumbai',
+    explorer: 'https://mumbai.polygonscan.com/',
     nativeCurrency: 'tMATIC',
     replies: {
       address: '0x6b9d13d91800dbe046f00151b826d78e542ae15c',
@@ -24,6 +25,7 @@ export const byChain = {
   },
   5: {
     name: 'Goerli',
+    explorer: 'https://goerli.etherscan.io/',
     nativeCurrency: 'gETH',
     replies: {
       address: '0x1fb5a790dfeca87461917706922dd12e7d154007',

@@ -1,7 +1,7 @@
 @font-face { font-family: ComicMono; font-weight: 400; src: url(fonts/ComicMono.ttf); }
 body, textarea, button { font-family:sans-serif; }
 
-body {margin-bottom: 100px; }
+body {margin-bottom: 100px; min-height:100vh; background:linear-gradient(#fff, #fff calc(100% - 150px), #fff0), url(bg.jpg); }
 a { color: #333; }
 a:visited { color: #353; }
 
@@ -12,7 +12,8 @@ a:visited { color: #353; }
 }
 header {display:flex; justify-content:space-between; width:100%;}
 header>a { text-decoration:none;}
-header h1 { margin:0; padding:0; color:#000; }
+header h1 { margin:0 0 0.2rem 0; padding:0 0 0 2.6rem; color:#000; background:url(apple-touch-icon.png) center left no-repeat; background-size:contain; font-size:2.5rem;line-height:2.5rem; }
+
 @media (max-width:500px) {
   header { flex-direction:column; }
 }
@@ -37,6 +38,7 @@ header .notifications.new { color:orangered; }
 .drag-item>button { margin:0 auto; }
 .drag-handle {width: 15px; font-size:0; background:#0002; cursor:ns-resize;margin-right:5px;}
 .msg .header { display:flex; }
+a.external span { font-size: 0.8rem; margin-left: 0.2rem; }
 .different-owner { display:flex; flex-direction:column; }
 .different-owner .original::before {content: "Original Creator: "}
 .different-owner .current::before {content: "Current Owner: "}
