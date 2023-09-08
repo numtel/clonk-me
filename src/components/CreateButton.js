@@ -12,7 +12,7 @@ export function CreateButton(props) {
   const [show, setShow] = useState(false);
   const { address: walletAddress } = useAccount();
 
-  if(!(chain.id in byChain)) return;
+  if(!chain || !(chain.id in byChain)) return;
   if(!walletAddress) return;
   if(show === true) return(<ReplyChooser {...{setShow, show}} />);
   if(show === 'plaintext') return (<ReplyPlaintext createRoot={true} {...props} {...{setShow}} chainId={chain.id} />);
