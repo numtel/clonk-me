@@ -5,9 +5,39 @@ import chunkedERC721ABI from './abi/ChunkedERC721.json';
 
 import {EditChunkedERC721} from './components/EditChunkedERC721.js';
 
-export const defaultChain = 80001;
+export const defaultChain = 137;
 
 export const byChain = {
+  10: {
+    name: 'Optimism',
+    explorer: 'https://optimistic.etherscan.io/',
+    nativeCurrency: 'ETH',
+    replies: {
+      address: '0xcb7322da63051cd4340424038f7e6d0e419cce85',
+      abi: repliesABI,
+      chainId: 10,
+    },
+    ChunkedERC721: {
+      address: '0x6b5b7a69346dc9a82710c5de8428871d68376613',
+      abi: chunkedERC721ABI,
+      chainId: 10,
+    },
+  },
+  137: {
+    name: 'Polygon',
+    explorer: 'https://polygonscan.com/',
+    nativeCurrency: 'MATIC',
+    replies: {
+      address: '0x22f973bd80401b4bf2d9a71374d246519a78550c',
+      abi: repliesABI,
+      chainId: 137,
+    },
+    ChunkedERC721: {
+      address: '0x8abd8d9fab3f711b16d15ce48747db49672eedb2',
+      abi: chunkedERC721ABI,
+      chainId: 137,
+    },
+  },
   80001: {
     name: 'Mumbai',
     explorer: 'https://mumbai.polygonscan.com/',
