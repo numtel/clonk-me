@@ -134,41 +134,54 @@ function TokenWrapper(props) {
 export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, editedTokenURI, owner, unsortedCount, sortedCount, replyAddedTime, replyAddedAccount, children, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
   const contracts = chainContracts(chainId);
   const [loadURI, setLoadURI] = useState(false);
+  const [showFull, setShowFull] = useState(false);
   if(editedTokenURI !== null) tokenURI = editedTokenURI;
   if(!tokenURI) return null;
-  return (
-    <div className="msg">
-      <div className="header">
-        {!isAddress(replyAddedAccount) || isAddressEqual(replyAddedAccount, owner) ? (<UserBadge address={owner} />) : (<span className="different-owner">
-          <span className="original"><UserBadge address={replyAddedAccount} /></span>
-          <span className="current"><UserBadge address={owner} /></span>
-        </span>)}
-        {replyAddedTime && replyAddedTime > 0 && (
-          <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>
-        )}
-        <Link target="_blank" rel="noreferrer" to={`${contracts.explorer}token/${collection}?a=${tokenId}`} title="View on Explorer" className="external">
-          <span class="material-symbols-outlined">
-            open_in_new
-          </span>
-        </Link>
-      </div>
-      {tokenURI.startsWith('data:,') ? (
-        <Linkify><div className="text">{decodeURIComponent(tokenURI.slice(6))}</div></Linkify>
-      ) : loadURI ? (
-        <iframe title="NFT display" src={tokenURI}></iframe>
-      ) : tokenURI.startsWith('data:') ? (
-        <div className="preload"><a href={tokenURI} onClick={(event) => {
-          event.preventDefault();
-          setLoadURI(true);
-        }}>Display embedded resource: {tokenURI.split(';')[0].slice(5)}</a></div>
-      ) : (
-        <div className="preload"><a href={tokenURI} onClick={(event) => {
-          event.preventDefault();
-          setLoadURI(true);
-        }}>Load external resource: {tokenURI}</a></div>
+  const msgBody = (<>
+    <div className="header">
+      {!isAddress(replyAddedAccount) || isAddressEqual(replyAddedAccount, owner) ? (<UserBadge address={owner} />) : (<span className="different-owner">
+        <span className="original"><UserBadge address={replyAddedAccount} /></span>
+        <span className="current"><UserBadge address={owner} /></span>
+      </span>)}
+      {replyAddedTime && replyAddedTime > 0 && (
+        <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>
       )}
-      {children}
-      <Replies {...{chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}} />
+      <Link target="_blank" rel="noreferrer" to={`${contracts.explorer}token/${collection}?a=${tokenId}`} title="View on Explorer" className="external">
+        <span class="material-symbols-outlined">
+          open_in_new
+        </span>
+      </Link>
+      <button className="fullview" title="Expand View" onClick={() => setShowFull(!showFull)}>
+        <span class="material-symbols-outlined">
+          {showFull ? 'close_fullscreen' : 'open_in_full'}
+        </span>
+      </button>
+    </div>
+    {tokenURI.startsWith('data:,') ? (
+      <Linkify><div className="text">{decodeURIComponent(tokenURI.slice(6))}</div></Linkify>
+    ) : loadURI ? (
+      <iframe title="NFT display" src={tokenURI}></iframe>
+    ) : tokenURI.startsWith('data:') ? (
+      <div className="preload"><a href={tokenURI} onClick={(event) => {
+        event.preventDefault();
+        setLoadURI(true);
+      }}>Display embedded resource: {tokenURI.split(';')[0].slice(5)}</a></div>
+    ) : (
+      <div className="preload"><a href={tokenURI} onClick={(event) => {
+        event.preventDefault();
+        setLoadURI(true);
+      }}>Load external resource: {tokenURI}</a></div>
+    )}
+    {children}
+    <Replies {...{chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}} />
+  </>);
+  return (
+    <div className={`msg ${showFull ? 'full' : ''}`}>
+      {showFull ? (
+        <dialog open>
+          {msgBody}
+        </dialog>
+      ) : msgBody}
     </div>
   );
 }
