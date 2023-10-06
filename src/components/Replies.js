@@ -39,7 +39,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
   const [forceShowReplies, setForceShowReplies] = useState(false);
   function initReplies() {
     return [
-      { id: 'loadSorted', el: sortedCount === 0n ? (<></>) : (<button onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
+      { id: 'loadSorted', el: sortedCount === 0n ? (<></>) : (<button className="big" onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
       { id: 'threshold', el: (<div className="threshold">Messages below this threshold are unsorted</div>) },
       { id: 'loadUnsorted', el: unsortedCount === 0n ? (<></>) : (<button onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
     ];
@@ -52,12 +52,14 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
   if(setChildForceShowRepliesRef) setChildForceShowRepliesRef.current = setForceShowReplies;
   useEffect(() => {
     setReplies(initReplies);
+    // TODO keep track of display depth to only auto-load n levels
+    // loadSorted()
   }, [collection, tokenId]);
   useEffect(() => {
     setReplies(replies => {
       for(let i = 0; i < replies.length; i++) {
         if(replies[i].id === 'loadSorted') {
-          replies[i].el = sortedCount === 0n ? (<></>) : (<button onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>);
+          replies[i].el = sortedCount === 0n ? (<></>) : (<button className="big" onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>);
         } else if(replies[i].id === 'loadUnsorted') {
           replies[i].el = unsortedCount === 0n ? (<></>) : (<button onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>);
         }

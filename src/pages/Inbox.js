@@ -89,7 +89,7 @@ function LoadPage({ contracts, address, count, start, perPage }) {
   );
   // TODO how to display to which parent this reply goes
   else if(data) return(<>
-    <LoadFromInternal {...{contracts}} list={data.map(item => item.result[1])} />
+    <LoadFromInternal {...{contracts}} list={data.map(item => item.result && item.result[1])} />
     {hasMore ? loadMore ?
       <LoadPage
         {...{contracts, address, count, perPage}}

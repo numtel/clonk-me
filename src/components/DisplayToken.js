@@ -11,8 +11,9 @@ import { ReplyButton } from './ReplyButton.js';
 import { EditButton } from './EditButton.js';
 import { ParentButton } from './ParentButton.js';
 import { TransferButton } from './Transfer.js';
+import { TruncateText } from './TruncateText.js';
 
-export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
+export function DisplayTokens({ chainId, tokens, maxWords, setSortSavers, disableSort }) {
   const contracts = chainContracts(chainId);
   const QUERY_PER_TOKEN = 6;
   const { data, isError, isLoading } = useContractReads({
@@ -61,7 +62,7 @@ export function DisplayTokens({ chainId, tokens, setSortSavers, disableSort }) {
   );
   else if(data) return tokens.map((token, index) => (
     <TokenWrapper
-      {...{chainId, setSortSavers, disableSort}}
+      {...{chainId, maxWords, setSortSavers, disableSort}}
       key={index}
       collection={token.collection}
       tokenId={token.tokenId}
@@ -131,8 +132,9 @@ function TokenWrapper(props) {
 }
 
 // TODO load tokenURI from ipfs and eip4804 too!
-export function DisplayToken({ chainId, setSortSavers, disableSort, collection, tokenId, tokenURI, editedTokenURI, owner, unsortedCount, sortedCount, replyAddedTime, replyAddedAccount, children, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
+export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, collection, tokenId, tokenURI, editedTokenURI, owner, unsortedCount, sortedCount, replyAddedTime, replyAddedAccount, children, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
   const contracts = chainContracts(chainId);
+  // TODO provide options for auto-display of specified mimes
   const [loadURI, setLoadURI] = useState(false);
   const [showFull, setShowFull] = useState(false);
   if(editedTokenURI !== null) tokenURI = editedTokenURI;
@@ -147,18 +149,18 @@ export function DisplayToken({ chainId, setSortSavers, disableSort, collection, 
         <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>
       )}
       <Link target="_blank" rel="noreferrer" to={`${contracts.explorer}token/${collection}?a=${tokenId}`} title="View on Explorer" className="external">
-        <span class="material-symbols-outlined">
+        <span className="material-symbols-outlined">
           open_in_new
         </span>
       </Link>
       <button className="fullview" title="Expand View" onClick={() => setShowFull(!showFull)}>
-        <span class="material-symbols-outlined">
+        <span className="material-symbols-outlined">
           {showFull ? 'close_fullscreen' : 'open_in_full'}
         </span>
       </button>
     </div>
     {tokenURI.startsWith('data:,') ? (
-      <Linkify><div className="text">{decodeURIComponent(tokenURI.slice(6))}</div></Linkify>
+      <Linkify><div className="text"><TruncateText text={decodeURIComponent(tokenURI.slice(6))} maxWords={maxWords || 50}></TruncateText></div></Linkify>
     ) : loadURI ? (
       <iframe title="NFT display" src={tokenURI}></iframe>
     ) : tokenURI.startsWith('data:') ? (
@@ -210,3 +212,6 @@ function LinkComponent(decoratedHref, decoratedText, key) {
   return (<a href={decoratedHref} target="_blank" rel="noreferrer" key={key}>{decoratedText}</a>);
 }
 Linkify.defaultProps.componentDecorator = LinkComponent;
+
+
+

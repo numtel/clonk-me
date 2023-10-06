@@ -1,25 +1,29 @@
 @font-face { font-family: ComicMono; font-weight: 400; src: url(fonts/ComicMono.ttf); }
 body, textarea, button { font-family:sans-serif; }
 
-body {margin-bottom: 100px; min-height:100vh; background:linear-gradient(#fff, #fff calc(100% - 150px), #fff0), url(bg.jpg); }
+body {margin:0 0 100px; min-height:100vh; background:linear-gradient(#fff, #fff calc(100% - 150px), #fff0), url(bg.jpg); }
 a { color: #333; }
 a:visited { color: #353; }
 
 * { box-sizing: border-box; }
 #root { margin: 20px;}
+header {display:flex; justify-content:space-between; background:#eee; margin:-20px -20px 10px -20px; padding: 5px; border-bottom:1px solid #ccc;}
 @media (max-width:700px) {
   #root {margin: 20px 5px;}
+  header { margin: -20px -5px 10px; }
 }
-header {display:flex; justify-content:space-between; width:100%;}
 header>a { text-decoration:none;}
-header h1 { margin:0 0 0.2rem 0; padding:0 0 0 2.6rem; color:#000; background:url(apple-touch-icon.png) center left no-repeat; background-size:contain; font-size:2.5rem;line-height:2.5rem; }
+header h1 { margin:0 0 0.2rem 0; padding:0 0 0 2.6rem; color:#000; background:url(apple-touch-icon.png) center left no-repeat; background-size:contain; font-size:2.1rem;line-height:2.5rem; }
 
 @media (max-width:500px) {
   header { flex-direction:column; }
+  header h1 { margin: 0 0 0.7rem 0.4rem; }
 }
 header .account {display:flex; align-items:baseline;}
 header .notifications { margin-left: 10px;}
 header .notifications.new { color:orangered; }
+header .notifications.loading { position:relative; }
+header .notifications.loading::after { content:"😝"; animation: rotate360 2s linear infinite; display:block; position:absolute; top: 40%; left: 20%;}
 
 .tabs {display:flex; list-style:none; padding: 5px; border-bottom: 1px solid #777; }
 .tabs li { background:#0002; border-radius: 5px 5px 0 0; padding: 5px 8px; margin: 0 5px -5px 5px; }
@@ -42,16 +46,17 @@ header .notifications.new { color:orangered; }
 .msg .header { display:flex; }
 a.external span { font-size: 0.8rem; margin-left: 0.2rem; }
 button.fullview { margin-left: auto; margin-right:0; border:0; background:none; color:#222; }
+#token>.msg button.fullview { display:none; }
 .different-owner { display:flex; flex-direction:column; }
 .different-owner .original::before {content: "Original Creator: "}
 .different-owner .current::before {content: "Current Owner: "}
 .postdate {font-size:90%; padding:0 5px;}
 em.edited {font-size:80%;}
 em.edited::before { content: "*"; }
-.msg .text { padding: 15px 0; white-space: pre-line; font-family:ComicMono, sans-serif; max-height: 200px; overflow:auto; }
-.msg.full>dialog>.text { max-height: 100%; }
+.msg .text { padding: 15px 0; white-space: pre-line; font-family:ComicMono, sans-serif; }
 .msg iframe { display: block; width: 100%; border:none; margin-top:4px; }
-.msg.full>dialog>iframe { height: 100vh }
+#token>.msg>iframe,
+.msg.full>dialog>iframe { height: 90vh }
 .msg .preload { padding: 4px; }
 .controls { margin-top: 8px; }
 .reply-type-chooser { margin: 5px 0; }
@@ -59,6 +64,7 @@ em.edited::before { content: "*"; }
 .button-list { display:flex; flex-direction:column; margin-top:10px; }
 .button-list button { margin-bottom: 10px; }
 button {margin-right:6px; background:#0801; border: 1px solid #999; color: black; cursor:pointer; border-radius:4px;}
+button.big { font-size: 1.05rem; }
 button:hover { background:#0f01; }
 button:disabled { background:#2221; cursor:default; }
 fieldset {border:none;}
@@ -69,3 +75,8 @@ input {width:100%; margin-bottom:15px; }
 
 .save-sort-banner { position:fixed; bottom: 0; left:0; right: 0; background:#fff; border-top:1px solid #ccc; display:flex; justify-content:flex-end; padding:10px;}
 .save-sort-banner button { font-size: 130%; }
+
+@keyframes rotate360 {
+  0% {transform: rotate(0deg);}
+  100% {transform: rotate(360deg);}
+}

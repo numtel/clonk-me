@@ -28,7 +28,7 @@ export function Token() {
       </title>
     </Helmet>
     <SortSaver {...{chainId}}>
-      <RootTokenList {...{chainId}} tokens={[{collection, tokenId}]} />
+      <RootTokenList {...{chainId}} maxWords={9999999999} tokens={[{collection, tokenId}]} />
     </SortSaver>
   </div>);
 }

@@ -21,10 +21,24 @@ export function InboxButton() {
   });
   if(!address) return null;
   if(isLoading) return (
-    <div>Loading notifications...</div>
+    <Link
+      to={`/u/${address}/inbox`}
+      className={`notifications loading`}
+      title={'Loading Notifications Status...'}>
+      <span className="material-symbols-outlined">
+        mail
+      </span>
+    </Link>
   );
   else if(isError) return (
-    <div>Error loading notifications!</div>
+    <Link
+      to={`/u/${address}/inbox`}
+      className={`notifications error`}
+      title={'Error Loading Notifications'}>
+      <span className="material-symbols-outlined">
+        mail
+      </span>
+    </Link>
   );
   else if(data) {
     const chainKeys = Object.keys(byChain);
