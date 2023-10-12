@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Linkify from 'react-linkify';
 
 export const TruncateText = ({ text, maxWords }) => {
   const [isTruncated, setIsTruncated] = useState(true);
@@ -16,14 +17,19 @@ export const TruncateText = ({ text, maxWords }) => {
 
   return (
     <>
-      {truncatedWords.join(' ')}
+      <Linkify>{truncatedWords.join(' ')}</Linkify>
       {words.length > maxWords && (<>
-        &nbsp;<a href="#" onClick={toggleTruncate}>
+        &nbsp;<button className="link" onClick={toggleTruncate}>
           {isTruncated ? '...show more' : 'show less'}
-        </a>
+        </button>
       </>)}
     </>
   );
 };
 
 
+
+function LinkComponent(decoratedHref, decoratedText, key) {
+  return (<a href={decoratedHref} target="_blank" rel="noreferrer" key={key}>{decoratedText}</a>);
+}
+Linkify.defaultProps.componentDecorator = LinkComponent;

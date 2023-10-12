@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { erc721ABI, useContractReads, useAccount } from 'wagmi';
 import { isAddressEqual, isAddress } from 'viem';
 import { Link } from 'react-router-dom';
-import Linkify from 'react-linkify';
 
 import { chainContracts, convertToInternal } from '../contracts.js';
 import UserBadge from './UserBadge.js';
@@ -86,7 +85,7 @@ function TokenWrapper(props) {
     setEditedTokenURI(null);
   }, [props.collection, props.tokenId]);
   const contracts = chainContracts(props.chainId);
-  const { data, isError, isLoading } = useContractReads({
+  const { data, /*isError, isLoading*/ } = useContractReads({
     contracts: [
       {
         ...contracts.replies,
@@ -160,7 +159,7 @@ export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, co
       </button>
     </div>
     {tokenURI.startsWith('data:,') ? (
-      <Linkify><div className="text"><TruncateText text={decodeURIComponent(tokenURI.slice(6))} maxWords={maxWords || 50}></TruncateText></div></Linkify>
+      <div className="text"><TruncateText text={decodeURIComponent(tokenURI.slice(6))} maxWords={maxWords || 50}></TruncateText></div>
     ) : loadURI ? (
       <iframe title="NFT display" src={tokenURI}></iframe>
     ) : tokenURI.startsWith('data:') ? (
@@ -207,11 +206,6 @@ export function remaining(seconds, onlyFirst) {
   }
   return out.join(', ');
 }
-
-function LinkComponent(decoratedHref, decoratedText, key) {
-  return (<a href={decoratedHref} target="_blank" rel="noreferrer" key={key}>{decoratedText}</a>);
-}
-Linkify.defaultProps.componentDecorator = LinkComponent;
 
 
 

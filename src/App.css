@@ -65,6 +65,7 @@ em.edited::before { content: "*"; }
 .button-list button { margin-bottom: 10px; }
 button {margin-right:6px; background:#0801; border: 1px solid #999; color: black; cursor:pointer; border-radius:4px;}
 button.big { font-size: 1.05rem; }
+button.link { background:none; border:none; text-decoration:underline; color:#333;}
 button:hover { background:#0f01; }
 button:disabled { background:#2221; cursor:default; }
 fieldset {border:none;}
