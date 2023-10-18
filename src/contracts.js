@@ -2,6 +2,7 @@ import { encodePacked, keccak256 } from 'viem';
 
 import repliesABI from './abi/NFTReplies.json';
 import chunkedERC721ABI from './abi/ChunkedERC721.json';
+import verificationABI from './abi/Verification.json';
 
 import {EditChunkedERC721} from './components/EditChunkedERC721.js';
 
@@ -22,6 +23,11 @@ export const byChain = {
       abi: chunkedERC721ABI,
       chainId: 10,
     },
+    Verification: {
+      address: '0x247baae25D0c32fdA5CfB902c0d87D47587CF9Da',
+      abi: verificationABI,
+      chainId: 10,
+    },
   },
   137: {
     name: 'Polygon',
@@ -35,6 +41,11 @@ export const byChain = {
     ChunkedERC721: {
       address: '0x8abd8d9fab3f711b16d15ce48747db49672eedb2',
       abi: chunkedERC721ABI,
+      chainId: 137,
+    },
+    Verification: {
+      address: '0x637aeabc614e95da58f232e493fca63d09e15b8f',
+      abi: verificationABI,
       chainId: 137,
     },
   },

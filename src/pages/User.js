@@ -19,7 +19,7 @@ export function User() {
     <Helmet>
       <title>User Profile {address} on {byChain[curChain].name}</title>
     </Helmet>
-    <h2>Account: <UserBadge {...{address}} />
+    <h2>Account: <UserBadge {...{address, curChain}} />
       <Link target="_blank" rel="noreferrer" to={`${contracts.explorer}address/${address}`} title="View on Explorer" className="external">
         <span class="material-symbols-outlined">
           open_in_new

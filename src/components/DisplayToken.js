@@ -140,9 +140,9 @@ export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, co
   if(!tokenURI) return null;
   const msgBody = (<>
     <div className="header">
-      {!isAddress(replyAddedAccount) || isAddressEqual(replyAddedAccount, owner) ? (<UserBadge address={owner} />) : (<span className="different-owner">
-        <span className="original"><UserBadge address={replyAddedAccount} /></span>
-        <span className="current"><UserBadge address={owner} /></span>
+      {!isAddress(replyAddedAccount) || isAddressEqual(replyAddedAccount, owner) ? (<UserBadge address={owner} curChain={chainId} />) : (<span className="different-owner">
+        <span className="original"><UserBadge address={replyAddedAccount} curChain={chainId} /></span>
+        <span className="current"><UserBadge address={owner} curChain={chainId} /></span>
       </span>)}
       {replyAddedTime && replyAddedTime > 0 && (
         <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>

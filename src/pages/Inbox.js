@@ -19,7 +19,13 @@ export function Inbox() {
     <Helmet>
       <title>Inbox {address} on {byChain[curChain].name}</title>
     </Helmet>
-    <h2>Account: <UserBadge {...{address}} /></h2>
+    <h2>Account: <UserBadge {...{address, curChain}} />
+      <Link target="_blank" rel="noreferrer" to={`${byChain[curChain].explorer}address/${address}`} title="View on Explorer" className="external">
+        <span class="material-symbols-outlined">
+          open_in_new
+        </span>
+      </Link>
+    </h2>
     <ul className="tabs">
       <li><Link to={`/u/${address}/${curChain}`}>Posts</Link></li>
       <li className="active">Inbox</li>
