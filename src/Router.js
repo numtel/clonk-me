@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { Layout } from './components/Layout.js';
+import { Home } from './pages/Home.js';
 import { LatestPosts } from './pages/LatestPosts.js';
 import { User } from './pages/User.js';
 import { Token } from './pages/Token.js';
@@ -13,6 +14,18 @@ export function Router() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index
+            element={<Navigate to={`/home/${defaultChain}`} />}
+          />
+          <Route
+            path="home/"
+            element={<Navigate to={`/home/${defaultChain}`} />}
+          />
+          <Route
+            path="home/:chainId"
+            element={<Home />}
+          />
+          <Route
+            path="latest/"
             element={<Navigate to={`/latest/${defaultChain}`} />}
           />
           <Route

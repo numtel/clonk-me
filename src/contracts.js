@@ -11,6 +11,7 @@ export const defaultChain = 137;
 export const byChain = {
   10: {
     name: 'Optimism',
+    home: 1,
     explorer: 'https://optimistic.etherscan.io/',
     nativeCurrency: 'ETH',
     replies: {
@@ -31,6 +32,7 @@ export const byChain = {
   },
   137: {
     name: 'Polygon',
+    home: 1,
     explorer: 'https://polygonscan.com/',
     nativeCurrency: 'MATIC',
     replies: {
@@ -51,6 +53,7 @@ export const byChain = {
   },
   80001: {
     name: 'Mumbai',
+    home: 1,
     explorer: 'https://mumbai.polygonscan.com/',
     nativeCurrency: 'tMATIC',
     replies: {
@@ -66,6 +69,7 @@ export const byChain = {
   },
   5: {
     name: 'Goerli',
+    home: 1,
     explorer: 'https://goerli.etherscan.io/',
     nativeCurrency: 'gETH',
     replies: {

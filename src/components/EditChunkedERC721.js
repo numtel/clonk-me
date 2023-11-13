@@ -2,7 +2,7 @@ import {useState} from 'react';
 import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction } from 'wagmi';
 import { isAddressEqual, isAddress } from 'viem';
 
-import { chainContracts, convertToInternal } from '../contracts.js';
+import { chainContracts } from '../contracts.js';
 import {EditEmbedFile} from './ReplyEmbedFile.js';
 import {Dialog} from './Dialog.js';
 

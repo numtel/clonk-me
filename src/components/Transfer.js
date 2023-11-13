@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount, erc721ABI } from 'wagmi';
-import { decodeEventLog, isAddressEqual, isAddress } from 'viem';
+import { isAddressEqual, isAddress } from 'viem';
 import { chainContracts } from '../contracts.js';
 import {Dialog} from './Dialog.js';
 

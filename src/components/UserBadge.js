@@ -27,7 +27,7 @@ export default function UserBadge({ address, curChain }) {
   return (
     <span className="user-badge">
       <Link to={'/u/' + address}>{ ensName ? ensName : address.slice(0, 6) + '...' + address.slice(-4) }</Link>
-      { data && data[0] && data[0].result && (<span class="passport-badge" title="Passport Verified">Passport Verified</span>)}
+      { data && data[0] && data[0].result && (<span className="passport-badge" title="Passport Verified">Passport Verified</span>)}
       { /* ensAvatar && ensAvatar TODO Test! */ }
     </span>
   )

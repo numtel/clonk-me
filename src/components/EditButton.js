@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import { chainContracts, convertToInternal, methods } from '../contracts.js';
+import { chainContracts, methods } from '../contracts.js';
 import { isAddressEqual, isAddress } from 'viem';
 
 export function EditButton(props) {
