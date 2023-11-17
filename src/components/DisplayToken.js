@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { erc721ABI, useContractReads, useAccount } from 'wagmi';
 import { isAddressEqual, isAddress } from 'viem';
 import { Link } from 'react-router-dom';
 
 import { chainContracts, convertToInternal } from '../contracts.js';
+import { MimesEnabledContext } from './Layout.js';
 import UserBadge from './UserBadge.js';
 import { Replies } from './Replies.js';
 import { ReplyButton } from './ReplyButton.js';
@@ -133,8 +134,9 @@ function TokenWrapper(props) {
 // TODO load tokenURI from ipfs and eip4804 too!
 export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, collection, tokenId, tokenURI, editedTokenURI, owner, unsortedCount, sortedCount, replyAddedTime, replyAddedAccount, children, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
   const contracts = chainContracts(chainId);
-  // TODO provide options for auto-display of specified mimes
-  const [loadURI, setLoadURI] = useState(false);
+  const mimesEnabled = useContext(MimesEnabledContext);
+  const mimeType = tokenURI.split(';')[0].slice(5);
+  const [loadURI, setLoadURI] = useState(mimesEnabled.includes(mimeType));
   const [showFull, setShowFull] = useState(false);
   if(editedTokenURI !== null) tokenURI = editedTokenURI;
   if(!tokenURI) return null;
@@ -166,7 +168,7 @@ export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, co
       <div className="preload"><a href={tokenURI} onClick={(event) => {
         event.preventDefault();
         setLoadURI(true);
-      }}>Display embedded resource: {tokenURI.split(';')[0].slice(5)}</a></div>
+      }}>Display embedded resource: {mimeType}</a></div>
     ) : (
       <div className="preload"><a href={tokenURI} onClick={(event) => {
         event.preventDefault();

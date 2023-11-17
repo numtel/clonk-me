@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 
 import { RootTokenList } from '../components/RootTokenList.js';
 import { SortSaver } from '../components/SortSaver.js';
-import { byChain, chainContracts } from '../contracts.js';
+import { chainContracts, ChainList } from '../contracts.js';
 
 export function Home() {
   const { chainId: curChain } = useParams();
@@ -15,9 +15,9 @@ export function Home() {
       <title>Clonk.me</title>
     </Helmet>
     <ul className="chains tabs">
-      {Object.keys(byChain).map(x => (
-        <li className={`${Number(x) === chainId ? 'active' : ''}`}><Link to={`/home/${x}`}><button>{byChain[x].name}</button></Link></li>
-      ))}
+      <ChainList>
+        <ChainTab {...{curChain}} />
+      </ChainList>
     </ul>
     {contracts ? (<>
       <SortSaver {...{chainId}}>
@@ -27,4 +27,10 @@ export function Home() {
       <p>Invalid chain!</p>
     </>)}
   </div>);
+}
+
+function ChainTab({ chainId, chain, curChain }) {
+  return (
+    <li className={`${curChain === chainId ? 'active' : ''}`}><Link to={`/home/${chainId}`}><button>{chain.name}</button></Link></li>
+  );
 }

@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useContractReads } from 'wagmi';
 import { Helmet } from 'react-helmet';
 
-import { byChain, chainContracts } from '../contracts.js';
+import { byChain, chainContracts, ChainList } from '../contracts.js';
 import { RootTokenList } from '../components/RootTokenList.js';
 import { SortSaver } from '../components/SortSaver.js';
 
@@ -20,9 +20,9 @@ export function LatestPosts() {
     <p>Post replies on any NFT! As an NFT holder, sort and moderate the replies you receive.</p>
     <h2>Latest Posts</h2>
     <ul className="chains tabs">
-      {Object.keys(byChain).map(x => (
-        <PerChain key={x} contracts={chainContracts(x)} {...{curChain, setCounts}} />
-      ))}
+      <ChainList>
+        <PerChain {...{curChain, setCounts}} />
+      </ChainList>
     </ul>
     {curChain && (
       <SortSaver {...{chainId: curChain}}>
@@ -32,12 +32,11 @@ export function LatestPosts() {
   </div>);
 }
 
-function PerChain({ contracts, curChain, setCounts }) {
-  const chainId = contracts.replies.chainId;
+function PerChain({ chainId, chain, curChain, setCounts }) {
   const { data, isError, isLoading } = useContractReads({
     contracts: [
       {
-        ...contracts.ChunkedERC721,
+        ...chain.ChunkedERC721,
         functionName: 'tokenCount',
       }
     ],
@@ -51,7 +50,7 @@ function PerChain({ contracts, curChain, setCounts }) {
     }
   }, [data]);
   return (
-    <li className={`${chainId === Number(curChain) ? 'active' : ''}`}><Link to={`/latest/${chainId}`}><button>{contracts.name}</button></Link></li>
+    <li className={`${chainId === curChain ? 'active' : ''}`}><Link to={`/latest/${chainId}`}><button>{chain.name}</button></Link></li>
   );
 }
 

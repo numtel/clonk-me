@@ -1,3 +1,4 @@
+import React, {useContext} from 'react';
 import { encodePacked, keccak256 } from 'viem';
 
 import repliesABI from './abi/NFTReplies.json';
@@ -5,6 +6,7 @@ import chunkedERC721ABI from './abi/ChunkedERC721.json';
 import verificationABI from './abi/Verification.json';
 
 import {EditChunkedERC721} from './components/EditChunkedERC721.js';
+import {ChainsDisabledContext} from './components/Layout.js';
 
 export const defaultChain = 137;
 
@@ -99,4 +101,20 @@ export function chainContracts(chain) {
 
 export function convertToInternal(collection, tokenId) {
   return '0x' + keccak256(encodePacked(['address', 'uint256'], [collection, tokenId])).slice(-40);
+}
+
+export function ChainList({children}) {
+  const chainsDisabled = useContext(ChainsDisabledContext);
+  return (<>
+    {Object.keys(byChain)
+      .filter(chainId => !chainsDisabled.includes(chainId))
+      .map((chainId, index) =>
+        React.cloneElement(children, {
+          key: index,
+          chainId,
+          chain: byChain[chainId]
+        })
+      )
+    }
+  </>);
 }

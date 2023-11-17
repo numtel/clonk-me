@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useContractReads } from 'wagmi';
 import { Helmet } from 'react-helmet';
 
-import { byChain, chainContracts } from '../contracts.js';
+import { byChain, chainContracts, ChainList } from '../contracts.js';
 import { SortSaver } from '../components/SortSaver.js';
 import { RootTokenList } from '../components/RootTokenList.js';
 import {InboxContext} from '../components/Layout.js';
@@ -31,9 +31,9 @@ export function Inbox() {
       <li className="active">Inbox</li>
     </ul>
     <ul className="chains tabs">
-      {Object.keys(byChain).map((x, index) => (
-        <PerChain key={x} contracts={chainContracts(x)} {...{address, index, curChain}} />
-      ))}
+      <ChainList>
+        <PerChain {...{address, curChain}} />
+      </ChainList>
     </ul>
     {curChain && (
       <SortSaver {...{chainId: curChain}}>
@@ -43,14 +43,13 @@ export function Inbox() {
   </div>);
 }
 
-function PerChain({ contracts, address, index, curChain, setArticle }) {
+function PerChain({ chainId, chain, address, curChain, setArticle }) {
   const [ inboxData, setInboxData ] = useContext(InboxContext);
-  const chainId = contracts.replies.chainId;
   const [curVal] = useState(address in inboxData ? inboxData[address][chainId] : 0);
   const { data, isError, isLoading } = useContractReads({
     contracts: [
       {
-        ...contracts.replies,
+        ...chain.replies,
         functionName: 'notificationCount',
         args: [address],
       }
@@ -68,7 +67,7 @@ function PerChain({ contracts, address, index, curChain, setArticle }) {
     }
   }, [data]);
   return (<>
-    <li className={`${chainId === Number(curChain) ? 'active' : ''} ${data && (data[0].result > curVal) ? 'new' : ''}`}><Link to={`/u/${address}/inbox/${chainId}`}><button>{contracts.name}</button></Link></li>
+    <li className={`${chainId === curChain ? 'active' : ''} ${data && (data[0].result > curVal) ? 'new' : ''}`}><Link to={`/u/${address}/inbox/${chainId}`}><button>{chain.name}</button></Link></li>
   </>);
 }
 
