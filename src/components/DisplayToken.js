@@ -4,7 +4,7 @@ import { isAddressEqual, isAddress } from 'viem';
 import { Link } from 'react-router-dom';
 
 import { chainContracts, convertToInternal } from '../contracts.js';
-import { MimesEnabledContext } from './Layout.js';
+import { MimesEnabledContext, BlockedContext } from './Layout.js';
 import UserBadge from './UserBadge.js';
 import { Replies } from './Replies.js';
 import { ReplyButton } from './ReplyButton.js';
@@ -14,6 +14,7 @@ import { TransferButton } from './Transfer.js';
 import { TruncateText } from './TruncateText.js';
 
 export function DisplayTokens({ chainId, tokens, maxWords, setSortSavers, disableSort }) {
+  const blocked = useContext(BlockedContext);
   const contracts = chainContracts(chainId);
   const QUERY_PER_TOKEN = 6;
   const { data, isError, isLoading } = useContractReads({
@@ -23,7 +24,11 @@ export function DisplayTokens({ chainId, tokens, maxWords, setSortSavers, disabl
         address: token.collection,
         abi: erc721ABI,
         functionName: 'tokenURI',
-        args: [token.tokenId],
+        // Don't load blocked content
+        args: [(blocked === null || (blocked && chainId in blocked &&
+                token.collection in blocked[chainId] &&
+                blocked[chainId][token.collection].includes(String(token.tokenId)))) ?
+                  null : token.tokenId],
       },
       {
         chainId,
@@ -100,6 +105,7 @@ function TokenWrapper(props) {
       },
     ]
   });
+
   return (<DisplayToken {...props} {...{editedTokenURI, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}} replyAddedAccount={props.replyAddedAccount || (data && data[0].result)} replyAddedTime={props.replyAddedTime || (data && data[1].result)}>
     <div className="controls">
       <ParentButton {...props} />
@@ -135,7 +141,8 @@ function TokenWrapper(props) {
 export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, collection, tokenId, tokenURI, editedTokenURI, owner, unsortedCount, sortedCount, replyAddedTime, replyAddedAccount, children, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
   const contracts = chainContracts(chainId);
   const mimesEnabled = useContext(MimesEnabledContext);
-  const mimeType = tokenURI.split(';')[0].slice(5);
+  // If the token doesn't load, a new Symbol will never exist in mimesEnabled
+  const mimeType = tokenURI ? tokenURI.split(';')[0].slice(5) : Symbol();
   const [loadURI, setLoadURI] = useState(mimesEnabled.includes(mimeType));
   const [showFull, setShowFull] = useState(false);
   if(editedTokenURI !== null) tokenURI = editedTokenURI;

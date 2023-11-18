@@ -4,12 +4,14 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 
 import {InboxButton} from './InboxButton.js';
 import {CreateButton} from './CreateButton.js';
-import {SettingsButton, CHAINS_DISABLED_LOCALSTORAGE_KEY, MIMES_ENABLED_LOCALSTORAGE_KEY, DEFAULT_CHAIN_LOCALSTORAGE_KEY} from './SettingsButton.js';
+import {SettingsButton, CHAINS_DISABLED_LOCALSTORAGE_KEY, MIMES_ENABLED_LOCALSTORAGE_KEY} from './SettingsButton.js';
 import {NOTIFICATION_LOCALSTORAGE_KEY} from '../pages/Inbox.js';
+import useFetchJson from './useFetchJson.js';
 
 export const InboxContext = createContext(null);
 export const ChainsDisabledContext = createContext(null);
 export const MimesEnabledContext = createContext(null);
+export const BlockedContext = createContext(null);
 
 export function Layout() {
   // New chains added are opt-out
@@ -18,9 +20,11 @@ export function Layout() {
   const [mimesEnabled, setMimesEnabled] = useState(JSON.parse(localStorage.getItem(MIMES_ENABLED_LOCALSTORAGE_KEY) || '[]'));
 
   const inboxState = useState(JSON.parse(localStorage.getItem(NOTIFICATION_LOCALSTORAGE_KEY) || '{}'));
+  const { data: blockData } = useFetchJson('https://config.clonk.me/blocked.json');
   const location = useLocation();
   const path = location.pathname.toLowerCase();
   return (<>
+    <BlockedContext.Provider value={blockData}>
     <InboxContext.Provider value={inboxState}>
     <ChainsDisabledContext.Provider value={chainsDisabled}>
     <MimesEnabledContext.Provider value={mimesEnabled}>
@@ -47,5 +51,6 @@ export function Layout() {
     </MimesEnabledContext.Provider>
     </ChainsDisabledContext.Provider>
     </InboxContext.Provider>
+    </BlockedContext.Provider>
   </>);
 }

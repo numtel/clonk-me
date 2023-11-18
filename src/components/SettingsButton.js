@@ -61,7 +61,7 @@ export function SettingsButton({mimesEnabled, setMimesEnabled, chainsDisabled, s
     </button>
     <Dialog {...{show}}>
       <div className="field">
-        <label for="defaultChainSel">Default chain</label>
+        <label htmlFor="defaultChainSel">Default chain</label>
         <select id="defaultChainSel" onChange={defaultChange}>
           {Object.keys(byChain).map(chain => (
             <option key={chain} value={chain} selected={Number(defaultChain) === Number(chain)}>{byChain[chain].name}</option>
@@ -69,7 +69,7 @@ export function SettingsButton({mimesEnabled, setMimesEnabled, chainsDisabled, s
         </select>
       </div>
       <div className="field">
-        <label for="chainSel">Display chains</label>
+        <label htmlFor="chainSel">Display chains</label>
         <select id="chainSel" multiple onChange={chainsChange}>
           {Object.keys(byChain).map(chain => (
             <option key={chain} value={chain} selected={!chainsDisabled.includes(chain)}>{byChain[chain].name}</option>
@@ -77,7 +77,7 @@ export function SettingsButton({mimesEnabled, setMimesEnabled, chainsDisabled, s
         </select>
       </div>
       <div className="field">
-        <label for="mimeSel">Auto-display mime types</label>
+        <label htmlFor="mimeSel">Auto-display mime types</label>
         <select id="mimeSel" multiple onChange={mimesChange}>
           {MIMES.map(mime => (
             <option key={mime} value={mime} selected={mimesEnabled.includes(mime)}>{mime}</option>

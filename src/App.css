@@ -37,7 +37,7 @@ header nav a.active { border: 1px solid #0004; background:#fcfcfc; cursor:defaul
   header h1 { margin: 0 0 0.7rem 0.4rem; }
   header nav a { margin-bottom:10px; }
 }
-header .account {display:flex; align-items:baseline;}
+header .account {display:flex;}
 header .notifications {}
 header .notifications.new { color:orangered; }
 header .notifications.loading { position:relative; }
@@ -55,12 +55,12 @@ header .notifications.loading::after { content:"😝"; animation: rotate360 2s l
 .msg { flex:1; padding:20px 20px 10px 20px; background:#0061; margin:10px 0; border-radius:5px; }
 .msg.full { display:flex; flex-direction: column;}
 .msg.full>dialog {width:100%;}
-.threshold {text-align:center; width:100%; font-size:80%; background: #0002; }
+.threshold {text-align:center; width:100%; font-size:80%; background: #0002;  border-radius:4px;}
 .drag-item {display:flex; margin:10px 5px;}
 .dirty .msg { background: #ff95; }
 .eliminate .msg { background: #f995; }
 .drag-item>button { margin:0 auto; }
-.drag-handle {width: 15px; font-size:0; background:#0002; cursor:ns-resize;margin-right:5px;}
+.drag-handle {width: 15px; font-size:0; background:#0002; cursor:ns-resize;margin-right:5px; border-radius:4px;}
 .msg .header { display:flex; }
 a.external span { font-size: 0.8rem; margin-left: 0.2rem; }
 button.fullview { margin-left: auto; margin-right:0; border:0; background:none; color:#222; }
