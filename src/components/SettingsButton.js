@@ -13,6 +13,7 @@ const MIMES = [
   'image/jpeg',
   'image/png',
   'image/webp',
+  'image/svg+xml',
   'audio/mpeg',
   'audio/ogg',
   'audio/webm',
@@ -53,7 +54,7 @@ export function SettingsButton({mimesEnabled, setMimesEnabled, chainsDisabled, s
   }
 
   return (<>
-    <button title="Settings" className="icon" onClick={() => setShow(!show)} type="button">
+    <button title="Settings" className="rk" onClick={() => setShow(!show)} type="button">
       <span className="material-symbols-outlined">
         settings
       </span>

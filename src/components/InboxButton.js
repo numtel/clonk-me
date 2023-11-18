@@ -25,9 +25,11 @@ export function InboxButton() {
       to={`/u/${address}/inbox`}
       className={`notifications loading`}
       title={'Loading Notifications Status...'}>
-      <span className="material-symbols-outlined">
-        mail
-      </span>
+      <button type="button" className="rk">
+        <span className="material-symbols-outlined">
+          mail
+        </span>
+      </button>
     </Link>
   );
   else if(isError) return (
@@ -35,9 +37,11 @@ export function InboxButton() {
       to={`/u/${address}/inbox`}
       className={`notifications error`}
       title={'Error Loading Notifications'}>
-      <span className="material-symbols-outlined">
-        mail
-      </span>
+      <button type="button" className="rk">
+        <span className="material-symbols-outlined">
+          mail
+        </span>
+      </button>
     </Link>
   );
   else if(data) {
@@ -55,9 +59,11 @@ export function InboxButton() {
         to={`/u/${address}/inbox`}
         className={`notifications ${hasNew ? 'new' : ''}`}
         title={hasNew ? 'Unread Notifications' : 'No unread notifications'}>
-        <span className="material-symbols-outlined">
-          mail
-        </span>
+        <button type="button" className="rk">
+          <span className="material-symbols-outlined">
+            mail
+          </span>
+        </button>
       </Link>
     )
   }

@@ -25,18 +25,22 @@ export function Layout() {
     <ChainsDisabledContext.Provider value={chainsDisabled}>
     <MimesEnabledContext.Provider value={mimesEnabled}>
       <header>
-        <Link to="/"><h1>clonk.me</h1></Link>
-        <nav>
-          <ul>
-            <li key="1"><Link className={path.startsWith('/home') ? 'active' : ''} to="/home">Home</Link></li>
-            <li key="2"><Link className={path.startsWith('/latest') ? 'active' : ''} to="/latest">Latest Posts</Link></li>
-          </ul>
-        </nav>
+        <div className="left-side">
+          <Link to="/"><h1>clonk.me</h1></Link>
+          <nav>
+            <ul>
+              <li key="1"><Link className={path.startsWith('/home') ? 'active' : ''} to="/home">Home</Link></li>
+              <li key="2"><Link className={path.startsWith('/latest') ? 'active' : ''} to="/latest">Latest Posts</Link></li>
+            </ul>
+          </nav>
+        </div>
         <div className="account">
           <ConnectButton />
-          <SettingsButton {...{mimesEnabled, setMimesEnabled, chainsDisabled, setChainsDisabled}} />
-          <InboxButton />
-          <CreateButton />
+          <div className="controls">
+            <InboxButton />
+            <CreateButton />
+            <SettingsButton {...{mimesEnabled, setMimesEnabled, chainsDisabled, setChainsDisabled}} />
+          </div>
         </div>
       </header>
       <Outlet />

@@ -18,7 +18,7 @@ export function CreateButton(props) {
   if(show === 'plaintext') return (<ReplyPlaintext createRoot={true} {...props} {...{setShow}} chainId={chain.id} />);
   if(show === 'embedfile') return (<ReplyEmbedFile createRoot={true} {...props} {...{setShow}} chainId={chain.id} />);
   if(show === 'external') return (<ReplyExternal createRoot={true} {...props} {...{setShow}} chainId={chain.id} />);
-  return (<button title="Create New Post" className="icon" onClick={() => setShow(true)}>
+  return (<button title="Create New Post" className="rk" onClick={() => setShow(true)}>
     <span className="material-symbols-outlined">
       add_circle
     </span>
