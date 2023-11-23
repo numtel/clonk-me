@@ -85,6 +85,22 @@ export const byChain = {
       chainId: 5,
     },
   },
+  17000: {
+    name: 'Holesky',
+    home: 1,
+    explorer: 'https://holesky.etherscan.io/',
+    nativeCurrency: 'hETH',
+    replies: {
+      address: '0xdb896cd12babfec15ec4bfface8c0ee7887fbd71',
+      abi: repliesABI,
+      chainId: 17000,
+    },
+    ChunkedERC721: {
+      address: '0x8f2448ba4b30c394ab9fd7835fb1f0fe1a3734e0',
+      abi: chunkedERC721ABI,
+      chainId: 17000,
+    },
+  },
 };
 
 export const methods = {

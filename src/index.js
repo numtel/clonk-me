@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { mainnet, polygon, goerli, optimism,/* arbitrum,*/ polygonMumbai } from 'wagmi/chains';
+import { mainnet, polygon, goerli, optimism, holesky, polygonMumbai } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 
 import { Router } from './Router.js';
@@ -14,7 +14,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 
 const { chains, publicClient } = configureChains(
-  [mainnet, optimism, goerli, polygon, {...polygonMumbai, rpcUrls: {
+  [mainnet, optimism, goerli, holesky, polygon, {...polygonMumbai, rpcUrls: {
     public: { http: ['https://rpc.ankr.com/polygon_mumbai'] },
     default: { http: ['https://rpc.ankr.com/polygon_mumbai'] },
   }}],
