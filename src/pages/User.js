@@ -21,14 +21,14 @@ export function User() {
     </Helmet>
     <h2>Account: <UserBadge {...{address, curChain}} />
       <Link target="_blank" rel="noreferrer" to={`${contracts.explorer}address/${address}`} title="View on Explorer" className="external">
-        <span class="material-symbols-outlined">
+        <span className="material-symbols-outlined">
           open_in_new
         </span>
       </Link>
     </h2>
     <ul className="tabs">
-      <li className="active">Posts</li>
-      <li><Link to={`/u/${address}/inbox/${curChain}`}>Inbox</Link></li>
+      <li className="active"><button type="button">Posts</button></li>
+      <li><Link to={`/u/${address}/inbox/${curChain}`}><button type="button">Inbox</button></Link></li>
     </ul>
     <ul className="chains tabs">
       <ChainList>

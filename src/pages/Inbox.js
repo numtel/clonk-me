@@ -21,14 +21,14 @@ export function Inbox() {
     </Helmet>
     <h2>Account: <UserBadge {...{address, curChain}} />
       <Link target="_blank" rel="noreferrer" to={`${byChain[curChain].explorer}address/${address}`} title="View on Explorer" className="external">
-        <span class="material-symbols-outlined">
+        <span className="material-symbols-outlined">
           open_in_new
         </span>
       </Link>
     </h2>
     <ul className="tabs">
-      <li><Link to={`/u/${address}/${curChain}`}>Posts</Link></li>
-      <li className="active">Inbox</li>
+      <li><Link to={`/u/${address}/${curChain}`}><button type="button">Posts</button></Link></li>
+      <li className="active"><button type="button">Inbox</button></li>
     </ul>
     <ul className="chains tabs">
       <ChainList>

@@ -39,9 +39,9 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
   const [forceShowReplies, setForceShowReplies] = useState(false);
   function initReplies() {
     return [
-      { id: 'loadSorted', el: sortedCount === 0n ? (<></>) : (<button className="big" onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
+      { id: 'loadSorted', el: sortedCount === 0n ? (<></>) : (<button className="rk big" onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
       { id: 'threshold', el: (<div className="threshold">Messages below this threshold are unsorted</div>) },
-      { id: 'loadUnsorted', el: unsortedCount === 0n ? (<></>) : (<button onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
+      { id: 'loadUnsorted', el: unsortedCount === 0n ? (<></>) : (<button className="rk" onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
     ];
   }
   const [replies, setReplies] = useState(initReplies);
@@ -59,9 +59,9 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
     setReplies(replies => {
       for(let i = 0; i < replies.length; i++) {
         if(replies[i].id === 'loadSorted') {
-          replies[i].el = sortedCount === 0n ? (<></>) : (<button className="big" onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>);
+          replies[i].el = sortedCount === 0n ? (<></>) : (<button className="rk big" onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>);
         } else if(replies[i].id === 'loadUnsorted') {
-          replies[i].el = unsortedCount === 0n ? (<></>) : (<button onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>);
+          replies[i].el = unsortedCount === 0n ? (<></>) : (<button className="rk" onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>);
         }
       }
       return replies;
@@ -135,7 +135,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
       ...replies.filter(item => item.id !== 'loadSorted' && item.aboveThreshold),
       {
         id: 'loadSorted',
-        el: (<div className="loading-replies">Loading sorted replies...</div>),
+        el: (<button className="rk big loading-replies">Loading sorted replies...</button>),
       },
       ...replies.filter(item => item.id !== 'loadSorted' && !item.aboveThreshold)
     ]);
@@ -161,7 +161,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
   async function loadUnsorted(lastScanned) {
     setReplies((replies) => [...replies.filter(item => item.id !== 'loadUnsorted'), {
         id: 'loadUnsorted',
-        el: (<div className="loading-replies">Loading unsorted replies...</div>),
+        el: (<button className="rk loading-replies">Loading unsorted replies...</button>),
       }]);
     lastScanned = lastScanned || 0n;
     const fetchResult = await publicClient.readContract({

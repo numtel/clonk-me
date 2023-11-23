@@ -154,7 +154,7 @@ export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, co
         <span className="current"><UserBadge address={owner} curChain={chainId} /></span>
       </span>)}
       {replyAddedTime && replyAddedTime > 0 && (
-        <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true)} ago</Link></span>
+        <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true, replyAddedTime)}</Link></span>
       )}
       <Link target="_blank" rel="noreferrer" to={`${contracts.explorer}token/${collection}?a=${tokenId}`} title="View on Explorer" className="external">
         <span className="material-symbols-outlined">
@@ -196,24 +196,28 @@ export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, co
   );
 }
 
-export function remaining(seconds, onlyFirst) {
+export function remaining(seconds, onlyFirst, timestamp) {
   const units = [
     { value: 1, unit: 'second' },
     { value: 60, unit: 'minute' },
     { value: 60 * 60, unit: 'hour' },
     { value: 60 * 60 * 24, unit: 'day' },
+    // Relative dates are not useful past a certain point, 10 days ago max
+    { value: 60 * 60 * 24 * 11, unit: null },
   ];
   let remaining = Number(seconds);
   let out = [];
   for(let i = units.length - 1; i >= 0;  i--) {
     if(remaining >= units[i].value) {
+      if(units[i].unit === null)
+        return (new Date(Number(timestamp * 1000n))).toLocaleString();
       const count = Math.floor(remaining / units[i].value);
       out.push(count.toString(10) + ' ' + units[i].unit + (count !== 1 ? 's' : ''));
-      if(onlyFirst) return out[0];
+      if(onlyFirst) break;
       remaining = remaining - (count * units[i].value);
     }
   }
-  return out.join(', ');
+  return out.join(', ') + ' ago';
 }
 
 
