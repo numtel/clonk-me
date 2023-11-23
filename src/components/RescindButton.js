@@ -1,6 +1,7 @@
+import { useNetwork, useContractWrite, useWaitForTransaction, useSwitchNetwork } from 'wagmi';
 
 import { chainContracts } from '../contracts.js';
-import { useNetwork, useContractWrite, useWaitForTransaction, useSwitchNetwork } from 'wagmi';
+import {Dialog} from './Dialog.js';
 
 export function RescindButton({ chainId, parentCollection, parentTokenId, replyCollection, replyTokenId }) {
   const { chain } = useNetwork();
@@ -19,13 +20,13 @@ export function RescindButton({ chainId, parentCollection, parentTokenId, replyC
   });
 
   return (<>
-    <button onClick={() => shouldSwitchChain ? switchNetwork(chainId) : write()}>{shouldSwitchChain ? 'Switch chain to Rescind' : 'Rescind' }</button>
-    {isLoading && <p className="status">Waiting for user confirmation...</p>}
+    <button onClick={() => shouldSwitchChain ? switchNetwork(chainId) : write()}>Rescind</button>
+    {isLoading && <Dialog show={true}>Waiting for user confirmation...</Dialog>}
     {isSuccess && (
-      txIsError ? (<p className="status">Transaction error!</p>)
-      : txIsLoading ? (<p className="status">Waiting for transaction...</p>)
-      : txIsSuccess ? (<p className="status">Reply Rescinded Successfully!</p>)
-      : (<p className="status">Transaction sent...</p>))}
-    {isError && <p className="status">Error!</p>}
+      txIsError ? (<Dialog show={true} button="Ok">Transaction error!</Dialog>)
+      : txIsLoading ? (<Dialog show={true}>Waiting for transaction...</Dialog>)
+      : txIsSuccess ? (<Dialog show={true} button="Ok">Reply Rescinded Successfully!</Dialog>)
+      : (<Dialog show={true}>Transaction sent...</Dialog>))}
+    {isError && <Dialog show={true} button="Ok">Error!</Dialog>}
   </>);
 }

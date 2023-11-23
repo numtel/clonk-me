@@ -12,14 +12,16 @@ export function ReplyButton(props) {
   const { address: walletAddress } = useAccount();
 
   if(!walletAddress) return;
-  if(show === true) return(<ReplyChooser {...{setShow}} />);
-  if(show === 'plaintext') return (<ReplyPlaintext {...props} {...{setShow}} />);
-  if(show === 'embedfile') return (<ReplyEmbedFile {...props} {...{setShow}} />);
-  if(show === 'existing') return (<ReplyExisting {...props} {...{setShow}} />);
-  if(show === 'external') return (<ReplyExternal {...props} {...{setShow}} />);
-  return (<button onClick={() => setShow(true)}>
-    Reply
-  </button>);
+  return (<>
+    <button onClick={() => setShow(!show)}>
+      Reply
+    </button>
+    {show === true && <ReplyChooser {...{setShow}} />}
+    {show === 'plaintext' && <ReplyPlaintext {...props} {...{setShow}} />}
+    {show === 'embedfile' && <ReplyEmbedFile {...props} {...{setShow}} />}
+    {show === 'existing' && <ReplyExisting {...props} {...{setShow}} />}
+    {show === 'external' && <ReplyExternal {...props} {...{setShow}} />}
+  </>);
 }
 
 function ReplyChooser({setShow}) {

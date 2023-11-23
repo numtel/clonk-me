@@ -11,17 +11,16 @@ export function ParentButton({ chainId, collection, tokenId, parentCount, parent
       <button>Parent</button>
     </Link>
   );
-  if(parentCount > 1n) return showList ? (
-    <Dialog show={true}>
+  if(parentCount > 1n) return (<>
+    {showList && <Dialog show={true}>
       <h3>Parents</h3>
       <div className="button-list">
         <ParentList {...{chainId, collection, tokenId, parentCount}} />
         <button onClick={() => setShowList(false)}>Close</button>
       </div>
-    </Dialog>
-  ) : (
-    <button onClick={() => setShowList(true)}>{parentCount.toString()} Parents</button>
-  );
+    </Dialog>}
+    <button onClick={() => setShowList(!showList)}>{parentCount.toString()} Parents</button>
+  </>);
 }
 
 function ParentList({ chainId, collection, tokenId, parentCount }) {

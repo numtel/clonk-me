@@ -7,6 +7,8 @@ body {margin:0 0 20px; background:#fff; }
 a { color: #333; }
 a:visited { color: #353; }
 
+dialog {border: 0;border-radius: 12px;box-shadow: 0 6px 12px #0003;}
+
 * { box-sizing: border-box; }
 #root { margin: 20px;}
 header {display:flex; justify-content:space-between; background:#fcfcfc; margin:-20px -20px 10px -20px; padding: 5px; border-bottom:1px solid #bbb;}

@@ -14,15 +14,17 @@ export function CreateButton(props) {
 
   if(!chain || !(chain.id in byChain)) return;
   if(!walletAddress) return;
-  if(show === true) return(<ReplyChooser {...{setShow, show}} />);
-  if(show === 'plaintext') return (<ReplyPlaintext createRoot={true} {...props} {...{setShow}} chainId={chain.id} />);
-  if(show === 'embedfile') return (<ReplyEmbedFile createRoot={true} {...props} {...{setShow}} chainId={chain.id} />);
-  if(show === 'external') return (<ReplyExternal createRoot={true} {...props} {...{setShow}} chainId={chain.id} />);
-  return (<button title="Create New Post" className="rk" onClick={() => setShow(true)}>
-    <span className="material-symbols-outlined">
-      add_circle
-    </span>
-  </button>);
+  return (<>
+    <button title="Create New Post" className="rk" onClick={() => setShow(!show)}>
+      <span className="material-symbols-outlined">
+        add_circle
+      </span>
+    </button>
+    {show === true && <ReplyChooser {...{setShow, show}} />}
+    {show === 'plaintext' && <ReplyPlaintext createRoot={true} {...props} {...{setShow}} chainId={chain.id} />}
+    {show === 'embedfile' && <ReplyEmbedFile createRoot={true} {...props} {...{setShow}} chainId={chain.id} />}
+    {show === 'external' && <ReplyExternal createRoot={true} {...props} {...{setShow}} chainId={chain.id} />}
+  </>);
 }
 
 function ReplyChooser({setShow, show}) {

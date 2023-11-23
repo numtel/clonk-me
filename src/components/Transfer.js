@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount, erc721ABI } from 'wagmi';
+import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, useAccount, usePublicClient, erc721ABI } from 'wagmi';
 import { isAddressEqual, isAddress } from 'viem';
+import { normalize } from 'viem/ens';
 import { chainContracts } from '../contracts.js';
 import {Dialog} from './Dialog.js';
 
@@ -9,22 +10,32 @@ export function TransferButton({ chainId, collection, tokenId, owner }) {
   const { address } = useAccount();
 
   if(!isAddress(address) || (!isAddressEqual(address, owner))) return;
-  if(show) return (<Transfer {...{chainId, collection, tokenId, setShow}} />);
-  return (<button onClick={() => setShow(true)}>
-    Transfer
-  </button>);
+  return (<>
+    <button onClick={() => setShow(!show)}>
+      Transfer
+    </button>
+    {show && <Transfer {...{chainId, collection, tokenId, setShow}} />}
+  </>);
 }
 
 export function Transfer({ chainId, collection, tokenId, owner, setShow }) {
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
   const { address } = useAccount();
+  const ensClient = usePublicClient({ chainId: 1 });
   const contracts = chainContracts(chainId);
   const shouldSwitchChain = chain && Number(chainId) !== chain.id;
-  const submitReply = (event) => {
+  const submitReply = async (event) => {
     event.preventDefault();
+    const inputValue = event.target.newOwner.value;
+    let ensAddress;
+    if(inputValue.endsWith('.eth')) {
+      ensAddress = await ensClient.getEnsAddress({
+        name: normalize(inputValue),
+      });
+    };
     write({
-      args: [address, event.target.newOwner.value, tokenId]
+      args: [address, ensAddress || inputValue, tokenId]
     });
   };
   const { data, isLoading, isError, isSuccess, write } = useContractWrite({
@@ -45,7 +56,7 @@ export function Transfer({ chainId, collection, tokenId, owner, setShow }) {
     <form onSubmit={submitReply}>
       <fieldset>
         <legend>Specify new owner address</legend>
-        <input name="newOwner" defaultValue={owner} />
+        <input name="newOwner" placeholder="Address or ENS Name" defaultValue={owner} />
         {shouldSwitchChain ? (
           <button onClick={(event) => {
             event.preventDefault();

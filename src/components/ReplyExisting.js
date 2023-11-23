@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction } from 'wagmi';
+import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction, usePublicClient } from 'wagmi';
+import { normalize } from 'viem/ens';
 import { chainContracts, convertToInternal } from '../contracts.js';
 
 import {Dialog} from './Dialog.js';
@@ -8,13 +9,19 @@ export function ReplyExisting({ collection, tokenId, chainId, setShow, setChildR
   const [token, setToken] = useState();
   const contracts = chainContracts(chainId);
   const { chain } = useNetwork();
+  const ensClient = usePublicClient({ chainId: 1 });
   const { switchNetwork } = useSwitchNetwork();
   const shouldSwitchChain = chain && Number(chainId) !== chain.id;
-  const submitReply = (event) => {
+  const submitReply = async (event) => {
     event.preventDefault();
     const newReply = {
       collection: event.target.collection.value,
       tokenId: event.target.tokenId.value,
+    };
+    if(newReply.collection.endsWith('.eth')) {
+      newReply.collection = await ensClient.getEnsAddress({
+        name: normalize(newReply.collection),
+      });
     };
     setToken(newReply);
     write({
@@ -45,7 +52,7 @@ export function ReplyExisting({ collection, tokenId, chainId, setShow, setChildR
         <div className="field">
           <label>
             <span>Collection Address</span>
-            <input name="collection" />
+            <input name="collection" placeholder="Address or ENS Name" />
           </label>
         </div>
         <div className="field">

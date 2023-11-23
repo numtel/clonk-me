@@ -8,8 +8,10 @@ export function EditButton(props) {
 
   for(let key of Object.keys(contracts)) {
     if(isAddress(contracts[key].address) && isAddressEqual(contracts[key].address, props.collection) && key in methods && methods[key].edit) {
-      if(show) return methods[key].edit({...props, setShow});
-      return (<button onClick={() => setShow(true)}>Edit</button>);
+      return (<>
+        <button onClick={() => setShow(!show)}>Edit</button>
+        {show && methods[key].edit({...props, setShow})}
+      </>);
     }
   }
 }
