@@ -26,8 +26,9 @@ const MIMES = [
 ];
 
 export function SettingsButton({mimesEnabled, setMimesEnabled, chainsDisabled, setChainsDisabled}) {
-  const [defaultChain, setDefaultChain] = useContext(DefaultChainContext);
+  const [, setDefaultChain] = useContext(DefaultChainContext);
   const [show, setShow] = useState(false);
+  const defaultChain = localStorage.getItem(DEFAULT_CHAIN_LOCALSTORAGE_KEY);
 
   function chainsChange(event) {
     event.preventDefault();

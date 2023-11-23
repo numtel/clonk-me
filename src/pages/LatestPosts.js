@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useContractReads } from 'wagmi';
 import { Helmet } from 'react-helmet';
 
+import {DefaultChainContext} from '../Router.js';
 import { byChain, chainContracts, ChainList } from '../contracts.js';
 import { RootTokenList } from '../components/RootTokenList.js';
 import { SortSaver } from '../components/SortSaver.js';
@@ -12,6 +13,8 @@ const POST_PER_PAGE = 10;
 export function LatestPosts() {
   const { chainId: curChain } = useParams();
   const [ counts, setCounts] = useState({});
+  const [, setDefaultChain] = useContext(DefaultChainContext);
+  setDefaultChain(curChain);
 
   return (<div id="latest">
     <Helmet>

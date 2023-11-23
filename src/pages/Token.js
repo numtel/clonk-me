@@ -1,9 +1,11 @@
+import React, { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { useContractReads, erc721ABI } from 'wagmi';
 
+import {DefaultChainContext} from '../Router.js';
 import { RootTokenList } from '../components/RootTokenList.js';
 import { SortSaver } from '../components/SortSaver.js';
-import { useContractReads, erc721ABI } from 'wagmi';
 
 export function Token() {
   // TODO validate these values
@@ -18,6 +20,8 @@ export function Token() {
       }
     ],
   });
+  const [, setDefaultChain] = useContext(DefaultChainContext);
+  setDefaultChain(chainId);
 
   return (<div id="token">
     <Helmet>

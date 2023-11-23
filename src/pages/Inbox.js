@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useContractReads } from 'wagmi';
 import { Helmet } from 'react-helmet';
 
+import {DefaultChainContext} from '../Router.js';
 import { byChain, chainContracts, ChainList } from '../contracts.js';
 import { SortSaver } from '../components/SortSaver.js';
 import { RootTokenList } from '../components/RootTokenList.js';
@@ -15,6 +16,9 @@ export const NOTIFICATION_LOCALSTORAGE_KEY = 'lastSeenNotificationCount';
 export function Inbox() {
   const [ inboxData ] = useContext(InboxContext);
   const { address, chainId: curChain } = useParams();
+  const [, setDefaultChain] = useContext(DefaultChainContext);
+  setDefaultChain(curChain);
+
   return (<div id="inbox">
     <Helmet>
       <title>Inbox {address} on {byChain[curChain].name}</title>

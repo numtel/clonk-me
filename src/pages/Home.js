@@ -1,12 +1,17 @@
+import {useContext} from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
+import {DefaultChainContext} from '../Router.js';
 import { RootTokenList } from '../components/RootTokenList.js';
 import { SortSaver } from '../components/SortSaver.js';
 import { chainContracts, ChainList } from '../contracts.js';
 
 export function Home() {
   const { chainId: curChain } = useParams();
+  const [, setDefaultChain] = useContext(DefaultChainContext);
+  setDefaultChain(curChain);
+
   const chainId = Number(curChain);
   const contracts = chainContracts(chainId);
 
