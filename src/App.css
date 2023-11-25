@@ -89,12 +89,16 @@ em.edited::before { content: "*"; }
 .msg .preload { padding: 4px; }
 .msg .controls { margin-top: 8px; }
 .reply-type-chooser { margin: 5px 0; }
+.msg.minimize>*:not(.header) { display:none; }
 
 
 .button-list { display:flex; flex-direction:column; margin-top:10px; }
 .button-list button { margin-bottom: 10px; }
 button {margin-right:6px; background:#0801; border: 1px solid #999; color: black; cursor:pointer; border-radius:4px;}
 button.link { background:none; border:none; text-decoration:underline; color:#333;}
+button.icon { align-self: flex-start; }
+button.icon span { font-size:1rem; line-height:1rem; }
+button.icon:hover { background:none; }
 button.rk { color: var(--rk-colors-connectButtonText); box-shadow: var(--rk-shadows-connectButton); background: var(--rk-colors-connectButtonBackground); transition: 0.125s ease; padding: 8px 10px; line-height:0.5rem; font-family: var(--rk-fonts-body); font-family: var(--rk-fonts-body); border:0; border-radius: var(--rk-radii-connectButton);}
 button.rk:hover { transform: scale(1.025); background: var(--rk-colors-connectButtonBackground);}
 button:hover { background:#0f01; }

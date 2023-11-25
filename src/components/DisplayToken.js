@@ -4,6 +4,7 @@ import { isAddressEqual, isAddress } from 'viem';
 import { Link } from 'react-router-dom';
 
 import { chainContracts, convertToInternal } from '../contracts.js';
+import { MinimizedContext } from '../Router.js';
 import { MimesEnabledContext, BlockedContext } from './Layout.js';
 import UserBadge from './UserBadge.js';
 import { Replies } from './Replies.js';
@@ -139,12 +140,28 @@ function TokenWrapper(props) {
 
 // TODO load tokenURI from ipfs and eip4804 too!
 export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, collection, tokenId, tokenURI, editedTokenURI, owner, unsortedCount, sortedCount, replyAddedTime, replyAddedAccount, children, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
+  collection = String(collection).toLowerCase();
   const contracts = chainContracts(chainId);
   const mimesEnabled = useContext(MimesEnabledContext);
+  const [allMinimized, setAllMinimized] = useContext(MinimizedContext);
   // If the token doesn't load, a new Symbol will never exist in mimesEnabled
   const mimeType = tokenURI ? tokenURI.split(';')[0].slice(5) : Symbol();
   const [loadURI, setLoadURI] = useState(mimesEnabled.includes(mimeType));
   const [showFull, setShowFull] = useState(false);
+  const minimize = allMinimized &&
+        (chainId in allMinimized) &&
+        (collection in allMinimized[chainId]) &&
+        (tokenId in allMinimized[chainId][collection]) ?
+      allMinimized[chainId][collection][tokenId] : false;
+  const setMinimize = (newVal) => {
+    setAllMinimized(curVal => {
+      curVal = curVal || {};
+      curVal[chainId] = curVal[chainId] || {};
+      curVal[chainId][collection] = curVal[chainId][collection] || {};
+      curVal[chainId][collection][tokenId] = newVal;
+      return {...curVal};
+    });
+  }
   if(editedTokenURI !== null) tokenURI = editedTokenURI;
   if(!tokenURI) return null;
   const msgBody = (<>
@@ -161,6 +178,11 @@ export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, co
           open_in_new
         </span>
       </Link>
+      <button className="minimize link icon" title={minimize ? 'Show Message' : 'Hide Message'} onClick={() => setMinimize(!minimize)}>
+        <span className="material-symbols-outlined">
+          {minimize ? 'top_panel_open' : 'top_panel_close'}
+        </span>
+      </button>
       <button className="fullview" title="Expand View" onClick={() => setShowFull(!showFull)}>
         <span className="material-symbols-outlined">
           {showFull ? 'close_fullscreen' : 'open_in_full'}
@@ -186,7 +208,7 @@ export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, co
     <Replies {...{chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}} />
   </>);
   return (
-    <div className={`msg ${showFull ? 'full' : ''}`}>
+    <div className={`msg ${showFull ? 'full' : ''} ${minimize && !showFull ? 'minimize' : ''}`}>
       {showFull ? (
         <dialog open>
           {msgBody}
