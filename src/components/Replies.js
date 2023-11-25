@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -20,6 +20,7 @@ import {CSS} from '@dnd-kit/utilities';
 import { erc721ABI, usePublicClient, useAccount } from 'wagmi';
 import { isAddressEqual, isAddress } from 'viem';
 
+import { LoadedRepliesContext } from '../Router.js';
 import { chainContracts, convertToInternal } from '../contracts.js';
 import { DisplayToken } from './DisplayToken.js';
 import { RescindButton } from './RescindButton.js';
@@ -33,20 +34,53 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const REMOVE_SORT_VAL = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn;
 
 export function Replies({ chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef }) {
+  collection = String(collection).toLowerCase();
+  const [loadedReplies, setLoadedReplies] = useContext(LoadedRepliesContext);
   const contracts = chainContracts(chainId);
   const publicClient = usePublicClient({ chainId: Number(chainId) });
   const { address } = useAccount();
   const [forceShowReplies, setForceShowReplies] = useState(false);
   function initReplies() {
+    if(loadedReplies &&
+        (chainId in loadedReplies) &&
+        (collection in loadedReplies[chainId]) &&
+        (tokenId in loadedReplies[chainId][collection])) {
+      return loadedReplies[chainId][collection][tokenId];
+    }
     return [
       { id: 'loadSorted', el: sortedCount === 0n ? (<></>) : (<button className="rk big" onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
       { id: 'threshold', el: (<div className="threshold">Messages below this threshold are unsorted</div>) },
       { id: 'loadUnsorted', el: unsortedCount === 0n ? (<></>) : (<button className="rk" onClick={() => loadUnsorted()}>Load {unsortedCount?.toString()} Unsorted {unsortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
     ];
   }
-  const [replies, setReplies] = useState(initReplies);
   const repliesRef = useRef();
   const dirtyCountRef = useRef();
+  const setReplies = (handler) => {
+    let newValue;
+    setLoadedReplies((allLoaded) => {
+      let curValue;
+      if(allLoaded &&
+          (chainId in allLoaded) &&
+          (collection in allLoaded[chainId]) &&
+          (tokenId in allLoaded[chainId][collection])) {
+        curValue = allLoaded[chainId][collection][tokenId];
+      }
+      if(typeof handler === 'function') {
+        newValue = handler(curValue);
+      } else {
+        newValue = handler;
+      }
+
+      allLoaded = allLoaded || {};
+      allLoaded[chainId] = allLoaded[chainId] || {};
+      allLoaded[chainId][collection] = allLoaded[chainId][collection] || {};
+      allLoaded[chainId][collection][tokenId] = newValue;
+
+      return {...allLoaded};
+    });
+    return newValue;
+  }
+  const replies = initReplies();
   repliesRef.current = replies;
   if(setChildRepliesRef) setChildRepliesRef.current = setReplies;
   if(setChildForceShowRepliesRef) setChildForceShowRepliesRef.current = setForceShowReplies;
@@ -67,7 +101,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
       return replies;
     });
   }, [unsortedCount, sortedCount]);
-  const isOwner = address && address.toLowerCase() === owner?.toLowerCase();
+  const isOwner = address && isAddressEqual(address, owner);
   async function loadList(list) {
     const tokens = await publicClient.readContract({
       ...contracts.replies,

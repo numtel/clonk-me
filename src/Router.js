@@ -10,11 +10,14 @@ import { defaultChain } from './contracts.js';
 import {DEFAULT_CHAIN_LOCALSTORAGE_KEY} from './components/SettingsButton.js';
 
 export const DefaultChainContext = createContext(null);
+export const LoadedRepliesContext = createContext(null);
 
 export function Router() {
+  const loadedRepliesState = useState({});
   const defaultChainState = useState(localStorage.getItem(DEFAULT_CHAIN_LOCALSTORAGE_KEY) || defaultChain);
   const myDefaultChain = defaultChainState[0];
   return (
+    <LoadedRepliesContext.Provider value={loadedRepliesState}>
     <DefaultChainContext.Provider value={defaultChainState}>
     <BrowserRouter>
       <Routes>
@@ -63,6 +66,7 @@ export function Router() {
       </Routes>
     </BrowserRouter>
     </DefaultChainContext.Provider>
+    </LoadedRepliesContext.Provider>
   );
 }
 
