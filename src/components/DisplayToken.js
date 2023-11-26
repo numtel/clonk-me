@@ -147,7 +147,6 @@ export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, co
   // If the token doesn't load, a new Symbol will never exist in mimesEnabled
   const mimeType = tokenURI ? tokenURI.split(';')[0].slice(5) : Symbol();
   const [loadURI, setLoadURI] = useState(mimesEnabled.includes(mimeType));
-  const [showFull, setShowFull] = useState(false);
   const location = useLocation();
   const minimize = allMinimized &&
         (location.key in allMinimized) &&
@@ -176,21 +175,18 @@ export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, co
       {replyAddedTime && replyAddedTime > 0 && (
         <span className="postdate"> posted <Link to={`/nft/${chainId}/${collection}/${tokenId}`}>{remaining(Math.round(Date.now() / 1000) - replyAddedTime.toString(), true, replyAddedTime)}</Link></span>
       )}
-      <Link target="_blank" rel="noreferrer" to={`${contracts.explorer}token/${collection}?a=${tokenId}`} title="View on Explorer" className="external">
-        <span className="material-symbols-outlined">
-          open_in_new
-        </span>
-      </Link>
-      <button className="minimize link icon" title={minimize ? 'Show Message' : 'Hide Message'} onClick={() => setMinimize(!minimize)}>
-        <span className="material-symbols-outlined">
-          {minimize ? 'top_panel_open' : 'top_panel_close'}
-        </span>
-      </button>
-      <button className="fullview" title="Expand View" onClick={() => setShowFull(!showFull)}>
-        <span className="material-symbols-outlined">
-          {showFull ? 'close_fullscreen' : 'open_in_full'}
-        </span>
-      </button>
+      <span className="small-controls">
+        <Link target="_blank" rel="noreferrer" to={`${contracts.explorer}token/${collection}?a=${tokenId}`} title="View on Explorer" className="external">
+          <span className="material-symbols-outlined">
+            open_in_new
+          </span>
+        </Link>
+        <button className="minimize link icon" title={minimize ? 'Show Message' : 'Hide Message'} onClick={() => setMinimize(!minimize)}>
+          <span className="material-symbols-outlined">
+            {minimize ? 'top_panel_open' : 'top_panel_close'}
+          </span>
+        </button>
+      </span>
     </div>
     {tokenURI.startsWith('data:,') ? (
       <div className="text"><TruncateText text={decodeURIComponent(tokenURI.slice(6))} maxWords={maxWords || 50}></TruncateText></div>
@@ -211,12 +207,8 @@ export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, co
     <Replies {...{chainId, setSortSavers, disableSort, collection, tokenId, owner, unsortedCount, sortedCount, setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}} />
   </>);
   return (
-    <div className={`msg ${showFull ? 'full' : ''} ${minimize && !showFull ? 'minimize' : ''}`}>
-      {showFull ? (
-        <dialog open>
-          {msgBody}
-        </dialog>
-      ) : msgBody}
+    <div className={`msg ${minimize ? 'minimize' : ''}`}>
+      {msgBody}
     </div>
   );
 }

@@ -64,8 +64,6 @@ header .notifications.loading::after { content:"😝"; animation: rotate360 2s l
 .msg .postdate { padding:0; }
 .msg a.external span { margin-left:0; }
 }
-.msg.full { display:flex; flex-direction: column;}
-.msg.full>dialog {width:100%;}
 .threshold {text-align:center; width:100%; font-size:80%; background: #0002;  border-radius:4px;}
 .drag-item {display:flex; margin:10px 0px;}
 .dirty .msg { background: #ff95; }
@@ -73,9 +71,7 @@ header .notifications.loading::after { content:"😝"; animation: rotate360 2s l
 .drag-item>button { margin:0 auto; }
 .drag-handle {width: 15px; font-size:0; background:#0002; cursor:ns-resize;margin-right:5px; border-radius:4px;}
 .msg .header { display:flex; }
-a.external span { font-size: 0.8rem; margin-left: 0.2rem; }
-button.fullview { margin-left: auto; margin-right:0; border:0; background:none; color:#222; padding: 3px 2px 0; }
-#token>.msg button.fullview { display:none; }
+a.external span { font-size: 0.9rem; margin-left: 0.2rem; }
 .different-owner { display:flex; flex-direction:column; }
 .different-owner .original::before {content: "Original Creator: "}
 .different-owner .current::before {content: "Current Owner: "}
@@ -85,7 +81,6 @@ em.edited::before { content: "*"; }
 .msg .text { padding: 15px 0; white-space: pre-line; font-family:ComicMono, sans-serif; }
 .msg iframe { display: block; width: 100%; border:none; margin-top:4px; }
 #token>.msg>iframe,
-.msg.full>dialog>iframe { height: 90vh }
 .msg .preload { padding: 4px; }
 .msg .controls { margin-top: 8px; }
 .reply-type-chooser { margin: 5px 0; }
