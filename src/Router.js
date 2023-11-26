@@ -12,16 +12,20 @@ import {DEFAULT_CHAIN_LOCALSTORAGE_KEY} from './components/SettingsButton.js';
 export const DefaultChainContext = createContext(null);
 export const LoadedRepliesContext = createContext(null);
 export const MinimizedContext = createContext(null);
+// In case of errors during replying, cache the text value so it's not lost
+export const ReplyCacheContext = createContext(null);
 
 export function Router() {
   const loadedRepliesState = useState({});
   const minimizedState = useState({});
   const defaultChainState = useState(localStorage.getItem(DEFAULT_CHAIN_LOCALSTORAGE_KEY) || defaultChain);
+  const replyCacheState = useState('');
   const myDefaultChain = defaultChainState[0];
   return (
     <LoadedRepliesContext.Provider value={loadedRepliesState}>
     <MinimizedContext.Provider value={minimizedState}>
     <DefaultChainContext.Provider value={defaultChainState}>
+    <ReplyCacheContext.Provider value={replyCacheState}>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
@@ -68,6 +72,7 @@ export function Router() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </ReplyCacheContext.Provider>
     </DefaultChainContext.Provider>
     </MinimizedContext.Provider>
     </LoadedRepliesContext.Provider>

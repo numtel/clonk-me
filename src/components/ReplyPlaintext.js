@@ -1,6 +1,9 @@
+import { useContext } from 'react';
 import { useNetwork, useSwitchNetwork, useContractWrite, useWaitForTransaction } from 'wagmi';
 import { useNavigate } from 'react-router-dom';
 import { decodeEventLog, encodeFunctionData } from 'viem';
+
+import { ReplyCacheContext } from '../Router.js';
 import { chainContracts, convertToInternal } from '../contracts.js';
 import {Dialog} from './Dialog.js';
 
@@ -9,6 +12,7 @@ export function ReplyPlaintext({ collection, tokenId, chainId, setShow, setChild
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
   const navigate = useNavigate();
+  const [replyCache, setReplyCache] = useContext(ReplyCacheContext);
   const shouldSwitchChain = chain && Number(chainId) !== chain.id;
   const submitReply = (event) => {
     event.preventDefault();
@@ -47,6 +51,7 @@ export function ReplyPlaintext({ collection, tokenId, chainId, setShow, setChild
           topics: log.topics,
           strict: false,
         }));
+      setReplyCache('');
       if(createRoot) {
         setShow(false);
         navigate(`/nft/${chainId}/${contracts.ChunkedERC721.address}/${decoded[0].args.tokenId}`);
@@ -66,7 +71,7 @@ export function ReplyPlaintext({ collection, tokenId, chainId, setShow, setChild
     <form onSubmit={submitReply}>
       <fieldset>
         <legend>{createRoot ? 'Create New Post' : 'Add reply'}</legend>
-        <textarea name="message"></textarea>
+        <textarea name="message" value={replyCache} onChange={(e) => setReplyCache(e.target.value)}></textarea>
         {shouldSwitchChain ? (
           <button onClick={(event) => {
             event.preventDefault();
