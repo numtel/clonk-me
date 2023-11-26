@@ -19,6 +19,7 @@ import {useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
 import { erc721ABI, usePublicClient, useAccount } from 'wagmi';
 import { isAddressEqual, isAddress } from 'viem';
+import { useLocation } from 'react-router-dom';
 
 import { LoadedRepliesContext } from '../Router.js';
 import { chainContracts, convertToInternal } from '../contracts.js';
@@ -40,12 +41,14 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
   const publicClient = usePublicClient({ chainId: Number(chainId) });
   const { address } = useAccount();
   const [forceShowReplies, setForceShowReplies] = useState(false);
+  const location = useLocation();
   function initReplies() {
     if(loadedReplies &&
-        (chainId in loadedReplies) &&
-        (collection in loadedReplies[chainId]) &&
-        (tokenId in loadedReplies[chainId][collection])) {
-      return loadedReplies[chainId][collection][tokenId];
+        (location.key in loadedReplies) &&
+        (chainId in loadedReplies[location.key]) &&
+        (collection in loadedReplies[location.key][chainId]) &&
+        (tokenId in loadedReplies[location.key][chainId][collection])) {
+      return loadedReplies[location.key][chainId][collection][tokenId];
     }
     return [
       { id: 'loadSorted', el: sortedCount === 0n ? (<></>) : (<button className="rk big" onClick={() => loadSorted()}>Load {sortedCount?.toString()} Sorted {sortedCount === 1n ? 'Reply' : 'Replies'}</button>) },
@@ -60,10 +63,11 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
     setLoadedReplies((allLoaded) => {
       let curValue;
       if(allLoaded &&
-          (chainId in allLoaded) &&
-          (collection in allLoaded[chainId]) &&
-          (tokenId in allLoaded[chainId][collection])) {
-        curValue = allLoaded[chainId][collection][tokenId];
+          (location.key in allLoaded) &&
+          (chainId in allLoaded[location.key]) &&
+          (collection in allLoaded[location.key][chainId]) &&
+          (tokenId in allLoaded[location.key][chainId][collection])) {
+        curValue = allLoaded[location.key][chainId][collection][tokenId];
       }
       if(typeof handler === 'function') {
         newValue = handler(curValue);
@@ -72,9 +76,10 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
       }
 
       allLoaded = allLoaded || {};
-      allLoaded[chainId] = allLoaded[chainId] || {};
-      allLoaded[chainId][collection] = allLoaded[chainId][collection] || {};
-      allLoaded[chainId][collection][tokenId] = newValue;
+      allLoaded[location.key] = allLoaded[location.key] || {};
+      allLoaded[location.key][chainId] = allLoaded[location.key][chainId] || {};
+      allLoaded[location.key][chainId][collection] = allLoaded[location.key][chainId][collection] || {};
+      allLoaded[location.key][chainId][collection][tokenId] = newValue;
 
       return {...allLoaded};
     });

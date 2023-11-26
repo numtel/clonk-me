@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { erc721ABI, useContractReads, useAccount } from 'wagmi';
 import { isAddressEqual, isAddress } from 'viem';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { chainContracts, convertToInternal } from '../contracts.js';
 import { MinimizedContext } from '../Router.js';
@@ -148,17 +148,20 @@ export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, co
   const mimeType = tokenURI ? tokenURI.split(';')[0].slice(5) : Symbol();
   const [loadURI, setLoadURI] = useState(mimesEnabled.includes(mimeType));
   const [showFull, setShowFull] = useState(false);
+  const location = useLocation();
   const minimize = allMinimized &&
-        (chainId in allMinimized) &&
-        (collection in allMinimized[chainId]) &&
-        (tokenId in allMinimized[chainId][collection]) ?
-      allMinimized[chainId][collection][tokenId] : false;
+        (location.key in allMinimized) &&
+        (chainId in allMinimized[location.key]) &&
+        (collection in allMinimized[location.key][chainId]) &&
+        (tokenId in allMinimized[location.key][chainId][collection]) ?
+      allMinimized[location.key][chainId][collection][tokenId] : false;
   const setMinimize = (newVal) => {
     setAllMinimized(curVal => {
       curVal = curVal || {};
-      curVal[chainId] = curVal[chainId] || {};
-      curVal[chainId][collection] = curVal[chainId][collection] || {};
-      curVal[chainId][collection][tokenId] = newVal;
+      curVal[location.key] = curVal[location.key] || {};
+      curVal[location.key][chainId] = curVal[location.key][chainId] || {};
+      curVal[location.key][chainId][collection] = curVal[location.key][chainId][collection] || {};
+      curVal[location.key][chainId][collection][tokenId] = newVal;
       return {...curVal};
     });
   }
