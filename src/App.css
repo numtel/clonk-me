@@ -45,7 +45,7 @@ header nav a.active { border: 1px solid #0004; background:#fcfcfc; cursor:defaul
   header .account { align-items:flex-start;}
 }
 header .notifications {}
-header .notifications.new { color:orangered; }
+header .notifications.new span { color:orangered; }
 header .notifications.loading { position:relative; }
 header .notifications.loading::after { content:"😝"; animation: rotate360 2s linear infinite; display:block; position:absolute; top: 40%; left: 20%;}
 

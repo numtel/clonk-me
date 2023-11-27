@@ -1,10 +1,12 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useContractReads, useAccount } from 'wagmi';
 
 import { byChain } from '../contracts.js';
 
 import {InboxContext} from './Layout.js';
+
+const WATCH_INTERVAL = 60_000;
 
 export function InboxButton() {
   const { address } = useAccount();
@@ -13,12 +15,14 @@ export function InboxButton() {
     ...byChain[x].replies,
     functionName: 'notificationCount',
     args: [address],
-    // TODO why not working?
-    watch: true,
   }));
-  const { data, isError, isLoading } = useContractReads({
+  const { data, isError, isLoading, refetch } = useContractReads({
     contracts: toLoad,
   });
+  useEffect(() => {
+    const interval = setInterval(refetch, WATCH_INTERVAL);
+    return () => clearInterval(interval);
+  }, []);
   if(!address) return null;
   if(isLoading) return (
     <Link
