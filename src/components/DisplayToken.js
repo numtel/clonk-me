@@ -119,7 +119,7 @@ function TokenWrapper(props) {
         chainId={props.chainId}
         {...{setChildRepliesRef, setChildForceShowRepliesRef, loadListRef}}
         />
-      {isAddress(address) && isAddressEqual(props.owner, address) && (<>
+      {isAddress(address) && isAddress(props.owner) && isAddressEqual(props.owner, address) && (<>
         <EditButton
           collection={props.collection}
           tokenId={props.tokenId}

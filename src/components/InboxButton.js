@@ -22,7 +22,7 @@ export function InboxButton() {
   useEffect(() => {
     const interval = setInterval(refetch, WATCH_INTERVAL);
     return () => clearInterval(interval);
-  }, []);
+  }, [refetch]);
   if(!address) return null;
   if(isLoading) return (
     <Link

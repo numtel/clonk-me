@@ -8,7 +8,6 @@ import { RootTokenList } from '../components/RootTokenList.js';
 import { SortSaver } from '../components/SortSaver.js';
 
 export function Token() {
-  // TODO validate these values
   const { chainId, collection, tokenId } = useParams();
   const { data, isError, isLoading } = useContractReads({
     contracts: [

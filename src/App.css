@@ -47,7 +47,7 @@ header nav a.active { border: 1px solid #0004; background:#fcfcfc; cursor:defaul
 header .notifications {}
 header .notifications.new span { color:orangered; }
 header .notifications.loading { position:relative; }
-header .notifications.loading::after { content:"😝"; animation: rotate360 2s linear infinite; display:block; position:absolute; top: 40%; left: 20%;}
+header .notifications.loading::after { content:"🛞"; animation: rotate360 2s linear infinite; display:block; position:absolute; top: 10%; left: 47%;}
 
 
 .tabs {display:flex; list-style:none; padding: 5px; border-bottom: 1px solid #7778; }
@@ -81,7 +81,7 @@ em.edited::before { content: "*"; }
 .msg .text { padding: 15px 0; white-space: pre-line; font-family:ComicMono, sans-serif; }
 .msg iframe { display: block; width: 100%; border:none; margin-top:4px; }
 #token>.msg>iframe,
-.msg .preload { padding: 4px; }
+.msg .preload { padding: 4px; word-break:break-all; }
 .msg .controls { margin-top: 8px; }
 .reply-type-chooser { margin: 5px 0; }
 .msg.minimize>*:not(.header) { display:none; }
