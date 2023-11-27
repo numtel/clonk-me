@@ -50,7 +50,7 @@ function ParentList({ chainId, collection, tokenId, parentCount }) {
   ));
 }
 
-function TokenReadable({ chainId, collection, tokenId }) {
+export function TokenReadable({ chainId, collection, tokenId }) {
   const { data, isError, isLoading } = useContractReads({
     contracts: [
       {

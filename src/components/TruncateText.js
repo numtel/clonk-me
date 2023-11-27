@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import Linkify from 'react-linkify';
+import {Link} from 'react-router-dom';
+
+import {TokenReadable} from './ParentButton.js';
 
 export const TruncateText = ({ text, maxWords }) => {
   const [isTruncated, setIsTruncated] = useState(true);
@@ -14,10 +17,26 @@ export const TruncateText = ({ text, maxWords }) => {
 
   // Create a truncatedWords array containing the first 'maxWords' words
   const truncatedWords = isTruncated ? words.slice(0, maxWords) : words;
+  const internalLinks = truncatedWords
+      .join(' ')
+      .split('https://clonk.me/nft/')
+      .map((value, index) => {
+        if(index > 0) {
+          const splitPos = value.search(/\s/);
+          const linkParts = value.substr(0, splitPos).split('/');
+          return [
+            (<Link to={`/nft/${value.substr(0, splitPos)}`}>
+              <TokenReadable chainId={linkParts[0]} collection={linkParts[1]} tokenId={linkParts[2]} />
+            </Link>),
+            value.substr(splitPos)
+          ];
+        }
+        return value;
+      });
 
   return (
     <>
-      <Linkify>{truncatedWords.join(' ')}</Linkify>
+      <Linkify>{internalLinks}</Linkify>
       {words.length > maxWords && (<>
         &nbsp;<button className="link" onClick={toggleTruncate}>
           {isTruncated ? '...show more' : 'show less'}
