@@ -41,7 +41,7 @@ export function SortSaver({chainId, children}) {
       <div className="save-sort-banner">
         {setSortCalc ? (<div className="status">Retrieving optimal sort values...</div>)
         : setSortLoading ? (<div className="status">Waiting for wallet...</div>)
-        : setSortError ? (<div className="status">Error saving sort values.</div>)
+        : setSortError ? (<div className="status">Error saving sort values. <button onClick={saveSort}>Try Again</button></div>)
         : setSortSuccess ? (
           txIsError ? (<div className="status">Transaction error!</div>)
           : txIsLoading ? (<div className="status">Waiting for transaction...</div>)

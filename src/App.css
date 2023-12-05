@@ -80,7 +80,8 @@ em.edited {font-size:80%;}
 em.edited::before { content: "*"; }
 .msg .text { padding: 15px 0; white-space: pre-line; font-family:ComicMono, sans-serif; }
 .msg .text a[target="_blank"] { word-break:break-all; }
-.msg iframe { display: block; width: 100%; border:none; margin-top:4px; }
+.msg iframe { display: block; height:150px; width: 100%; border:none; margin-top:4px; }
+#token>.msg>iframe { height: 90vh; }
 #token>.msg>iframe,
 .msg .preload { padding: 4px; word-break:break-all; }
 .msg .controls { margin-top: 8px; }

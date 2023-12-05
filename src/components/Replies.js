@@ -259,7 +259,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
 
   async function saveSort() {
     // This callback must use latest values
-    const replies = repliesRef.current;
+    const replies = repliesRef.current.filter(rep => rep.address || rep.id === 'threshold');
     const dirtyGroups = [];
     let thisDirtySeq = null;
     let afterThreshold = false;
@@ -297,6 +297,7 @@ export function Replies({ chainId, setSortSavers, disableSort, collection, token
     });
 
     const ofItems = dirtyGroups.map((dirtyGroup, grpIndex) => dirtyGroup.items).flat();
+
     const sortValues = dirtyGroups.map((dirtyGroup, grpIndex) =>
       dirtyGroup.afterThreshold
         ? [...new Array(dirtyGroup.items.length)].map(x=>0n)
