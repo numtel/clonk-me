@@ -8,7 +8,7 @@ import verificationABI from './abi/Verification.json';
 import {EditChunkedERC721} from './components/EditChunkedERC721.js';
 import {ChainsDisabledContext} from './components/Layout.js';
 
-export const defaultChain = 137;
+export const defaultChain = 10;
 
 export const byChain = {
   10: {
