@@ -69,20 +69,20 @@ export const byChain = {
       chainId: 80001,
     },
   },
-  5: {
-    name: 'Goerli',
+  11155111: {
+    name: 'Sepolia',
     home: 1,
-    explorer: 'https://goerli.etherscan.io/',
-    nativeCurrency: 'gETH',
+    explorer: 'https://sepolia.etherscan.io/',
+    nativeCurrency: 'sETH',
     replies: {
-      address: '0x1fb5a790dfeca87461917706922dd12e7d154007',
+      address: '0x85b4A24248e005122Fc021b6E2489971afB1ff2c',
       abi: repliesABI,
-      chainId: 5,
+      chainId: 11155111,
     },
     ChunkedERC721: {
-      address: '0xe78ad78dc3943785168d000ad4095185be9d0f66',
+      address: '0xB1B0AC550C5C42E458020470D399B9c0Af0FC496',
       abi: chunkedERC721ABI,
-      chainId: 5,
+      chainId: 11155111,
     },
   },
   17000: {
