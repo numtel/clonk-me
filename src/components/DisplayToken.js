@@ -190,9 +190,13 @@ export function DisplayToken({ chainId, maxWords, setSortSavers, disableSort, co
     </div>
     {tokenURI.startsWith('data:,') ? (
       <div className="text"><TruncateText text={decodeURIComponent(tokenURI.slice(6))} maxWords={maxWords || 50}></TruncateText></div>
-    ) : loadURI ? (
-      <iframe title="NFT display" src={tokenURI}></iframe>
-    ) : tokenURI.startsWith('data:') ? (
+    ) : loadURI
+        ? tokenURI.startsWith('data:image/')
+          ? (<img alt="NFT Display" src={tokenURI} />)
+          : (
+            <iframe title="NFT display" src={tokenURI}></iframe>
+          )
+        : tokenURI.startsWith('data:') ? (
       <div className="preload"><a href={tokenURI} onClick={(event) => {
         event.preventDefault();
         setLoadURI(true);
