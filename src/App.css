@@ -34,7 +34,7 @@ body {
     --link-visited: #cec;
     --header-border: #444;
     --dirty-bg: #227e;
-    --eliminate-bg: #277e;
+    --eliminate-bg: #722e;
     --rk-colors-connectButtonBackground: #333;
     --rk-colors-connectButtonText: #fff;
     --rk-shadows-connectButton: 0px 4px 12px rgba(255, 255, 255, 0.1);
@@ -100,12 +100,12 @@ header .notifications.loading::after { content:"🛞"; animation: rotate360 2s l
 .msg .postdate { padding:0; }
 .msg a.external span { margin-left:0; }
 }
-.threshold {text-align:center; width:100%; font-size:80%; background: var(--shade1);  border-radius:4px;}
+.threshold {text-align:center; width:100%; font-size:80%; background: var(--shade2);  border-radius:4px;}
 .drag-item {display:flex; margin:10px 0px;}
 .dirty .msg { background: var(--dirty-bg); }
-.eliminate .msg { background: var(-eliminate-bg); }
+.eliminate .msg { background: var(--eliminate-bg); }
 .drag-item>button { margin:0 auto; }
-.drag-handle {width: 15px; font-size:0; background:var(--shade1); cursor:ns-resize;margin-right:5px; border-radius:4px;}
+.drag-handle {width: 15px; font-size:0; background:var(--shade2); cursor:ns-resize;margin-right:5px; border-radius:4px;}
 .msg .header { display:flex; }
 a.external span { font-size: 0.9rem; margin-left: 0.2rem; }
 .different-owner { display:flex; flex-direction:column; }
@@ -143,7 +143,7 @@ legend+* {clear:both; }
 textarea {width:100%; font-family:ComicMono, sans-serif; height: 25vh; margin-bottom:15px;}
 input, select {width:100%; margin-bottom:15px; }
 
-.save-sort-banner { position:fixed; bottom: 0; left:0; right: 0; background:#fff; border-top:1px solid #ccc; display:flex; justify-content:flex-end; padding:10px;}
+.save-sort-banner { position:fixed; bottom: 0; left:0; right: 0; background:var(--page-bg); border-top:1px solid var(--header-border); display:flex; justify-content:flex-end; padding:10px;}
 .save-sort-banner button { font-size: 130%; }
 
 .passport-badge { font-size: 0; display:inline-block; width: 18px; height: 20px; background:linear-gradient(90deg, #002a64, #070d2b 100%); border-right: 1px solid #ccc; border-radius:0 4px 4px 0; vertical-align:middle; margin-left:4px; box-shadow: 1px 1px 3px #0007;}
