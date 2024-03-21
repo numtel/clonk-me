@@ -4,6 +4,15 @@ Contracts (using Foundry) and frontend for dApp that lets users reply to any NFT
 
 Frontend currently supports creating new NFTs using the included ChunkedERC721 as plaintext, file upload, or external resource. The goal is to have the frontend support many type of NFT mints though. Contributions welcome!
 
+## Installation
+
+```sh
+$ git clone https://github.com/numtel/clonk-me
+$ cd clonk-me
+$ yarn
+$ yarn start
+```
+
 ## Contracts
 
 ### [NFTReplies](contracts/NFTReplies.sol)
@@ -20,7 +29,7 @@ The `suggestSorts` view function returns sort value integers evenly spaced withi
 
 The parent NFT holder may 'eliminate' undesired replies by setting their sort value to `type(uint256).max`. This will hide the reply from `fetchSorted` and `fetchUnsorted` while still not allowing the same reply posted again under this parent.
 
-> Although this 'elimination' can be undone, there is no way to enumerate the eliminated replies.
+> Although this 'elimination' can be undone, there is no way to enumerate the eliminated replies [on chain].
 
 Owners of NFTs as replies can `rescindReply` to remove their reply from a parent NFT.
 
