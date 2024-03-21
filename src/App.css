@@ -1,3 +1,4 @@
+@font-face { font-family: Modak; font-weight: 400; src: url(fonts/Modak-Regular.ttf); }
 @font-face { font-family: ComicMono; font-weight: 400; src: url(fonts/ComicMono.ttf); }
 @font-face { font-family: Inter; font-weight: 400; src: url(fonts/Inter-Regular.ttf); }
 @font-face { font-family: Inter; font-weight: 500; src: url(fonts/Inter-SemiBold.ttf); }
@@ -52,8 +53,25 @@ header {display:flex; justify-content:space-between; background:var(--shade1); m
   #root {margin: 20px 5px;}
   header { margin: -20px -5px 10px; }
 }
-header .left-side>a { text-decoration:none;}
-header h1 { margin:0 0 0.2rem 0; padding:0 0 0 2.6rem; color:var(--text-color); background:url(apple-touch-icon.png) center left no-repeat; background-size:contain; font-size:2.1rem;line-height:2.5rem; }
+header .left-side>a {
+  text-decoration:none;
+}
+header h1 {
+  margin:0 0 0.2rem 0.5rem;
+  color:var(--text-color);
+  font-size:2.7rem;
+  line-height:2.8rem;
+  font-family:Modak;
+  font-weight:normal;
+  text-decoration:underline;
+  background: linear-gradient(90deg, #1775d8 0%, #79fdf2 50%, #f99b00 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-decoration:underline;
+  text-decoration-thickness:0.3rem;
+  text-decoration-color:var(--shade2);
+}
 header .left-side { display: flex; }
 header .account { display: flex; align-self:flex-start; }
 header .controls { margin-left: 10px; }
